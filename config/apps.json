@@ -93,14 +93,64 @@
     "Category": "Komunikacja (Communications)",
     "Apps": [
       {
+        "Name": "Betterbird",
+        "Description": "Klient poczty e-mail, ulepszona wersja Thunderbirda.",
+        "ChocoId": "betterbird"
+      },
+      {
+        "Name": "Chatterino",
+        "Description": "Klient czatu Twitch.",
+        "ChocoId": "chatterino"
+      },
+      {
         "Name": "Discord",
         "Description": "Platforma do komunikacji głosowej i tekstowej dla graczy i społeczności.",
         "ChocoId": "discord"
       },
       {
-        "Name": "Telegram",
-        "Description": "Aplikacja do wysyłania wiadomości z naciskiem na szybkość i bezpieczeństwo.",
-        "ChocoId": "telegram"
+        "Name": "Ferdium",
+        "Description": "Aplikacja do zarządzania wieloma usługami komunikacyjnymi w jednym miejscu.",
+        "ChocoId": "ferdium"
+      },
+      {
+        "Name": "Guilded",
+        "Description": "Platforma komunikacyjna dla graczy.",
+        "ChocoId": "guilded"
+      },
+      {
+        "Name": "Hexchat",
+        "Description": "Klient IRC.",
+        "ChocoId": "hexchat"
+      },
+      {
+        "Name": "Jami",
+        "Description": "Bezpieczna i rozproszona platforma komunikacyjna.",
+        "ChocoId": "jami"
+      },
+      {
+        "Name": "Linphone",
+        "Description": "Darmowy i otwarty klient do telefonii internetowej (SIP).",
+        "ChocoId": "linphone"
+      },
+      {
+        "Name": "Element",
+        "Description": "Klient do zdecentralizowanej sieci Matrix.",
+        "ChocoId": "element"
+      },
+      {
+        "Name": "Qtox",
+        "Description": "Klient do komunikacji szyfrowanej end-to-end.",
+        "ChocoId": "qtox"
+      },
+      {
+        "Name": "Revolt",
+        "Description": "Alternatywa dla Discorda.",
+        "ChocoId": "revolt"
+      },
+      {
+        "Name": "Session",
+        "Description": "Bezpieczna aplikacja do wysyłania wiadomości bez śledzenia metadanych.",
+        "ChocoId": "session"
       },
       {
         "Name": "Signal",
@@ -108,9 +158,9 @@
         "ChocoId": "signal"
       },
       {
-        "Name": "Skype",
-        "Description": "Usługa do komunikacji głosowej, wideo i tekstowej.",
-        "ChocoId": "skype"
+        "Name": "Slack",
+        "Description": "Platforma do komunikacji dla zespołów.",
+        "ChocoId": "slack"
       },
       {
         "Name": "Microsoft Teams",
@@ -118,9 +168,39 @@
         "ChocoId": "microsoft-teams"
       },
       {
+        "Name": "Telegram",
+        "Description": "Aplikacja do wysyłania wiadomości z naciskiem na szybkość i bezpieczeństwo.",
+        "ChocoId": "telegram"
+      },
+      {
+        "Name": "Thunderbird",
+        "Description": "Darmowy klient poczty e-mail.",
+        "ChocoId": "thunderbird"
+      },
+      {
+        "Name": "Unigram",
+        "Description": "Klient Telegram dla systemu Windows.",
+        "ChocoId": "unigram"
+      },
+      {
+        "Name": "VeskTop",
+        "Description": "Zintegrowana platforma komunikacyjna.",
+        "ChocoId": "vesktop"
+      },
+      {
+        "Name": "Viber",
+        "Description": "Aplikacja do rozmów i wiadomości.",
+        "ChocoId": "viber"
+      },
+      {
         "Name": "Zoom",
         "Description": "Popularna platforma do wideokonferencji.",
         "ChocoId": "zoom"
+      },
+      {
+        "Name": "Zulip",
+        "Description": "Aplikacja do komunikacji dla zespołów z wątkowaniem.",
+        "ChocoId": "zulip"
       }
     ]
   },
@@ -128,24 +208,29 @@
     "Category": "Narzędzia developerskie (Development)",
     "Apps": [
       {
-        "Name": "Git",
-        "Description": "Rozproszony system kontroli wersji.",
-        "ChocoId": "git"
+        "Name": "Aegisub",
+        "Description": "Narzędzie do tworzenia i edycji napisów do filmów.",
+        "ChocoId": "aegisub"
       },
       {
-        "Name": "Node.js",
-        "Description": "Środowisko uruchomieniowe JavaScript.",
-        "ChocoId": "nodejs"
+        "Name": "Anaconda",
+        "Description": "Platforma do nauki o danych z Pythonem.",
+        "ChocoId": "anaconda3"
       },
       {
-        "Name": "Python",
-        "Description": "Język programowania.",
-        "ChocoId": "python3"
+        "Name": "Clink",
+        "Description": "Ulepszona wersja CMD.",
+        "ChocoId": "clink"
       },
       {
-        "Name": "Visual Studio Code",
-        "Description": "Lekki, a jednocześnie potężny edytor kodu.",
-        "ChocoId": "vscode"
+        "Name": "CMake",
+        "Description": "Generator systemu budowania oprogramowania.",
+        "ChocoId": "cmake"
+      },
+      {
+        "Name": "DaxStudio",
+        "Description": "Narzędzie do tworzenia i optymalizacji zapytań DAX.",
+        "ChocoId": "daxstudio"
       },
       {
         "Name": "Docker Desktop",
@@ -153,19 +238,169 @@
         "ChocoId": "docker-desktop"
       },
       {
+        "Name": "Fast Node Manager",
+        "Description": "Szybkie zarządzanie wersjami Node.js.",
+        "ChocoId": "fnm"
+      },
+      {
+        "Name": "Fork",
+        "Description": "Szybki i przyjazny klient Git.",
+        "ChocoId": "fork"
+      },
+      {
+        "Name": "Git",
+        "Description": "Rozproszony system kontroli wersji.",
+        "ChocoId": "git"
+      },
+      {
+        "Name": "Git Butler",
+        "Description": "Klient Git ułatwiający pracę z gałęziami.",
+        "ChocoId": "gitbutler"
+      },
+      {
+        "Name": "Git Extensions",
+        "Description": "Graficzny interfejs dla Git.",
+        "ChocoId": "git-extensions"
+      },
+      {
+        "Name": "GitHub CLI",
+        "Description": "Narzędzie wiersza poleceń do zarządzania GitHub.",
+        "ChocoId": "gh"
+      },
+      {
+        "Name": "GitHub Desktop",
+        "Description": "Graficzny klient do zarządzania Git.",
+        "ChocoId": "github-desktop"
+      },
+      {
+        "Name": "Gitify",
+        "Description": "Narzędzie do powiadomień GitHub na pasku zadań.",
+        "ChocoId": "gitify"
+      },
+      {
+        "Name": "GitKraken Client",
+        "Description": "Elegancki klient Git.",
+        "ChocoId": "gitkraken"
+      },
+      {
+        "Name": "Godot Engine",
+        "Description": "Darmowy silnik do tworzenia gier.",
+        "ChocoId": "godot"
+      },
+      {
+        "Name": "Go",
+        "Description": "Język programowania Go.",
+        "ChocoId": "go"
+      },
+      {
+        "Name": "Helix",
+        "Description": "Edytor tekstu inspirowany edytorem Kakoune.",
+        "ChocoId": "helix"
+      },
+      {
+        "Name": "Jetbrains Toolbox",
+        "Description": "Aplikacja do zarządzania narzędziami JetBrains.",
+        "ChocoId": "jetbrains-toolbox"
+      },
+      {
+        "Name": "Miniconda",
+        "Description": "Minimalna wersja instalatora Conda.",
+        "ChocoId": "miniconda3"
+      },
+      {
+        "Name": "Code With Mu",
+        "Description": "Prosty edytor Pythona dla początkujących.",
+        "ChocoId": "mu-editor"
+      },
+      {
+        "Name": "Node.js",
+        "Description": "Środowisko uruchomieniowe JavaScript.",
+        "ChocoId": "nodejs"
+      },
+      {
+        "Name": "Oh My Posh",
+        "Description": "Narzędzie do personalizacji wiersza poleceń.",
+        "ChocoId": "oh-my-posh"
+      },
+      {
         "Name": "Postman",
         "Description": "Narzędzie do testowania API.",
         "ChocoId": "postman"
       },
       {
-        "Name": "Anaconda3",
-        "Description": "Platforma do nauki o danych z Pythonem.",
-        "ChocoId": "anaconda3"
+        "Name": "Pulsar",
+        "Description": "Edytor kodu z otwartym kodem źródłowym.",
+        "ChocoId": "pulsar"
       },
       {
-        "Name": "Neovim",
-        "Description": "Hiperrozszerzalny edytor tekstu.",
-        "ChocoId": "neovim"
+        "Name": "Python",
+        "Description": "Język programowania.",
+        "ChocoId": "python3"
+      },
+      {
+        "Name": "Rust",
+        "Description": "Język programowania Rust.",
+        "ChocoId": "rust"
+      },
+      {
+        "Name": "Starship (Shell Prompt)",
+        "Description": "Szybki i uniwersalny prompt shella.",
+        "ChocoId": "starship"
+      },
+      {
+        "Name": "Sublime Merge",
+        "Description": "Klient Git od Sublime Text.",
+        "ChocoId": "sublime-merge"
+      },
+      {
+        "Name": "Sublime Text",
+        "Description": "Zaawansowany edytor tekstu.",
+        "ChocoId": "sublimetext"
+      },
+      {
+        "Name": "Swift toolchain",
+        "Description": "Narzędzia do tworzenia oprogramowania w języku Swift.",
+        "ChocoId": "swift-toolchain"
+      },
+      {
+        "Name": "Thonny Python IDE",
+        "Description": "Proste IDE do nauki Pythona.",
+        "ChocoId": "thonny"
+      },
+      {
+        "Name": "Unity Game Engine",
+        "Description": "Silnik do tworzenia gier 2D i 3D.",
+        "ChocoId": "unity"
+      },
+      {
+        "Name": "Vagrant",
+        "Description": "Narzędzie do zarządzania środowiskami wirtualnymi.",
+        "ChocoId": "vagrant"
+      },
+      {
+        "Name": "Visual Studio 2022",
+        "Description": "Zintegrowane środowisko programistyczne od Microsoftu.",
+        "ChocoId": "visualstudio2022community"
+      },
+      {
+        "Name": "Visual Studio Code",
+        "Description": "Lekki, a jednocześnie potężny edytor kodu.",
+        "ChocoId": "vscode"
+      },
+      {
+        "Name": "VS Codium",
+        "Description": "Wydanie Visual Studio Code bez telemetrii.",
+        "ChocoId": "vscodium"
+      },
+      {
+        "Name": "Wezterm",
+        "Description": "Emulator terminala oparty na GPU.",
+        "ChocoId": "wezterm"
+      },
+      {
+        "Name": "Yarn",
+        "Description": "Szybki menedżer pakietów JavaScript.",
+        "ChocoId": "yarn"
       }
     ]
   },
@@ -173,19 +408,29 @@
     "Category": "Dokumenty (Document)",
     "Apps": [
       {
-        "Name": "7-Zip",
-        "Description": "Potężny i darmowy archiwizator plików.",
-        "ChocoId": "7zip.install"
-      },
-      {
-        "Name": "Notepad++",
-        "Description": "Edytor tekstu dla programistów.",
-        "ChocoId": "notepadplusplus.install"
-      },
-      {
         "Name": "Adobe Acrobat Reader DC",
         "Description": "Standardowy czytnik plików PDF.",
         "ChocoId": "adobereader"
+      },
+      {
+        "Name": "AFFINE",
+        "Description": "Narzędzie do pisania, notowania i zarządzania wiedzą.",
+        "ChocoId": "affine"
+      },
+      {
+        "Name": "Anki",
+        "Description": "Program do nauki, oparty na systemie fiszek.",
+        "ChocoId": "anki"
+      },
+      {
+        "Name": "Calibre",
+        "Description": "Kompleksowy menedżer ebooków.",
+        "ChocoId": "calibre"
+      },
+      {
+        "Name": "Foxit PDF Editor",
+        "Description": "Edytor plików PDF.",
+        "ChocoId": "foxit-pdf-editor"
       },
       {
         "Name": "Foxit PDF Reader",
@@ -193,14 +438,99 @@
         "ChocoId": "foxitreader"
       },
       {
+        "Name": "Joplin (FOSS Notes)",
+        "Description": "Aplikacja do notatek i list zadań z otwartym kodem źródłowym.",
+        "ChocoId": "joplin"
+      },
+      {
         "Name": "LibreOffice",
         "Description": "Darmowy i otwarty pakiet biurowy.",
         "ChocoId": "libreoffice"
       },
       {
+        "Name": "Logseq",
+        "Description": "Program do zarządzania wiedzą i notatek.",
+        "ChocoId": "logseq"
+      },
+      {
+        "Name": "massCode (Snippet Man)",
+        "Description": "Menedżer fragmentów kodu.",
+        "ChocoId": "masscode"
+      },
+      {
+        "Name": "NAP52 (Document Scan)",
+        "Description": "Program do skanowania dokumentów.",
+        "ChocoId": "nap52"
+      },
+      {
+        "Name": "Notepad++",
+        "Description": "Edytor tekstu dla programistów.",
+        "ChocoId": "notepadplusplus.install"
+      },
+      {
+        "Name": "Obsidian",
+        "Description": "Aplikacja do zarządzania wiedzą i notatek.",
+        "ChocoId": "obsidian"
+      },
+      {
+        "Name": "Okular",
+        "Description": "Uniwersalna przeglądarka dokumentów.",
+        "ChocoId": "okular"
+      },
+      {
+        "Name": "ONLYOffice Desktop",
+        "Description": "Pakiet biurowy z zaawansowaną kolaboracją.",
+        "ChocoId": "onlyoffice"
+      },
+      {
+        "Name": "PDF24 Creator",
+        "Description": "Darmowy kreator PDF i edytor.",
+        "ChocoId": "pdf24"
+      },
+      {
+        "Name": "PDFgear",
+        "Description": "Darmowy edytor PDF.",
+        "ChocoId": "pdfgear"
+      },
+      {
+        "Name": "PDFsam Basic",
+        "Description": "Narzędzie do dzielenia, łączenia i obracania plików PDF.",
+        "ChocoId": "pdfsam-basic"
+      },
+      {
+        "Name": "simplenote",
+        "Description": "Prosta aplikacja do notatek.",
+        "ChocoId": "simplenote"
+      },
+      {
         "Name": "Sumatra PDF",
         "Description": "Minimalistyczna i szybka przeglądarka PDF.",
         "ChocoId": "sumatrapdf"
+      },
+      {
+        "Name": "WinMerge",
+        "Description": "Narzędzie do porównywania plików i folderów.",
+        "ChocoId": "winmerge"
+      },
+      {
+        "Name": "Xournal++",
+        "Description": "Narzędzie do robienia notatek w formie cyfrowego pisma ręcznego.",
+        "ChocoId": "xournalplusplus"
+      },
+      {
+        "Name": "Zim Desktop Wiki",
+        "Description": "Edytor tekstu, który działa jak wiki.",
+        "ChocoId": "zim"
+      },
+      {
+        "Name": "Znote",
+        "Description": "Prosta aplikacja do notatek.",
+        "ChocoId": "znote"
+      },
+      {
+        "Name": "Zotero",
+        "Description": "Menedżer bibliografii.",
+        "ChocoId": "zotero"
       }
     ]
   },
@@ -208,9 +538,59 @@
     "Category": "Narzędzia (Utilities)",
     "Apps": [
       {
-        "Name": "Rufus",
-        "Description": "Tworzy bootowalne nośniki USB.",
-        "ChocoId": "rufus"
+        "Name": "1Password",
+        "Description": "Menedżer haseł.",
+        "ChocoId": "1password"
+      },
+      {
+        "Name": "7-Zip",
+        "Description": "Potężny i darmowy archiwizator plików.",
+        "ChocoId": "7zip.install"
+      },
+      {
+        "Name": "Advanced Renamer",
+        "Description": "Narzędzie do masowej zmiany nazw plików.",
+        "ChocoId": "advanced-renamer"
+      },
+      {
+        "Name": "Alacritty Terminal",
+        "Description": "Szybki, przyspieszany przez GPU emulator terminala.",
+        "ChocoId": "alacritty"
+      },
+      {
+        "Name": "Ambie White Noise",
+        "Description": "Aplikacja do generowania szumów tła.",
+        "ChocoId": "ambie"
+      },
+      {
+        "Name": "AnyDesk",
+        "Description": "Oprogramowanie pulpitu zdalnego.",
+        "ChocoId": "anydesk"
+      },
+      {
+        "Name": "Windows Auto Dark Mode",
+        "Description": "Automatyczne przełączanie trybu jasnego/ciemnego.",
+        "ChocoId": "windows-auto-dark-mode"
+      },
+      {
+        "Name": "AutoHotKey",
+        "Description": "Narzędzie do tworzenia skryptów automatyzacji.",
+        "ChocoId": "autohotkey"
+      },
+      {
+        "Name": "Barrier",
+        "Description": "Udostępnia klawiaturę i mysz między wieloma komputerami.",
+        "ChocoId": "barrier"
+      },
+      {
+        "Name": "Bat (Cat)",
+        "Description": "Alternatywa dla komendy cat z podświetlaniem składni.",
+        "ChocoId": "bat"
+      },
+      {
+        "Name": "Bitwarden",
+        "Description": "Darmowy menedżer haseł z otwartym kodem źródłowym.",
+        "ChocoId": "bitwarden"
       },
       {
         "Name": "BleachBit",
@@ -218,9 +598,239 @@
         "ChocoId": "bleachbit"
       },
       {
-        "Name": "Total Commander",
-        "Description": "Popularny menedżer plików z dwoma panelami.",
-        "ChocoId": "totalcommander"
+        "Name": "Borderless Gaming",
+        "Description": "Wymusza tryb bezramkowy na grach.",
+        "ChocoId": "borderless-gaming"
+      },
+      {
+        "Name": "Bulk Crap Uninstaller",
+        "Description": "Narzędzie do odinstalowywania programów.",
+        "ChocoId": "bulk-crap-uninstaller"
+      },
+      {
+        "Name": "Bulk Rename Utility",
+        "Description": "Narzędzie do masowej zmiany nazw plików.",
+        "ChocoId": "bulk-rename-utility"
+      },
+      {
+        "Name": "CapFrameX",
+        "Description": "Narzędzie do przechwytywania i analizy wydajności w grach.",
+        "ChocoId": "capframex"
+      },
+      {
+        "Name": "Camac",
+        "Description": "Lekkie narzędzie do zarządzania wieloma schowkami.",
+        "ChocoId": "camac"
+      },
+      {
+        "Name": "Compact GUI",
+        "Description": "Narzędzie do kompresowania plików systemowych.",
+        "ChocoId": "compactgui"
+      },
+      {
+        "Name": "CopyQ (Clipboard Mana)",
+        "Description": "Zaawansowany menedżer schowka.",
+        "ChocoId": "copyq"
+      },
+      {
+        "Name": "CPU-Z",
+        "Description": "Narzędzie do monitorowania sprzętu.",
+        "ChocoId": "cpu-z"
+      },
+      {
+        "Name": "croc",
+        "Description": "Bezpieczny transfer plików.",
+        "ChocoId": "croc"
+      },
+      {
+        "Name": "Crystal Disk Info",
+        "Description": "Narzędzie do monitorowania dysków twardych.",
+        "ChocoId": "crystaldiskinfo"
+      },
+      {
+        "Name": "Crystal Disk Mark",
+        "Description": "Narzędzie do testowania wydajności dysków.",
+        "ChocoId": "crystaldiskmark"
+      },
+      {
+        "Name": "Display Driver Uninstaller",
+        "Description": "Narzędzie do odinstalowywania sterowników graficznych.",
+        "ChocoId": "ddu"
+      },
+      {
+        "Name": "Deluge",
+        "Description": "Klient BitTorrent.",
+        "ChocoId": "deluge"
+      },
+      {
+        "Name": "DevToys",
+        "Description": "Narzędzia dla deweloperów.",
+        "ChocoId": "devtoys"
+      },
+      {
+        "Name": "Ditto",
+        "Description": "Menedżer schowka.",
+        "ChocoId": "ditto"
+      },
+      {
+        "Name": "Dual Monitor Tools",
+        "Description": "Narzędzia do zarządzania wieloma monitorami.",
+        "ChocoId": "dual-monitor-tools"
+      },
+      {
+        "Name": "Dropbox",
+        "Description": "Usługa przechowywania danych w chmurze.",
+        "ChocoId": "dropbox"
+      },
+      {
+        "Name": "Duplicati",
+        "Description": "Oprogramowanie do tworzenia kopii zapasowych.",
+        "ChocoId": "duplicati"
+      },
+      {
+        "Name": "Everything search",
+        "Description": "Błyskawiczna wyszukiwarka plików w systemie Windows.",
+        "ChocoId": "everything"
+      },
+      {
+        "Name": "Espanso",
+        "Description": "Rozszerzenie do automatycznego uzupełniania tekstu.",
+        "ChocoId": "espanso"
+      },
+      {
+        "Name": "Fzf",
+        "Description": "Uniwersalna wyszukiwarka wiersza poleceń.",
+        "ChocoId": "fzf"
+      },
+      {
+        "Name": "FanControl",
+        "Description": "Narzędzie do kontroli prędkości wentylatorów.",
+        "ChocoId": "fancontrol"
+      },
+      {
+        "Name": "Fastfetch",
+        "Description": "Narzędzie do szybkiego wyświetlania informacji o systemie.",
+        "ChocoId": "fastfetch"
+      },
+      {
+        "Name": "File-Converter",
+        "Description": "Konwerter plików.",
+        "ChocoId": "file-converter"
+      },
+      {
+        "Name": "Files",
+        "Description": "Nowoczesny menedżer plików dla Windows.",
+        "ChocoId": "files"
+      },
+      {
+        "Name": "Flow launcher",
+        "Description": "Narzędzie do szybkiego uruchamiania aplikacji.",
+        "ChocoId": "flow-launcher"
+      },
+      {
+        "Name": "F.lux",
+        "Description": "Dopasowuje kolor ekranu do pory dnia.",
+        "ChocoId": "flux"
+      },
+      {
+        "Name": "ForceAutoHDR",
+        "Description": "Wymusza HDR w grach.",
+        "ChocoId": "force-autohdr"
+      },
+      {
+        "Name": "Glary Utilities",
+        "Description": "Narzędzia do optymalizacji systemu.",
+        "ChocoId": "glary-utilities"
+      },
+      {
+        "Name": "GlazeWM",
+        "Description": "Menedżer okien dla Windows.",
+        "ChocoId": "glazewm"
+      },
+      {
+        "Name": "Google Drive",
+        "Description": "Usługa przechowywania danych w chmurze.",
+        "ChocoId": "google-drive"
+      },
+      {
+        "Name": "GPU-Z",
+        "Description": "Narzędzie do monitorowania karty graficznej.",
+        "ChocoId": "gpu-z"
+      },
+      {
+        "Name": "Gsudo",
+        "Description": "Narzędzie do uruchamiania komend z uprawnieniami administratora.",
+        "ChocoId": "gsudo"
+      },
+      {
+        "Name": "HWiNFO",
+        "Description": "Narzędzie do monitorowania sprzętu.",
+        "ChocoId": "hwinfo"
+      },
+      {
+        "Name": "HWMonitor",
+        "Description": "Narzędzie do monitorowania sprzętu.",
+        "ChocoId": "hwmonitor"
+      },
+      {
+        "Name": "Intel-PresentMon",
+        "Description": "Narzędzie do monitorowania wydajności.",
+        "ChocoId": "intel-presentmon"
+      },
+      {
+        "Name": "JDownloader",
+        "Description": "Menedżer pobierania.",
+        "ChocoId": "jdownloader2"
+      },
+      {
+        "Name": "JoyToKey",
+        "Description": "Mapuje przyciski pada na klawisze klawiatury.",
+        "ChocoId": "joytokey"
+      },
+      {
+        "Name": "JPEG View",
+        "Description": "Lekka przeglądarka obrazów.",
+        "ChocoId": "jpeg-view"
+      },
+      {
+        "Name": "KDE Connect",
+        "Description": "Integruje telefon z systemem Windows.",
+        "ChocoId": "kdeconnect"
+      },
+      {
+        "Name": "KeepassXC",
+        "Description": "Menedżer haseł z otwartym kodem źródłowym.",
+        "ChocoId": "keepassxc"
+      },
+      {
+        "Name": "Lenovo Legion Toolkit",
+        "Description": "Narzędzia dla laptopów Lenovo Legion.",
+        "ChocoId": "lenovo-legion-toolkit"
+      },
+      {
+        "Name": "Link Shell extension",
+        "Description": "Narzędzie do tworzenia linków symbolicznych i twardych.",
+        "ChocoId": "linkshellextension"
+      },
+      {
+        "Name": "Lively Wallpaper",
+        "Description": "Aplikacja do tapet animowanych.",
+        "ChocoId": "lively-wallpaper"
+      },
+      {
+        "Name": "LocalSend",
+        "Description": "Transfer plików w sieci lokalnej.",
+        "ChocoId": "localsend"
+      },
+      {
+        "Name": "LockHunter",
+        "Description": "Narzędzie do usuwania zablokowanych plików.",
+        "ChocoId": "lockhunter"
+      },
+      {
+        "Name": "Magic Wormhole",
+        "Description": "Bezpieczny transfer plików.",
+        "ChocoId": "magic-wormhole"
       },
       {
         "Name": "Malwarebytes",
@@ -228,9 +838,349 @@
         "ChocoId": "malwarebytes"
       },
       {
-        "Name": "Everything",
-        "Description": "Błyskawiczna wyszukiwarka plików w systemie Windows.",
-        "ChocoId": "everything"
+        "Name": "Meld",
+        "Description": "Narzędzie do porównywania plików i folderów.",
+        "ChocoId": "meld"
+      },
+      {
+        "Name": "Monitorian",
+        "Description": "Narzędzie do sterowania jasnością monitora.",
+        "ChocoId": "monitorian"
+      },
+      {
+        "Name": "Motrix Download Mana",
+        "Description": "Menedżer pobierania.",
+        "ChocoId": "motrix"
+      },
+      {
+        "Name": "MSEdgeRedirect",
+        "Description": "Przekierowuje linki z Edge do domyślnej przeglądarki.",
+        "ChocoId": "msedgeredirect"
+      },
+      {
+        "Name": "MSI Afterburner",
+        "Description": "Narzędzie do podkręcania i monitorowania GPU.",
+        "ChocoId": "msi-afterburner"
+      },
+      {
+        "Name": "NanaZip",
+        "Description": "Nowoczesny archiwizator plików.",
+        "ChocoId": "nanazip"
+      },
+      {
+        "Name": "Neofetch",
+        "Description": "Narzędzie do wyświetlania informacji o systemie.",
+        "ChocoId": "neofetch"
+      },
+      {
+        "Name": "Nextcloud Desktop",
+        "Description": "Klient Nextcloud.",
+        "ChocoId": "nextcloud-client"
+      },
+      {
+        "Name": "Nilesoft Shell",
+        "Description": "Narzędzie do dostosowywania menu kontekstowego Windows.",
+        "ChocoId": "nilesoft-shell"
+      },
+      {
+        "Name": "NVCleanstall",
+        "Description": "Narzędzie do tworzenia niestandardowych pakietów instalacyjnych sterowników NVIDIA.",
+        "ChocoId": "nvcleanstall"
+      },
+      {
+        "Name": "OFGB (Oh Frick Go Back)",
+        "Description": "Narzędzie do optymalizacji Windows.",
+        "ChocoId": "ofgb"
+      },
+      {
+        "Name": "OPAutoClicker",
+        "Description": "Prosty auto-kliker.",
+        "ChocoId": "opautoclicker"
+      },
+      {
+        "Name": "OpenHashTab",
+        "Description": "Narzędzie do sprawdzania sum kontrolnych plików.",
+        "ChocoId": "openhashtab"
+      },
+      {
+        "Name": "OpenRGB",
+        "Description": "Narzędzie do sterowania oświetleniem RGB.",
+        "ChocoId": "openrgb"
+      },
+      {
+        "Name": "Open Shell (Start Menu)",
+        "Description": "Alternatywa dla menu Start.",
+        "ChocoId": "openshell"
+      },
+      {
+        "Name": "Orca Slicer",
+        "Description": "Program do cięcia modeli 3D.",
+        "ChocoId": "orcaslicer"
+      },
+      {
+        "Name": "Oracle Virtualbox",
+        "Description": "Oprogramowanie do wirtualizacji.",
+        "ChocoId": "virtualbox"
+      },
+      {
+        "Name": "ownCloud Desktop",
+        "Description": "Klient ownCloud.",
+        "ChocoId": "owncloud-desktop"
+      },
+      {
+        "Name": "Parsec",
+        "Description": "Platforma do strumieniowania gier.",
+        "ChocoId": "parsec"
+      },
+      {
+        "Name": "PeaZip",
+        "Description": "Darmowy archiwizator plików.",
+        "ChocoId": "peazip"
+      },
+      {
+        "Name": "Raspberry PI Imager",
+        "Description": "Narzędzie do instalacji systemów na Raspberry Pi.",
+        "ChocoId": "raspberry-pi-imager"
+      },
+      {
+        "Name": "PrusaSlicer",
+        "Description": "Program do cięcia modeli 3D.",
+        "ChocoId": "prusa-slicer"
+      },
+      {
+        "Name": "qBittorrent",
+        "Description": "Klient BitTorrent z otwartym kodem źródłowym.",
+        "ChocoId": "qbittorrent"
+      },
+      {
+        "Name": "Quicklook",
+        "Description": "Podgląd plików w Windows.",
+        "ChocoId": "quicklook"
+      },
+      {
+        "Name": "Rainmeter",
+        "Description": "Narzędzie do personalizacji pulpitu.",
+        "ChocoId": "rainmeter"
+      },
+      {
+        "Name": "Revo Uninstaller",
+        "Description": "Potężny program do odinstalowywania aplikacji.",
+        "ChocoId": "revo-uninstaller"
+      },
+      {
+        "Name": "Ripgrep",
+        "Description": "Szybka wyszukiwarka plików wiersza poleceń.",
+        "ChocoId": "ripgrep"
+      },
+      {
+        "Name": "Rufus Imager",
+        "Description": "Tworzy bootowalne nośniki USB.",
+        "ChocoId": "rufus"
+      },
+      {
+        "Name": "SageThumbs",
+        "Description": "Generator miniatur obrazów.",
+        "ChocoId": "sagethumbs"
+      },
+      {
+        "Name": "Sandboxie Plus",
+        "Description": "Narzędzie do uruchamiania programów w izolacji.",
+        "ChocoId": "sandboxie-plus"
+      },
+      {
+        "Name": "Snappy Driver Installer (Origin)",
+        "Description": "Narzędzie do instalacji sterowników.",
+        "ChocoId": "snappy-driver-installer-origin"
+      },
+      {
+        "Name": "SignalRGB",
+        "Description": "Narzędzie do sterowania oświetleniem RGB.",
+        "ChocoId": "signalrgb"
+      },
+      {
+        "Name": "SpaceDrive File Manager",
+        "Description": "Menedżer plików.",
+        "ChocoId": "spacedrive"
+      },
+      {
+        "Name": "SpaceSniffer",
+        "Description": "Narzędzie do wizualizacji zajętości dysku.",
+        "ChocoId": "spacesniffer"
+      },
+      {
+        "Name": "SuperF4",
+        "Description": "Zamyka aplikacje za pomocą skrótu klawiaturowego.",
+        "ChocoId": "superf4"
+      },
+      {
+        "Name": "Syncthingtray",
+        "Description": "Klient Syncthing.",
+        "ChocoId": "syncthingtray"
+      },
+      {
+        "Name": "SyncTrazor",
+        "Description": "Klient Syncthing.",
+        "ChocoId": "synctrazor"
+      },
+      {
+        "Name": "Tabby.sh",
+        "Description": "Nowoczesny emulator terminala.",
+        "ChocoId": "tabby-terminal"
+      },
+      {
+        "Name": "Tailscale",
+        "Description": "Sieć VPN.",
+        "ChocoId": "tailscale"
+      },
+      {
+        "Name": "TeamViewer",
+        "Description": "Oprogramowanie pulpitu zdalnego.",
+        "ChocoId": "teamviewer"
+      },
+      {
+        "Name": "TeraCopy",
+        "Description": "Narzędzie do kopiowania plików.",
+        "ChocoId": "teracopy"
+      },
+      {
+        "Name": "TightVNC",
+        "Description": "Klient VNC.",
+        "ChocoId": "tightvnc"
+      },
+      {
+        "Name": "Tixati",
+        "Description": "Klient BitTorrent.",
+        "ChocoId": "tixati"
+      },
+      {
+        "Name": "Total Commander",
+        "Description": "Popularny menedżer plików z dwoma panelami.",
+        "ChocoId": "totalcommander"
+      },
+      {
+        "Name": "Transmission",
+        "Description": "Klient BitTorrent.",
+        "ChocoId": "transmission"
+      },
+      {
+        "Name": "TreeSize Free",
+        "Description": "Narzędzie do analizy przestrzeni dyskowej.",
+        "ChocoId": "treesizefree"
+      },
+      {
+        "Name": "TranslucentTB",
+        "Description": "Narzędzie do dostosowywania paska zadań.",
+        "ChocoId": "translucenttb"
+      },
+      {
+        "Name": "Twinlide Tray",
+        "Description": "Narzędzie do zarządzania ikonami w zasobniku systemowym.",
+        "ChocoId": "twinlide-tray"
+      },
+      {
+        "Name": "UltraVNC",
+        "Description": "Klient VNC.",
+        "ChocoId": "ultravnc"
+      },
+      {
+        "Name": "VistaSwitcher",
+        "Description": "Ulepszony menedżer okien.",
+        "ChocoId": "vistaswitcher"
+      },
+      {
+        "Name": "Wazuh",
+        "Description": "Platforma bezpieczeństwa.",
+        "ChocoId": "wazuh"
+      },
+      {
+        "Name": "Windhawk",
+        "Description": "Narzędzie do dostosowywania Windows.",
+        "ChocoId": "windhawk"
+      },
+      {
+        "Name": "Windhawk",
+        "Description": "Narzędzie do dostosowywania wyglądu Windows.",
+        "ChocoId": "windhawk"
+      },
+      {
+        "Name": "WindHawk",
+        "Description": "Narzędzie do dostosowywania wyglądu Windows.",
+        "ChocoId": "windhawk"
+      },
+      {
+        "Name": "Windows Firewall Control",
+        "Description": "Narzędzie do zarządzania firewallem Windows.",
+        "ChocoId": "windows-firewall-control"
+      },
+      {
+        "Name": "Windows PC Health Check",
+        "Description": "Narzędzie do sprawdzania kondycji komputera.",
+        "ChocoId": "windows-pc-health-check"
+      },
+      {
+        "Name": "UniGetUI",
+        "Description": "Graficzny interfejs dla menedżerów pakietów.",
+        "ChocoId": "unigetui"
+      },
+      {
+        "Name": "WinPaletter",
+        "Description": "Narzędzie do personalizacji kolorów interfejsu.",
+        "ChocoId": "winpaletter"
+      },
+      {
+        "Name": "WinRAR",
+        "Description": "Popularny archiwizator plików.",
+        "ChocoId": "winrar"
+      },
+      {
+        "Name": "Wise Program Uninstaller",
+        "Description": "Narzędzie do odinstalowywania programów.",
+        "ChocoId": "wise-program-uninstaller"
+      },
+      {
+        "Name": "WiseToys",
+        "Description": "Zestaw narzędzi do optymalizacji systemu.",
+        "ChocoId": "wisetoys"
+      },
+      {
+        "Name": "WizFile",
+        "Description": "Błyskawiczna wyszukiwarka plików.",
+        "ChocoId": "wizfile"
+      },
+      {
+        "Name": "WizTree",
+        "Description": "Narzędzie do analizy przestrzeni dyskowej.",
+        "ChocoId": "wiztree"
+      },
+      {
+        "Name": "Xtreme Download Manager",
+        "Description": "Menedżer pobierania.",
+        "ChocoId": "xdm"
+      },
+      {
+        "Name": "HxD Hex Editor",
+        "Description": "Edytor hex.",
+        "ChocoId": "hxd"
+      },
+      {
+        "Name": "XinView classic",
+        "Description": "Lekka przeglądarka obrazów.",
+        "ChocoId": "xinview"
+      },
+      {
+        "Name": "ZeroTier One",
+        "Description": "Oprogramowanie do wirtualnej sieci LAN.",
+        "ChocoId": "zerotier-one"
+      },
+      {
+        "Name": "ZoomIt",
+        "Description": "Narzędzie do powiększania i adnotacji na ekranie.",
+        "ChocoId": "zoomit"
+      },
+      {
+        "Name": "Zoxide",
+        "Description": "Inteligentna komenda cd.",
+        "ChocoId": "zoxide"
       }
     ]
   },
@@ -238,9 +1188,9 @@
     "Category": "Multimedia",
     "Apps": [
       {
-        "Name": "VLC Media Player",
-        "Description": "Wszechstronny odtwarzacz multimediów obsługujący większość formatów.",
-        "ChocoId": "vlc"
+        "Name": "AIMP (Music Player)",
+        "Description": "Odtwarzacz plików audio.",
+        "ChocoId": "aimp"
       },
       {
         "Name": "Audacity",
@@ -248,9 +1198,164 @@
         "ChocoId": "audacity"
       },
       {
+        "Name": "Blender (3D Graphics)",
+        "Description": "Program do tworzenia grafiki 3D i animacji.",
+        "ChocoId": "blender"
+      },
+      {
+        "Name": "Clementine",
+        "Description": "Odtwarzacz muzyki z obsługą wielu formatów.",
+        "ChocoId": "clementine"
+      },
+      {
+        "Name": "darktable",
+        "Description": "Program do obróbki zdjęć i RAW.",
+        "ChocoId": "darktable"
+      },
+      {
+        "Name": "digiKam",
+        "Description": "Zaawansowany menedżer zdjęć.",
+        "ChocoId": "digikam"
+      },
+      {
+        "Name": "EarTrumpet (Audio)",
+        "Description": "Narzędzie do kontroli głośności dla Windows.",
+        "ChocoId": "eartrumpet"
+      },
+      {
+        "Name": "Equalizer APO",
+        "Description": "Korektor audio dla Windows.",
+        "ChocoId": "equalizer-apo"
+      },
+      {
+        "Name": "FFmpeg (full)",
+        "Description": "Narzędzie do przetwarzania audio i wideo.",
+        "ChocoId": "ffmpeg"
+      },
+      {
+        "Name": "Fire Alpaca",
+        "Description": "Program do rysowania i malowania.",
+        "ChocoId": "firealpaca"
+      },
+      {
+        "Name": "Flameshot (Screenshots)",
+        "Description": "Zaawansowane narzędzie do zrzutów ekranu.",
+        "ChocoId": "flameshot"
+      },
+      {
+        "Name": "foobar2000 (Music Player)",
+        "Description": "Minimalistyczny i konfigurowalny odtwarzacz muzyki.",
+        "ChocoId": "foobar2000"
+      },
+      {
+        "Name": "FreeCAD",
+        "Description": "Oprogramowanie do modelowania 3D.",
+        "ChocoId": "freecad"
+      },
+      {
+        "Name": "FxSound",
+        "Description": "Narzędzie do poprawy jakości dźwięku.",
+        "ChocoId": "fxsound"
+      },
+      {
+        "Name": "GIMP (Image Editor)",
+        "Description": "Darmowy i potężny edytor grafiki.",
+        "ChocoId": "gimp"
+      },
+      {
+        "Name": "Greenshot (Screenshots)",
+        "Description": "Łatwe narzędzie do zrzutów ekranu.",
+        "ChocoId": "greenshot"
+      },
+      {
         "Name": "HandBrake",
         "Description": "Narzędzie do konwersji wideo.",
         "ChocoId": "handbrake"
+      },
+      {
+        "Name": "Harmonoid",
+        "Description": "Nowoczesny odtwarzacz muzyki.",
+        "ChocoId": "harmonoid"
+      },
+      {
+        "Name": "ImageGlass (Image View)",
+        "Description": "Lekka i szybka przeglądarka obrazów.",
+        "ChocoId": "imageglass"
+      },
+      {
+        "Name": "ImgBurn",
+        "Description": "Narzędzie do nagrywania płyt CD/DVD/Blu-ray.",
+        "ChocoId": "imgburn"
+      },
+      {
+        "Name": "Inkscape",
+        "Description": "Edytor grafiki wektorowej.",
+        "ChocoId": "inkscape"
+      },
+      {
+        "Name": "iTunes",
+        "Description": "Odtwarzacz multimedialny i menedżer urządzeń Apple.",
+        "ChocoId": "itunes"
+      },
+      {
+        "Name": "Jellyfin Media Player",
+        "Description": "Klient do serwera multimediów Jellyfin.",
+        "ChocoId": "jellyfin-media-player"
+      },
+      {
+        "Name": "Jellyfin Server",
+        "Description": "Serwer multimediów, który organizuje i udostępnia media.",
+        "ChocoId": "jellyfin-server"
+      },
+      {
+        "Name": "Kdenlive (Video Editor)",
+        "Description": "Edytor wideo z otwartym kodem źródłowym.",
+        "ChocoId": "kdenlive"
+      },
+      {
+        "Name": "Kicad",
+        "Description": "Oprogramowanie do projektowania obwodów elektronicznych.",
+        "ChocoId": "kicad"
+      },
+      {
+        "Name": "K-Lite Codec Standard",
+        "Description": "Zestaw kodeków do odtwarzania audio i wideo.",
+        "ChocoId": "k-litecodecpackstandard"
+      },
+      {
+        "Name": "Kodi Media Center",
+        "Description": "Centrum multimedialne do odtwarzania multimediów.",
+        "ChocoId": "kodi"
+      },
+      {
+        "Name": "Krita (Image Editor)",
+        "Description": "Darmowy program do malowania cyfrowego.",
+        "ChocoId": "krita"
+      },
+      {
+        "Name": "Lightshot (Screenshots)",
+        "Description": "Proste narzędzie do zrzutów ekranu.",
+        "ChocoId": "lightshot"
+      },
+      {
+        "Name": "Mpg3tag (Metadata Audio)",
+        "Description": "Edytor tagów do plików audio.",
+        "ChocoId": "mp3tag"
+      },
+      {
+        "Name": "MuseScore",
+        "Description": "Program do edycji i tworzenia nut.",
+        "ChocoId": "musescore"
+      },
+      {
+        "Name": "nGlide (3dfx compatibility)",
+        "Description": "Wrapper grafiki 3D dla starych gier.",
+        "ChocoId": "nglide"
+      },
+      {
+        "Name": "Nomacs (Image viewer)",
+        "Description": "Lekka i szybka przeglądarka obrazów.",
+        "ChocoId": "nomacs"
       },
       {
         "Name": "OBS Studio",
@@ -258,9 +1363,94 @@
         "ChocoId": "obs-studio"
       },
       {
+        "Name": "OpenSCAD",
+        "Description": "Program do tworzenia modeli 3D przez skrypt.",
+        "ChocoId": "openscad"
+      },
+      {
+        "Name": "Plex Media Server",
+        "Description": "Serwer multimediów do zarządzania i udostępniania mediów.",
+        "ChocoId": "plex-media-server"
+      },
+      {
+        "Name": "Plex Desktop",
+        "Description": "Klient desktopowy Plex.",
+        "ChocoId": "plex-desktop"
+      },
+      {
+        "Name": "QGIS",
+        "Description": "Program do tworzenia i edycji map.",
+        "ChocoId": "qgis"
+      },
+      {
+        "Name": "ShareX (Screenshots)",
+        "Description": "Zaawansowane narzędzie do zrzutów ekranu.",
+        "ChocoId": "sharex"
+      },
+      {
+        "Name": "Shotcut",
+        "Description": "Edytor wideo z otwartym kodem źródłowym.",
+        "ChocoId": "shotcut"
+      },
+      {
+        "Name": "SMPlayer",
+        "Description": "Odtwarzacz multimediów z wbudowanymi kodekami.",
+        "ChocoId": "smplayer"
+      },
+      {
         "Name": "Spotify",
         "Description": "Platforma do strumieniowania muzyki.",
         "ChocoId": "spotify"
+      },
+      {
+        "Name": "Strawberry (Music Player)",
+        "Description": "Odtwarzacz muzyki z otwartym kodem źródłowym.",
+        "ChocoId": "strawberry"
+      },
+      {
+        "Name": "Stremio",
+        "Description": "Centrum multimedialne do filmów i seriali.",
+        "ChocoId": "stremio"
+      },
+      {
+        "Name": "Subtitle Edit",
+        "Description": "Edytor napisów.",
+        "ChocoId": "subtitleedit"
+      },
+      {
+        "Name": "TagScanner (Tag Scanner)",
+        "Description": "Menedżer tagów do plików muzycznych.",
+        "ChocoId": "tagscanner"
+      },
+      {
+        "Name": "Tidal",
+        "Description": "Serwis strumieniowania muzyki Hi-Fi.",
+        "ChocoId": "tidal"
+      },
+      {
+        "Name": "Videomass",
+        "Description": "Konwerter wideo.",
+        "ChocoId": "videomass"
+      },
+      {
+        "Name": "VLC (Video Player)",
+        "Description": "Wszechstronny odtwarzacz multimediów.",
+        "ChocoId": "vlc"
+      },
+      {
+        "Name": "Voicemeeter (Audio)",
+        "Description": "Wirtualny mikser audio.",
+        "ChocoId": "voicemeeter"
+      },
+      {
+        "Name": "Voicemeeter Potato",
+        "Description": "Zaawansowany wirtualny mikser audio.",
+        "ChocoId": "voicemeeter-potato"
+      },
+      {
+        "Name": "Yt-dlp",
+        "Description": "Narzędzie do pobierania wideo z YouTube.",
+        "ChocoId": "yt-dlp"
       }
     ]
   },
@@ -268,14 +1458,54 @@
     "Category": "Narzędzia dla profesjonalistów (Pro Tools)",
     "Apps": [
       {
+        "Name": "Advanced IP Scanner",
+        "Description": "Skaner sieci.",
+        "ChocoId": "advanced-ip-scanner"
+      },
+      {
+        "Name": "Angry IP Scanner",
+        "Description": "Lekki skaner sieci.",
+        "ChocoId": "angry-ip-scanner"
+      },
+      {
+        "Name": "EFI Boot Editor",
+        "Description": "Edytor wpisów bootowalnych EFI.",
+        "ChocoId": "efi-boot-editor"
+      },
+      {
+        "Name": "HeidiSQL",
+        "Description": "Narzędzie do zarządzania bazami danych.",
+        "ChocoId": "heidisql"
+      },
+      {
+        "Name": "mRemoteNG",
+        "Description": "Menedżer zdalnych połączeń.",
+        "ChocoId": "mremoteng"
+      },
+      {
+        "Name": "Mullvad VPN",
+        "Description": "Usługa VPN.",
+        "ChocoId": "mullvad-vpn"
+      },
+      {
+        "Name": "NetBird",
+        "Description": "VPN typu mesh.",
+        "ChocoId": "netbird"
+      },
+      {
         "Name": "Nmap",
         "Description": "Narzędzie do skanowania sieci.",
         "ChocoId": "nmap"
       },
       {
-        "Name": "Wireshark",
-        "Description": "Analizator protokołów sieciowych.",
-        "ChocoId": "wireshark"
+        "Name": "OpenVPN Connect",
+        "Description": "Klient OpenVPN.",
+        "ChocoId": "openvpn-connect"
+      },
+      {
+        "Name": "Portmaster",
+        "Description": "Firewall i menedżer sieci.",
+        "ChocoId": "portmaster"
       },
       {
         "Name": "PuTTY",
@@ -283,9 +1513,249 @@
         "ChocoId": "putty"
       },
       {
+        "Name": "RustDesk",
+        "Description": "Oprogramowanie pulpitu zdalnego.",
+        "ChocoId": "rustdesk"
+      },
+      {
+        "Name": "Simplewall",
+        "Description": "Prosty firewall.",
+        "ChocoId": "simplewall"
+      },
+      {
+        "Name": "Ventoy",
+        "Description": "Narzędzie do tworzenia multibootowalnych pendrive'ów.",
+        "ChocoId": "ventoy"
+      },
+      {
         "Name": "WinSCP",
         "Description": "Klient SFTP, FTP, WebDAV, SCP.",
         "ChocoId": "winscp"
+      },
+      {
+        "Name": "WireGuard",
+        "Description": "Prosty i bezpieczny VPN.",
+        "ChocoId": "wireguard"
+      },
+      {
+        "Name": "Wireshark",
+        "Description": "Analizator protokołów sieciowych.",
+        "ChocoId": "wireshark"
+      },
+      {
+        "Name": "XPipe",
+        "Description": "Klient SSH i SFTP.",
+        "ChocoId": "xpipe"
+      }
+    ]
+  },
+  {
+    "Category": "Gry (Games)",
+    "Apps": [
+      {
+        "Name": "Cemu",
+        "Description": "Emulator konsoli Wii U.",
+        "ChocoId": "cemu"
+      },
+      {
+        "Name": "Clone Hero",
+        "Description": "Gra muzyczna w stylu Guitar Hero.",
+        "ChocoId": "clone-hero"
+      },
+      {
+        "Name": "EA App",
+        "Description": "Platforma do gier Electronic Arts.",
+        "ChocoId": "ea-app"
+      },
+      {
+        "Name": "Emulation Station",
+        "Description": "Frontend dla emulatorów konsol.",
+        "ChocoId": "emulationstation"
+      },
+      {
+        "Name": "Epic Games Launcher",
+        "Description": "Oficjalny launcher gier Epic Games.",
+        "ChocoId": "epic-games-launcher"
+      },
+      {
+        "Name": "GeForce NOW",
+        "Description": "Usługa strumieniowania gier.",
+        "ChocoId": "geforcenow"
+      },
+      {
+        "Name": "GOG Galaxy",
+        "Description": "Klient GOG.com do zarządzania biblioteką gier.",
+        "ChocoId": "gog-galaxy"
+      },
+      {
+        "Name": "Heroic Games Launcher",
+        "Description": "Launcher dla Epic Games i GOG.",
+        "ChocoId": "heroic-games-launcher"
+      },
+      {
+        "Name": "itch.io",
+        "Description": "Platforma dla gier indie.",
+        "ChocoId": "itch-io"
+      },
+      {
+        "Name": "Moonlight/GameStream",
+        "Description": "Narzędzie do strumieniowania gier z komputera.",
+        "ChocoId": "moonlight-stream"
+      },
+      {
+        "Name": "Playnite",
+        "Description": "Biblioteka gier z obsługą wielu platform.",
+        "ChocoId": "playnite"
+      },
+      {
+        "Name": "Prism Launcher",
+        "Description": "Launcher Minecraft z otwartym kodem źródłowym.",
+        "ChocoId": "prism-launcher"
+      },
+      {
+        "Name": "PS Remote Play",
+        "Description": "Narzędzie do grania w gry z konsoli PlayStation na komputerze.",
+        "ChocoId": "ps-remote-play"
+      },
+      {
+        "Name": "SideQuestVR",
+        "Description": "Narzędzie do sideloadingu aplikacji na gogle VR.",
+        "ChocoId": "sidequestvr"
+      },
+      {
+        "Name": "Steam",
+        "Description": "Największa platforma dystrybucji gier na PC.",
+        "ChocoId": "steam"
+      },
+      {
+        "Name": "Sunshine/GameStream",
+        "Description": "Narzędzie do strumieniowania gier.",
+        "ChocoId": "sunshine-gamestream"
+      },
+      {
+        "Name": "TCNO Account Switcher",
+        "Description": "Narzędzie do przełączania kont w launcherach gier.",
+        "ChocoId": "tcno-account-switcher"
+      },
+      {
+        "Name": "Ubisoft Connect",
+        "Description": "Platforma do gier Ubisoft.",
+        "ChocoId": "ubisoft-connect"
+      },
+      {
+        "Name": "Virtual Desktop Streamer",
+        "Description": "Narzędzie do strumieniowania obrazu z komputera.",
+        "ChocoId": "virtual-desktop-streamer"
+      },
+      {
+        "Name": "XEMU",
+        "Description": "Emulator konsoli Xbox.",
+        "ChocoId": "xemu"
+      }
+    ]
+  },
+  {
+    "Category": "Narzędzia Microsoftu (Microsoft Tools)",
+    "Apps": [
+      {
+        "Name": "Autoruns",
+        "Description": "Narzędzie do zarządzania programami uruchamianymi przy starcie systemu.",
+        "ChocoId": "autoruns"
+      },
+      {
+        "Name": "Microsoft Azure Data Studio",
+        "Description": "Edytor baz danych dla Azure.",
+        "ChocoId": "azure-data-studio"
+      },
+      {
+        "Name": "DISMTools",
+        "Description": "Narzędzia do zarządzania obrazami Windows.",
+        "ChocoId": "dismtools"
+      },
+      {
+        "Name": ".NET Desktop Runtime 5",
+        "Description": "Środowisko uruchomieniowe .NET w wersji 5.",
+        "ChocoId": "dotnet-desktopruntime-5.0"
+      },
+      {
+        "Name": ".NET Desktop Runtime 6",
+        "Description": "Środowisko uruchomieniowe .NET w wersji 6.",
+        "ChocoId": "dotnet-desktopruntime-6.0"
+      },
+      {
+        "Name": ".NET Desktop Runtime 7",
+        "Description": "Środowisko uruchomieniowe .NET w wersji 7.",
+        "ChocoId": "dotnet-desktopruntime-7.0"
+      },
+      {
+        "Name": ".NET Desktop Runtime 8",
+        "Description": "Środowisko uruchomieniowe .NET w wersji 8.",
+        "ChocoId": "dotnet-desktopruntime-8.0"
+      },
+      {
+        "Name": ".NET Runtime",
+        "Description": "Środowisko uruchomieniowe .NET.",
+        "ChocoId": "dotnet-runtime"
+      },
+      {
+        "Name": "NuGet",
+        "Description": "Menedżer pakietów dla platformy .NET.",
+        "ChocoId": "nuget.commandline"
+      },
+      {
+        "Name": "OneDrive",
+        "Description": "Usługa chmury do przechowywania plików.",
+        "ChocoId": "onedrive"
+      },
+      {
+        "Name": "Power Automate",
+        "Description": "Narzędzie do automatyzacji zadań.",
+        "ChocoId": "power-automate"
+      },
+      {
+        "Name": "Power BI",
+        "Description": "Narzędzie do analizy danych i wizualizacji.",
+        "ChocoId": "power-bi"
+      },
+      {
+        "Name": "PowerShell",
+        "Description": "Zaawansowana konsola wiersza poleceń.",
+        "ChocoId": "powershell"
+      },
+      {
+        "Name": "PowerToys",
+        "Description": "Zestaw narzędzi do dostosowywania Windowsa.",
+        "ChocoId": "powertoys"
+      },
+      {
+        "Name": "Sysinternals Process Monitor",
+        "Description": "Monitor procesów i działań systemowych.",
+        "ChocoId": "procmon"
+      },
+      {
+        "Name": "RDCMan",
+        "Description": "Menedżer połączeń pulpitu zdalnego.",
+        "ChocoId": "rdcman"
+      },
+      {
+        "Name": "Microsoft SQL Server Management Studio",
+        "Description": "Narzędzie do zarządzania bazami danych SQL Server.",
+        "ChocoId": "ssms"
+      },
+      {
+        "Name": "Sysinternals TCPView",
+        "Description": "Wyświetla aktywne połączenia TCP i UDP.",
+        "ChocoId": "tcpview"
+      },
+      {
+        "Name": "Windows Terminal",
+        "Description": "Nowoczesny terminal dla Windows.",
+        "ChocoId": "windows-terminal"
+      },
+      {
+        "Name": "Visual C++ 2015-2022 Redistributable",
+        "Description": "Biblioteki C++ wymagane przez wiele programów.",
+        "ChocoId": "vcredist-all"
       }
     ]
   }
