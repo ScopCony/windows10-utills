@@ -4,13 +4,13 @@
 # i zarządzania funkcjami Windows, bazujące na zewnętrznym repozytorium GitHub.
 #
 # Działanie:
-# 1. Sprawdza uprawnienia administratora i, jeśli to konieczne, uruchamia skrypt ponownie z nimi.
+# 1. Sprawdza uprawnienia administratora i, jeśli to konieczne, prosi użytkownika o ręczne ponowne uruchomienie.
 # 2. Pobiera pliki konfiguracyjne JSON z repozytorium GitHub.
 # 3. Wyświetla menu tekstowe z opcjami.
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 2.6 - Dodano funkcję Check-Admin z automatycznym restartem.
+# Wersja: 2.8 - Poprawiono polskie znaki w tekście skryptu.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -31,9 +31,11 @@ function Check-Admin {
     # Sprawdza, czy skrypt jest uruchomiony z uprawnieniami administratora.
     $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Warning "Skrypt wymaga uprawnień administratora. Próba ponownego uruchomienia..."
-        # Próba ponownego uruchomienia skryptu z uprawnieniami administratora
-        Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        Write-Host "Ten skrypt musi być uruchomiony z uprawnieniami administratora." -ForegroundColor Red
+        Write-Host "Proszę zamknij to okno i uruchom ponownie PowerShell jako administrator."
+        Write-Host "Następnie użyj komendy:"
+        Write-Host "irm https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1 | iex"
+        Read-Host "Naciśnij Enter, aby zamknąć..."
         exit
     }
 }
