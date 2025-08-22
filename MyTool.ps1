@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.1 - Wprowadzono dwukolumnowy widok listy programów.
+# Wersja: 4.2 - Poprawiono logikę spłaszczania listy aplikacji dla widoku dwukolumnowego.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
@@ -92,8 +92,6 @@ function Get-JsonData($fileName) {
     }
 }
 
-# ZMIANA: Funkcja wyświetla programy w dwóch kolumnach.
-# Usunięto wyświetlanie kategorii i opisów dla uproszczenia układu.
 function Show-AppsMenu($allApps) {
     Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor Magenta
 
@@ -189,7 +187,8 @@ function Main-Menu {
         exit
     }
     
-    $allApps = $appsData.Apps | ForEach-Object { $_ }
+    # POPRAWKA: Prawidłowy sposób na spłaszczenie listy aplikacji z kategorii.
+    $allApps = $appsData | Select-Object -ExpandProperty Apps
 
     do {
         Clear-Host
@@ -204,7 +203,6 @@ function Main-Menu {
             "1" {
                 do {
                     Clear-Host
-                    # ZMIANA: Wywołanie nowej funkcji menu, przekazując tylko spłaszczoną listę.
                     $appChoice = Show-AppsMenu -allApps $allApps
                     if ($appChoice -eq "q") { break }
 
