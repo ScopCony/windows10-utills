@@ -16,7 +16,7 @@
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
 $Host.UI.RawUI.BackgroundColor = "Black"
-$Host.UI.RawUI.ForegroundColor = "White"
+$Host.UI.RawUI.ForegroundColor = "Cyan"
 Clear-Host
 # endregion
 
@@ -28,7 +28,7 @@ $colors = @{
     Success     = "Green"    # Kolor dla komunikatów o powodzeniu (np. numery list, pomyślne zakończenie).
     Highlight   = "Blue"     # Kolor do podświetlania ważnych elementów (np. nazwy programów, tytuły menu).
     Header      = "DarkRed"  # Kolor dla nagłówków sekcji i kategorii.
-    Info        = "Cyan"     # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
+    Info        = "White"     # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
     DefaultText = "Gray"    # Standardowy kolor tekstu (np. opisy programów).
 }
 # endregion
