@@ -14,7 +14,7 @@
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na ciemnoniebieskie i tekst na biały, aby zapewnić spójny wygląd.
-$Host.UI.RawUI.BackgroundColor = "DarkBlue"
+$Host.UI.RawUI.BackgroundColor = "Black"
 $Host.UI.RawUI.ForegroundColor = "White"
 Clear-Host
 # endregion
