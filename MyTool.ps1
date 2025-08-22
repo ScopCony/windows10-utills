@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.2 - Poprawiono logikę spłaszczania listy aplikacji dla widoku dwukolumnowego.
+# Wersja: 4.3 - Poprawiono błąd w tworzeniu listy, przywracając prawidłowy widok dwukolumnowy.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
@@ -187,8 +187,13 @@ function Main-Menu {
         exit
     }
     
-    # POPRAWKA: Prawidłowy sposób na spłaszczenie listy aplikacji z kategorii.
-    $allApps = $appsData | Select-Object -ExpandProperty Apps
+    # POPRAWKA: Powrót do bardziej niezawodnej, pętlowej metody spłaszczania listy aplikacji.
+    $allApps = [System.Collections.Generic.List[object]]::new()
+    foreach ($category in $appsData) {
+        if ($null -ne $category.Apps) {
+            $allApps.AddRange($category.Apps)
+        }
+    }
 
     do {
         Clear-Host
