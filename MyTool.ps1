@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 1.8 - Dodano opcję wyboru ścieżki instalacji dla programów.
+# Wersja: 1.9 - Pogrubiono nazwy aplikacji w menu.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -57,7 +57,7 @@ function Get-JsonData($fileName) {
 }
 
 function Show-AppsMenu($appsData) {
-    # Wyświetla menu programów.
+    # Wyświetla menu programów z pogrubionymi nazwami.
     Write-Host "`n==== Zarządzanie programami ====`n"
     
     $global:allApps = @()
@@ -66,7 +66,8 @@ function Show-AppsMenu($appsData) {
     foreach ($category in $appsData) {
         Write-Host "`n---- $($category.Category) ----" -ForegroundColor Yellow
         foreach ($app in $category.Apps) {
-            Write-Host "$count. $($app.Name) - $($app.Description)"
+            # Pogrubienie nazwy aplikacji
+            Write-Host "$count. `e[1m$($app.Name)`e[0m - $($app.Description)"
             $global:allApps += $app
             $count++
         }
