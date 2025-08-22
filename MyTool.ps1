@@ -16,7 +16,7 @@
 # Testowa zmiana tytułu okna
 $Host.UI.RawUI.WindowTitle = "MyTool v3.8 - Test Wersji"
 # Ustawia tło na ciemny cyjan i tekst na biały, aby zapewnić spójny wygląd.
-$Host.UI.RawUI.BackgroundColor = "Gray"
+$Host.UI.RawUI.BackgroundColor = "DarkBlue"
 $Host.UI.RawUI.ForegroundColor = "White"
 Clear-Host
 # endregion
