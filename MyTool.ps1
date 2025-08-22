@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 2.8 - Poprawiono polskie znaki w tekście skryptu.
+# Wersja: 2.9 - Zmieniono kolor numeracji na zielony.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -72,8 +72,8 @@ function Show-AppsMenu($appsData) {
             $appName = "$($app.Name)"
             $appDescription = "- $($app.Description)"
             
-            # Wypisujemy numer na białym tle
-            Write-Host "$count. " -NoNewline
+            # Wypisujemy numer na zielonym tle
+            Write-Host "$count. " -ForegroundColor Green -NoNewline
             # Wypisujemy nazwę aplikacji na żółtym tle
             Write-Host "$appName" -ForegroundColor Yellow -NoNewline
             # Wypisujemy opis na białym tle
