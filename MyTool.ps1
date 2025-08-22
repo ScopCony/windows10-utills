@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 1.3 - Poprawiono błąd 404 Not Found i przeanalizowano strukturę repozytorium
+# Wersja: 1.4 - Używa WebClient do niezawodnego pobierania JSON.
 
 # region Konfiguracja
 # Zmień ten URL na link do Twojego repozytorium na GitHub!
@@ -37,7 +37,8 @@ function Get-JsonData($fileName) {
     $url = "$($githubRepoUrl)/config/$($fileName)"
     try {
         Write-Host "Pobieram dane z $url..." -ForegroundColor Green
-        $json = Invoke-RestMethod -Uri $url -Method Get
+        # Użycie WebClient do niezawodnego pobierania surowego ciągu znaków
+        $json = (New-Object System.Net.WebClient).DownloadString($url)
         return $json | ConvertFrom-Json
     }
     catch {
