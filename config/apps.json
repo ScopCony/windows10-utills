@@ -1,6 +1,6 @@
 [
   {
-    "Category": "Browsers",
+    "Category": "Przeglądarki (Browsers)",
     "Apps": [
       {
         "Name": "Brave",
@@ -8,24 +8,34 @@
         "ChocoId": "brave"
       },
       {
-        "Name": "Chrome",
-        "Description": "Przeglądarka internetowa od Google.",
+        "Name": "Google Chrome",
+        "Description": "Szybka i bezpieczna przeglądarka internetowa od Google.",
         "ChocoId": "googlechrome"
       },
       {
-        "Name": "Firefox",
+        "Name": "Mozilla Firefox",
         "Description": "Przeglądarka internetowa skupiająca się na prywatności.",
         "ChocoId": "firefox"
       },
       {
-        "Name": "Vivaldi",
-        "Description": "Przeglądarka z dużymi możliwościami dostosowania.",
-        "ChocoId": "vivaldi"
+        "Name": "Microsoft Edge",
+        "Description": "Przeglądarka internetowa od Microsoftu, bazująca na Chromium.",
+        "ChocoId": "microsoft-edge"
+      },
+      {
+        "Name": "Opera",
+        "Description": "Przeglądarka z wbudowanym VPN i blokowaniem reklam.",
+        "ChocoId": "opera"
+      },
+      {
+        "Name": "Tor Browser",
+        "Description": "Przeglądarka zapewniająca anonimowe surfowanie po sieci.",
+        "ChocoId": "tor-browser"
       }
     ]
   },
   {
-    "Category": "Communications",
+    "Category": "Komunikacja (Communications)",
     "Apps": [
       {
         "Name": "Discord",
@@ -39,8 +49,18 @@
       },
       {
         "Name": "Signal",
-        "Description": "Aplikacja do szyfrowanych wiadomości.",
+        "Description": "Aplikacja do szyfrowanych wiadomości i rozmów.",
         "ChocoId": "signal"
+      },
+      {
+        "Name": "Skype",
+        "Description": "Usługa do komunikacji głosowej, wideo i tekstowej.",
+        "ChocoId": "skype"
+      },
+      {
+        "Name": "Microsoft Teams",
+        "Description": "Platforma do komunikacji i pracy zespołowej od Microsoftu.",
+        "ChocoId": "microsoft-teams"
       },
       {
         "Name": "Zoom",
@@ -50,7 +70,7 @@
     ]
   },
   {
-    "Category": "Development",
+    "Category": "Narzędzia developerskie (Development)",
     "Apps": [
       {
         "Name": "Git",
@@ -63,44 +83,39 @@
         "ChocoId": "nodejs"
       },
       {
+        "Name": "Python",
+        "Description": "Język programowania.",
+        "ChocoId": "python3"
+      },
+      {
         "Name": "Visual Studio Code",
         "Description": "Lekki, a jednocześnie potężny edytor kodu.",
         "ChocoId": "vscode"
       },
       {
-        "Name": "Python",
-        "Description": "Język programowania.",
-        "ChocoId": "python"
+        "Name": "Docker Desktop",
+        "Description": "Platforma do tworzenia i uruchamiania aplikacji w kontenerach.",
+        "ChocoId": "docker-desktop"
+      },
+      {
+        "Name": "Postman",
+        "Description": "Narzędzie do testowania API.",
+        "ChocoId": "postman"
+      },
+      {
+        "Name": "Anaconda3",
+        "Description": "Platforma do nauki o danych z Pythonem.",
+        "ChocoId": "anaconda3"
+      },
+      {
+        "Name": "Neovim",
+        "Description": "Hiperrozszerzalny edytor tekstu.",
+        "ChocoId": "neovim"
       }
     ]
   },
   {
-    "Category": "Document",
-    "Apps": [
-      {
-        "Name": "Adobe Acrobat Reader DC",
-        "Description": "Standardowy czytnik plików PDF.",
-        "ChocoId": "adobereader"
-      },
-      {
-        "Name": "Notepad++",
-        "Description": "Edytor tekstu dla programistów.",
-        "ChocoId": "notepadplusplus.install"
-      },
-      {
-        "Name": "LibreOffice",
-        "Description": "Darmowy i otwarty pakiet biurowy.",
-        "ChocoId": "libreoffice"
-      },
-      {
-        "Name": "Foxit PDF Reader",
-        "Description": "Szybki i lekki czytnik plików PDF.",
-        "ChocoId": "foxitreader"
-      }
-    ]
-  },
-  {
-    "Category": "Utilities",
+    "Category": "Dokumenty (Document)",
     "Apps": [
       {
         "Name": "7-Zip",
@@ -108,19 +123,59 @@
         "ChocoId": "7zip.install"
       },
       {
+        "Name": "Notepad++",
+        "Description": "Edytor tekstu dla programistów.",
+        "ChocoId": "notepadplusplus.install"
+      },
+      {
+        "Name": "Adobe Acrobat Reader DC",
+        "Description": "Standardowy czytnik plików PDF.",
+        "ChocoId": "adobereader"
+      },
+      {
+        "Name": "Foxit PDF Reader",
+        "Description": "Szybki i lekki czytnik plików PDF.",
+        "ChocoId": "foxitreader"
+      },
+      {
+        "Name": "LibreOffice",
+        "Description": "Darmowy i otwarty pakiet biurowy.",
+        "ChocoId": "libreoffice"
+      },
+      {
+        "Name": "Sumatra PDF",
+        "Description": "Minimalistyczna i szybka przeglądarka PDF.",
+        "ChocoId": "sumatrapdf"
+      }
+    ]
+  },
+  {
+    "Category": "Narzędzia (Utilities)",
+    "Apps": [
+      {
         "Name": "Rufus",
         "Description": "Tworzy bootowalne nośniki USB.",
         "ChocoId": "rufus"
       },
       {
-        "Name": "Wireshark",
-        "Description": "Analizator protokołów sieciowych.",
-        "ChocoId": "wireshark"
+        "Name": "BleachBit",
+        "Description": "Narzędzie do czyszczenia dysku i ochrony prywatności.",
+        "ChocoId": "bleachbit"
       },
       {
-        "Name": "PuTTY",
-        "Description": "Klient Telnet i SSH.",
-        "ChocoId": "putty"
+        "Name": "Total Commander",
+        "Description": "Popularny menedżer plików z dwoma panelami.",
+        "ChocoId": "totalcommander"
+      },
+      {
+        "Name": "Malwarebytes",
+        "Description": "Narzędzie do usuwania złośliwego oprogramowania.",
+        "ChocoId": "malwarebytes"
+      },
+      {
+        "Name": "Everything",
+        "Description": "Błyskawiczna wyszukiwarka plików w systemie Windows.",
+        "ChocoId": "everything"
       }
     ]
   },
@@ -129,8 +184,13 @@
     "Apps": [
       {
         "Name": "VLC Media Player",
-        "Description": "Odtwarzacz multimediów obsługujący większość formatów.",
+        "Description": "Wszechstronny odtwarzacz multimediów obsługujący większość formatów.",
         "ChocoId": "vlc"
+      },
+      {
+        "Name": "Audacity",
+        "Description": "Darmowy edytor audio.",
+        "ChocoId": "audacity"
       },
       {
         "Name": "HandBrake",
@@ -138,14 +198,19 @@
         "ChocoId": "handbrake"
       },
       {
-        "Name": "Audacity",
-        "Description": "Darmowy edytor audio.",
-        "ChocoId": "audacity"
+        "Name": "OBS Studio",
+        "Description": "Oprogramowanie do nagrywania wideo i streamingu na żywo.",
+        "ChocoId": "obs-studio"
+      },
+      {
+        "Name": "Spotify",
+        "Description": "Platforma do strumieniowania muzyki.",
+        "ChocoId": "spotify"
       }
     ]
   },
   {
-    "Category": "Pro Tools",
+    "Category": "Narzędzia dla profesjonalistów (Pro Tools)",
     "Apps": [
       {
         "Name": "Nmap",
@@ -161,6 +226,11 @@
         "Name": "PuTTY",
         "Description": "Klient Telnet i SSH.",
         "ChocoId": "putty"
+      },
+      {
+        "Name": "WinSCP",
+        "Description": "Klient SFTP, FTP, WebDAV, SCP.",
+        "ChocoId": "winscp"
       }
     ]
   }
