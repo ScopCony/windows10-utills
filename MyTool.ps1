@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 2.2 - Usunięto formatowanie pogrubienia i kolorów.
+# Wersja: 2.3 - Zmieniono kolor nazw aplikacji na pomarańczowy.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -66,8 +66,10 @@ function Show-AppsMenu($appsData) {
     foreach ($category in $appsData) {
         Write-Host "`n---- $($category.Category) ----" -ForegroundColor Yellow
         foreach ($app in $category.Apps) {
-            # Przywrócono domyślne wyświetlanie bez pogrubienia i koloru
-            Write-Host "$count. $($app.Name) - $($app.Description)"
+            # Użycie koloru pomarańczowego
+            Write-Host "$count. " -NoNewline
+            Write-Host "$($app.Name)" -ForegroundColor DarkYellow -NoNewline
+            Write-Host " - $($app.Description)"
             $global:allApps += $app
             $count++
         }
