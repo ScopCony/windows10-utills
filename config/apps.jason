@@ -1,0 +1,17 @@
+[
+    {
+        "Name": "7-Zip",
+        "Description": "Popularny archiwizator plików",
+        "WingetId": "7zip.7zip"
+    },
+    {
+        "Name": "Notepad++",
+        "Description": "Lekki edytor tekstu",
+        "WingetId": "Notepad++.Notepad++"
+    },
+    {
+        "Name": "VLC Media Player",
+        "Description": "Odtwarzacz multimedialny",
+        "WingetId": "VideoLAN.VLC"
+    }
+]
