@@ -10,10 +10,10 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 3.4 - Przywrócono ciemnoniebieskie tło konsoli.
+# Wersja: 3.6 - Przywrócono kod zmieniający kolory konsoli dla spójnego wyglądu na wszystkich komputerach.
 
 # region Zmiana kolorów konsoli
-# Ustawia tło na ciemnoniebieskie i tekst na biały
+# Ustawia tło na ciemnoniebieskie i tekst na biały, aby zapewnić spójny wygląd.
 $Host.UI.RawUI.BackgroundColor = "DarkBlue"
 $Host.UI.RawUI.ForegroundColor = "White"
 Clear-Host
