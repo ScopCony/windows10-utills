@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 1.4 - Używa WebClient do niezawodnego pobierania JSON.
+# Wersja: 1.5 - Dodano obsługę kodowania UTF-8 dla polskich znaków.
 
 # region Konfiguracja
 # Zmień ten URL na link do Twojego repozytorium na GitHub!
@@ -37,8 +37,10 @@ function Get-JsonData($fileName) {
     $url = "$($githubRepoUrl)/config/$($fileName)"
     try {
         Write-Host "Pobieram dane z $url..." -ForegroundColor Green
-        # Użycie WebClient do niezawodnego pobierania surowego ciągu znaków
-        $json = (New-Object System.Net.WebClient).DownloadString($url)
+        # Użycie WebClient i kodowania UTF-8 do poprawnego wyświetlania polskich znaków
+        $webClient = New-Object System.Net.WebClient
+        $webClient.Encoding = [System.Text.Encoding]::UTF8
+        $json = $webClient.DownloadString($url)
         return $json | ConvertFrom-Json
     }
     catch {
