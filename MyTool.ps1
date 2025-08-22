@@ -4,16 +4,17 @@
 # i zarządzania funkcjami Windows, bazujące na zewnętrznym repozytorium GitHub.
 #
 # Działanie:
-# 1. Sprawdza uprawnienia administratora i, jeśli to konieczne, prosi użytkownika o ręczne ponowne uruchomienie.
-# 2. Pobiera pliki konfiguracyjne JSON z repozytorium GitHub.
-# 3. Wyświetla menu tekstowe z opcjami.
-# 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
+# 1. Sprawdza uprawnienia administratora.
+# 2. Sprawdza, czy Chocolatey jest zainstalowany i proponuje instalację.
+# 3. Pobiera pliki konfiguracyjne JSON z repozytorium GitHub.
+# 4. Wyświetla menu tekstowe z opcjami.
+# 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 3.9 - Ustawiono kolor tła konsoli na DarkBlue.
+# Wersja: 4.0 - Wprowadzono ulepszenia w obsłudze błędów, sprawdzanie zależności i refaktoryzację kodu.
 
 # region Zmiana kolorów konsoli
-# Ustawia tło na ciemnoniebieskie i tekst na biały, aby zapewnić spójny wygląd.
+# Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
 $Host.UI.RawUI.BackgroundColor = "Black"
 $Host.UI.RawUI.ForegroundColor = "White"
 Clear-Host
@@ -26,9 +27,7 @@ Clear-Host
 # endregion
 
 # region Konfiguracja
-# Zmień ten URL na link do Twojego repozytorium na GitHub!
-# Pamiętaj, aby wskazywał na główną gałąź i surowy plik JSON.
-# UWAGA: Ten URL jest poprawiony na podstawie Twojego zrzutu ekranu.
+# URL do repozytorium GitHub z plikami konfiguracyjnymi.
 $githubRepoUrl = "https://raw.githubusercontent.com/ScopCony/windows10-utills/main"
 # endregion
 
@@ -47,16 +46,46 @@ function Check-Admin {
     }
 }
 
+# NOWOŚĆ: Funkcja sprawdzająca, czy Chocolatey jest zainstalowany.
+function Check-Chocolatey {
+    # Sprawdza, czy polecenie 'choco' jest dostępne.
+    $chocoExists = Get-Command choco -ErrorAction SilentlyContinue
+    if (-not $chocoExists) {
+        Write-Host "Narzędzie Chocolatey nie zostało znalezione." -ForegroundColor Yellow
+        $installChoice = Read-Host "Czy chcesz je teraz zainstalować? (y/n)"
+        if ($installChoice -eq 'y') {
+            Write-Host "Instalowanie Chocolatey..." -ForegroundColor Green
+            try {
+                Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+                Write-Host "Chocolatey został pomyślnie zainstalowany. Uruchom skrypt ponownie." -ForegroundColor Green
+            }
+            catch {
+                Write-Host "Wystąpił błąd podczas instalacji Chocolatey." -ForegroundColor Red
+                Write-Host "Szczegóły błędu: $($_.Exception.Message)"
+            }
+            Read-Host "Naciśnij Enter, aby zamknąć..."
+            exit
+        }
+        else {
+            Write-Host "Instalacja programów nie będzie możliwa bez Chocolatey. Zamykanie skryptu." -ForegroundColor Red
+            Read-Host "Naciśnij Enter, aby zamknąć..."
+            exit
+        }
+    }
+    else {
+        Write-Host "Znaleziono zainstalowane narzędzie Chocolatey." -ForegroundColor Green
+    }
+}
+
+
 function Get-JsonData($fileName) {
-    # Pobiera plik JSON z GitHub.
+    # Pobiera i parsuje plik JSON z GitHub.
     $url = "$($githubRepoUrl)/config/$($fileName)"
     try {
-        Write-Host "Pobieram dane z $url..." -ForegroundColor Green
-        # Użycie WebClient i kodowania UTF-8 do poprawnego wyświetlania polskich znaków
-        $webClient = New-Object System.Net.WebClient
-        $webClient.Encoding = [System.Text.Encoding]::UTF8
-        $json = $webClient.DownloadString($url)
-        return $json | ConvertFrom-Json
+        Write-Host "Pobieram dane z $url..." -ForegroundColor Cyan
+        # Użycie Invoke-RestMethod jest nowocześniejszym podejściem i automatycznie parsuje JSON.
+        $data = Invoke-RestMethod -Uri $url
+        return $data
     }
     catch {
         Write-Host "Błąd podczas pobierania pliku $fileName." -ForegroundColor Red
@@ -65,28 +94,22 @@ function Get-JsonData($fileName) {
     }
 }
 
-function Show-AppsMenu($appsData) {
+# ZMIANA: Funkcja przyjmuje teraz spłaszczoną listę aplikacji.
+function Show-AppsMenu($appsData, $allApps) {
     # Wyświetla menu programów.
-    Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor Red
+    Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor Magenta
     
-    $global:allApps = @()
     $count = 1
-
     foreach ($category in $appsData) {
-        Write-Host "`n---- $($category.Category) ----" -ForegroundColor Red
+        Write-Host "`n---- $($category.Category) ----" -ForegroundColor Magenta
         foreach ($app in $category.Apps) {
-            # Nowa, bardziej niezawodna metoda formatowania tekstu
-            $appName = "$($app.Name)"
+            $appName = $app.Name
             $appDescription = "- $($app.Description)"
             
-            # Wypisujemy numer na zielonym tle
-            Write-Host "$count. " -ForegroundColor Green -NoNewline
-            # Wypisujemy nazwę aplikacji na żółtym tle
-            Write-Host "$appName" -ForegroundColor Yellow -NoNewline
-            # Wypisujemy opis na białym tle
-            Write-Host " $appDescription"
-            
-            $global:allApps += $app
+            # Uproszczone formatowanie dla lepszej czytelności
+            Write-Host ("{0,3}. " -f $count) -ForegroundColor Green -NoNewline
+            Write-Host $appName -ForegroundColor Yellow -NoNewline
+            Write-Host " $appDescription" -ForegroundColor White
             $count++
         }
     }
@@ -98,13 +121,48 @@ function Show-AppsMenu($appsData) {
 
 function Show-FeaturesMenu($features) {
     # Wyświetla menu funkcji Windows.
-    Write-Host "`n==== Zarządzanie funkcjami Windows ====`n" -ForegroundColor Red
+    Write-Host "`n==== Zarządzanie funkcjami Windows ====`n" -ForegroundColor Magenta
     for ($i = 0; $i -lt $features.Count; $i++) {
-        Write-Host "$($i + 1). $($features[$i].Name) - $($features[$i].Description)"
+        $feature = $features[$i]
+        # NOWOŚĆ: Sprawdzanie aktualnego stanu funkcji.
+        $status = (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
+        Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
     }
     Write-Host "`nq. Powrót do głównego menu`n"
     $choice = Read-Host "Wybierz numer, aby włączyć/wyłączyć funkcję"
     return $choice
+}
+
+# NOWOŚĆ: Funkcja do obsługi poleceń choco z lepszą obsługą błędów.
+function Invoke-ChocoCommand {
+    param(
+        [string]$Command,
+        [string]$PackageId,
+        [string]$InstallPath = ""
+    )
+    
+    $chocoArgs = @($Command, $PackageId, "-y") # -y automatycznie potwierdza
+    if ($Command -eq "install" -and -not [string]::IsNullOrEmpty($InstallPath)) {
+        # POPRAWKA: Prawidłowy parametr dla ścieżki instalacji i poprawne cytowanie.
+        $chocoArgs += "--install-directory=`"$InstallPath`""
+        Write-Host "Uwaga: Nie wszystkie pakiety Chocolatey wspierają niestandardową ścieżkę instalacji." -ForegroundColor Yellow
+    }
+
+    Write-Host "Wykonywanie polecenia: choco $($chocoArgs -join ' ')" -ForegroundColor Cyan
+    try {
+        # Użycie Start-Process, aby poczekać na zakończenie i sprawdzić kod wyjścia.
+        $process = Start-Process choco -ArgumentList $chocoArgs -Wait -PassThru -NoNewWindow
+        if ($process.ExitCode -eq 0) {
+            Write-Host "Polecenie wykonane pomyślnie." -ForegroundColor Green
+        }
+        else {
+            Write-Host "Polecenie zakończyło się błędem (kod wyjścia: $($process.ExitCode))." -ForegroundColor Red
+        }
+    }
+    catch {
+        Write-Host "Wystąpił krytyczny błąd podczas wykonywania polecenia choco." -ForegroundColor Red
+        Write-Host "Szczegóły: $($_.Exception.Message)"
+    }
 }
 
 function Main-Menu {
@@ -118,8 +176,12 @@ function Main-Menu {
         exit
     }
     
+    # ZMIANA: Spłaszczenie listy aplikacji w jednym miejscu, aby uniknąć zmiennej globalnej.
+    $allApps = $appsData.Apps | ForEach-Object { $_ }
+
     do {
-        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor DarkRed
+        Clear-Host
+        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor Yellow
         Write-Host "1. Zarządzaj programami (instalacja/deinstalacja)"
         Write-Host "2. Zarządzaj funkcjami Windows (włączanie/wyłączanie)"
         Write-Host "q. Zakończ"
@@ -129,12 +191,14 @@ function Main-Menu {
         switch ($mainChoice) {
             "1" {
                 do {
-                    $appChoice = Show-AppsMenu($appsData)
+                    Clear-Host
+                    # ZMIANA: Przekazanie obu list do funkcji menu.
+                    $appChoice = Show-AppsMenu -appsData $appsData -allApps $allApps
                     if ($appChoice -eq "q") { break }
 
-                    if ($appChoice -match "^\d+$" -and [int]$appChoice -le $global:allApps.Count) {
+                    if ($appChoice -match "^\d+$" -and [int]$appChoice -gt 0 -and [int]$appChoice -le $allApps.Count) {
                         $selectedIndex = [int]$appChoice - 1
-                        $selectedApp = $global:allApps[$selectedIndex]
+                        $selectedApp = $allApps[$selectedIndex]
                         
                         Write-Host "`nWybrano: $($selectedApp.Name)" -ForegroundColor Yellow
                         Write-Host "1. Zainstaluj"
@@ -142,32 +206,33 @@ function Main-Menu {
                         $actionChoice = Read-Host "Wybierz akcję"
 
                         if ($actionChoice -eq "1") {
-                            $installPath = Read-Host "Czy chcesz zainstalować domyślnie na C:\Program Files? (y/n)"
-                            if ($installPath -eq "y") {
-                                Write-Host "`nRozpoczynam instalację $($selectedApp.Name) przez Chocolatey..."
-                                choco install "$($selectedApp.ChocoId)"
-                            } else {
-                                $customPath = Read-Host "Podaj ścieżkę instalacji (np. D:\Programy)"
-                                Write-Host "`nRozpoczynam instalację $($selectedApp.Name) do $customPath przez Chocolatey..."
-                                choco install "$($selectedApp.ChocoId)" --install-location "'$customPath'"
+                            $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji? (y/n)"
+                            $customPath = ""
+                            if ($pathChoice -eq 'y') {
+                                $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
                             }
-                        } elseif ($actionChoice -eq "2") {
-                            Write-Host "`nRozpoczynam deinstalację $($selectedApp.Name) przez Chocolatey..."
-                            choco uninstall "$($selectedApp.ChocoId)"
-                        } else {
-                            Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
+                            Invoke-ChocoCommand -Command "install" -PackageId $selectedApp.ChocoId -InstallPath $customPath
                         }
-                    } else {
-                        Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
+                        elseif ($actionChoice -eq "2") {
+                            Invoke-ChocoCommand -Command "uninstall" -PackageId $selectedApp.ChocoId
+                        }
+                        else {
+                            Write-Host "Nieprawidłowy wybór." -ForegroundColor Red
+                        }
                     }
+                    else {
+                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor Red
+                    }
+                    Read-Host "Naciśnij Enter, aby kontynuować..."
                 } while ($true)
             }
             "2" {
                 do {
+                    Clear-Host
                     $featureChoice = Show-FeaturesMenu($featuresData)
                     if ($featureChoice -eq "q") { break }
 
-                    if ($featureChoice -match "^\d+$" -and $featureChoice -le $featuresData.Count) {
+                    if ($featureChoice -match "^\d+$" -and $featureChoice -gt 0 -and $featureChoice -le $featuresData.Count) {
                         $selectedIndex = [int]$featureChoice - 1
                         $selectedFeature = $featuresData[$selectedIndex]
                         
@@ -176,30 +241,42 @@ function Main-Menu {
                         Write-Host "2. Wyłącz"
                         $actionChoice = Read-Host "Wybierz akcję"
                         
-                        switch ($actionChoice) {
-                            "1" {
-                                Write-Host "`nWłączam funkcję $($selectedFeature.Name)..."
-                                Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All
-                            }
-                            "2" {
-                                Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..."
-                                Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName
-                            }
-                            default {
-                                Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
+                        # POPRAWKA: Dodano blok try-catch do obsługi błędów poleceń DISM.
+                        try {
+                            switch ($actionChoice) {
+                                "1" {
+                                    Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor Cyan
+                                    Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All -NoRestart
+                                    Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor Green
+                                }
+                                "2" {
+                                    Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor Cyan
+                                    Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -NoRestart
+                                    Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor Green
+                                }
+                                default {
+                                    Write-Host "Nieprawidłowy wybór." -ForegroundColor Red
+                                }
                             }
                         }
-                    } else {
-                        Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
+                        catch {
+                             Write-Host "Wystąpił błąd podczas zmiany statusu funkcji." -ForegroundColor Red
+                             Write-Host "Szczegóły: $($_.Exception.Message)"
+                        }
                     }
+                    else {
+                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor Red
+                    }
+                    Read-Host "Naciśnij Enter, aby kontynuować..."
                 } while ($true)
             }
             "q" {
                 Write-Host "Zamykanie narzędzia. Do widzenia!"
-                exit
+                return # Użycie return zamiast exit, aby zakończyć pętlę i funkcję.
             }
             default {
                 Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
+                Read-Host "Naciśnij Enter, aby kontynuować..."
             }
         }
     } while ($true)
@@ -209,4 +286,5 @@ function Main-Menu {
 
 # Uruchomienie skryptu
 Check-Admin
+Check-Chocolatey
 Main-Menu
