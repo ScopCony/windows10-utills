@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 2.9 - Zmieniono kolor numeracji na zielony.
+# Wersja: 3.1 - Zmieniono kolor wszystkich tytułów menu na czerwony.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -60,13 +60,13 @@ function Get-JsonData($fileName) {
 
 function Show-AppsMenu($appsData) {
     # Wyświetla menu programów.
-    Write-Host "`n==== Zarządzanie programami ====`n"
+    Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor Red
     
     $global:allApps = @()
     $count = 1
 
     foreach ($category in $appsData) {
-        Write-Host "`n---- $($category.Category) ----" -ForegroundColor Yellow
+        Write-Host "`n---- $($category.Category) ----" -ForegroundColor Red
         foreach ($app in $category.Apps) {
             # Nowa, bardziej niezawodna metoda formatowania tekstu
             $appName = "$($app.Name)"
@@ -91,7 +91,7 @@ function Show-AppsMenu($appsData) {
 
 function Show-FeaturesMenu($features) {
     # Wyświetla menu funkcji Windows.
-    Write-Host "`n==== Zarządzanie funkcjami Windows ====`n"
+    Write-Host "`n==== Zarządzanie funkcjami Windows ====`n" -ForegroundColor Red
     for ($i = 0; $i -lt $features.Count; $i++) {
         Write-Host "$($i + 1). $($features[$i].Name) - $($features[$i].Description)"
     }
@@ -112,7 +112,7 @@ function Main-Menu {
     }
     
     do {
-        Write-Host "`n==== Główne Menu ====`n"
+        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor Red
         Write-Host "1. Zarządzaj programami (instalacja/deinstalacja)"
         Write-Host "2. Zarządzaj funkcjami Windows (włączanie/wyłączanie)"
         Write-Host "q. Zakończ"
