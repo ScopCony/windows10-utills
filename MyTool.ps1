@@ -119,7 +119,7 @@ function Main-Menu {
     }
     
     do {
-        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor DarkRed
+        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor Red
         Write-Host "1. Zarządzaj programami (instalacja/deinstalacja)"
         Write-Host "2. Zarządzaj funkcjami Windows (włączanie/wyłączanie)"
         Write-Host "q. Zakończ"
