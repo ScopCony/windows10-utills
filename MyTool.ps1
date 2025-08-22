@@ -10,7 +10,14 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 3.1 - Zmieniono kolor wszystkich tytułów menu na czerwony.
+# Wersja: 3.2 - Dodano zmianę motywu kolorystycznego konsoli na niebieski.
+
+# region Zmiana kolorów konsoli
+# Ustawia tło na ciemnoniebieskie i tekst na biały
+$Host.UI.RawUI.BackgroundColor = "DarkBlue"
+$Host.UI.RawUI.ForegroundColor = "White"
+Clear-Host
+# endregion
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
