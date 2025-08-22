@@ -1,17 +1,53 @@
 [
-    {
-        "Name": "7-Zip",
-        "Description": "Popularny archiwizator plików",
-        "WingetId": "7zip.7zip"
-    },
-    {
-        "Name": "Notepad++",
-        "Description": "Lekki edytor tekstu",
-        "WingetId": "Notepad++.Notepad++"
-    },
-    {
-        "Name": "VLC Media Player",
-        "Description": "Odtwarzacz multimedialny",
-        "WingetId": "VideoLAN.VLC"
-    }
+  {
+    "Name": "7-Zip",
+    "Description": "Potężny i darmowy archiwizator plików.",
+    "ChocoId": "7zip.install"
+  },
+  {
+    "Name": "Notepad++",
+    "Description": "Lekki, a jednocześnie zaawansowany edytor tekstu dla programistów.",
+    "ChocoId": "notepadplusplus.install"
+  },
+  {
+    "Name": "VLC Media Player",
+    "Description": "Wszechstronny odtwarzacz multimediów, który radzi sobie z większością formatów.",
+    "ChocoId": "vlc"
+  },
+  {
+    "Name": "Google Chrome",
+    "Description": "Szybka i bezpieczna przeglądarka internetowa od Google.",
+    "ChocoId": "googlechrome"
+  },
+  {
+    "Name": "Mozilla Firefox",
+    "Description": "Przeglądarka internetowa skupiająca się na prywatności i bezpieczeństwie.",
+    "ChocoId": "firefox"
+  },
+  {
+    "Name": "Visual Studio Code",
+    "Description": "Darmowy, potężny edytor kodu od Microsoftu.",
+    "ChocoId": "vscode"
+  },
+  {
+    "Name": "Python",
+    "Description": "Język programowania. Wymagane, aby aplikacje Python mogły działać.",
+    "ChocoId": "python3"
+  },
+  {
+    "Name": "Git",
+    "Description": "System kontroli wersji, niezbędny do pracy z repozytoriami, takimi jak to.",
+    "ChocoId": "git"
+  },
+  {
+    "Name": "Adobe Acrobat Reader DC",
+    "Description": "Standardowy czytnik plików PDF.",
+    "ChocoId": "adobereader"
+  },
+  {
+    "Name": "Discord",
+    "Description": "Platforma do komunikacji głosowej, wideo i tekstowej.",
+    "ChocoId": "discord"
+  }
 ]
+
