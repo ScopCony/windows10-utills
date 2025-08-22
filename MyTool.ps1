@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.0 - Wprowadzono ulepszenia w obsłudze błędów, sprawdzanie zależności i refaktoryzację kodu.
+# Wersja: 4.1 - Wprowadzono dwukolumnowy widok listy programów.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
@@ -46,7 +46,6 @@ function Check-Admin {
     }
 }
 
-# NOWOŚĆ: Funkcja sprawdzająca, czy Chocolatey jest zainstalowany.
 function Check-Chocolatey {
     # Sprawdza, czy polecenie 'choco' jest dostępne.
     $chocoExists = Get-Command choco -ErrorAction SilentlyContinue
@@ -83,7 +82,6 @@ function Get-JsonData($fileName) {
     $url = "$($githubRepoUrl)/config/$($fileName)"
     try {
         Write-Host "Pobieram dane z $url..." -ForegroundColor Cyan
-        # Użycie Invoke-RestMethod jest nowocześniejszym podejściem i automatycznie parsuje JSON.
         $data = Invoke-RestMethod -Uri $url
         return $data
     }
@@ -94,23 +92,42 @@ function Get-JsonData($fileName) {
     }
 }
 
-# ZMIANA: Funkcja przyjmuje teraz spłaszczoną listę aplikacji.
-function Show-AppsMenu($appsData, $allApps) {
-    # Wyświetla menu programów.
+# ZMIANA: Funkcja wyświetla programy w dwóch kolumnach.
+# Usunięto wyświetlanie kategorii i opisów dla uproszczenia układu.
+function Show-AppsMenu($allApps) {
     Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor Magenta
-    
-    $count = 1
-    foreach ($category in $appsData) {
-        Write-Host "`n---- $($category.Category) ----" -ForegroundColor Magenta
-        foreach ($app in $category.Apps) {
-            $appName = $app.Name
-            $appDescription = "- $($app.Description)"
-            
-            # Uproszczone formatowanie dla lepszej czytelności
-            Write-Host ("{0,3}. " -f $count) -ForegroundColor Green -NoNewline
-            Write-Host $appName -ForegroundColor Yellow -NoNewline
-            Write-Host " $appDescription" -ForegroundColor White
-            $count++
+
+    # Definiujemy szerokość pierwszej kolumny. Dostosuj w razie potrzeby.
+    $columnWidth = 55
+
+    for ($i = 0; $i -lt $allApps.Count; $i += 2) {
+        # --- Lewa kolumna ---
+        $numLeft = $i + 1
+        $appLeft = $allApps[$i]
+
+        # Wyświetl numer i nazwę dla lewej kolumny
+        Write-Host ("{0,3}. " -f $numLeft) -ForegroundColor Green -NoNewline
+        Write-Host $appLeft.Name -ForegroundColor Yellow -NoNewline
+
+        # Oblicz, ile znaków zajęła lewa kolumna i dodaj dopełnienie (padding)
+        $leftTextLength = ("{0,3}. " -f $numLeft).Length + $appLeft.Name.Length
+        # Upewnij się, że dopełnienie nie jest ujemne, jeśli nazwa jest bardzo długa
+        $paddingCount = [Math]::Max(0, $columnWidth - $leftTextLength)
+        $padding = " " * $paddingCount
+        Write-Host $padding -NoNewline
+
+        # --- Prawa kolumna (jeśli istnieje) ---
+        if (($i + 1) -lt $allApps.Count) {
+            $numRight = $i + 2
+            $appRight = $allApps[$i + 1]
+
+            # Wyświetl numer i nazwę dla prawej kolumny
+            Write-Host ("{0,3}. " -f $numRight) -ForegroundColor Green -NoNewline
+            Write-Host $appRight.Name -ForegroundColor Yellow
+        }
+        else {
+            # Jeśli nie ma prawej kolumny, po prostu zakończ linię
+            Write-Host ""
         }
     }
 
@@ -124,7 +141,6 @@ function Show-FeaturesMenu($features) {
     Write-Host "`n==== Zarządzanie funkcjami Windows ====`n" -ForegroundColor Magenta
     for ($i = 0; $i -lt $features.Count; $i++) {
         $feature = $features[$i]
-        # NOWOŚĆ: Sprawdzanie aktualnego stanu funkcji.
         $status = (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
         Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
     }
@@ -133,7 +149,6 @@ function Show-FeaturesMenu($features) {
     return $choice
 }
 
-# NOWOŚĆ: Funkcja do obsługi poleceń choco z lepszą obsługą błędów.
 function Invoke-ChocoCommand {
     param(
         [string]$Command,
@@ -141,16 +156,14 @@ function Invoke-ChocoCommand {
         [string]$InstallPath = ""
     )
     
-    $chocoArgs = @($Command, $PackageId, "-y") # -y automatycznie potwierdza
+    $chocoArgs = @($Command, $PackageId, "-y")
     if ($Command -eq "install" -and -not [string]::IsNullOrEmpty($InstallPath)) {
-        # POPRAWKA: Prawidłowy parametr dla ścieżki instalacji i poprawne cytowanie.
         $chocoArgs += "--install-directory=`"$InstallPath`""
         Write-Host "Uwaga: Nie wszystkie pakiety Chocolatey wspierają niestandardową ścieżkę instalacji." -ForegroundColor Yellow
     }
 
     Write-Host "Wykonywanie polecenia: choco $($chocoArgs -join ' ')" -ForegroundColor Cyan
     try {
-        # Użycie Start-Process, aby poczekać na zakończenie i sprawdzić kod wyjścia.
         $process = Start-Process choco -ArgumentList $chocoArgs -Wait -PassThru -NoNewWindow
         if ($process.ExitCode -eq 0) {
             Write-Host "Polecenie wykonane pomyślnie." -ForegroundColor Green
@@ -176,7 +189,6 @@ function Main-Menu {
         exit
     }
     
-    # ZMIANA: Spłaszczenie listy aplikacji w jednym miejscu, aby uniknąć zmiennej globalnej.
     $allApps = $appsData.Apps | ForEach-Object { $_ }
 
     do {
@@ -192,8 +204,8 @@ function Main-Menu {
             "1" {
                 do {
                     Clear-Host
-                    # ZMIANA: Przekazanie obu list do funkcji menu.
-                    $appChoice = Show-AppsMenu -appsData $appsData -allApps $allApps
+                    # ZMIANA: Wywołanie nowej funkcji menu, przekazując tylko spłaszczoną listę.
+                    $appChoice = Show-AppsMenu -allApps $allApps
                     if ($appChoice -eq "q") { break }
 
                     if ($appChoice -match "^\d+$" -and [int]$appChoice -gt 0 -and [int]$appChoice -le $allApps.Count) {
@@ -241,7 +253,6 @@ function Main-Menu {
                         Write-Host "2. Wyłącz"
                         $actionChoice = Read-Host "Wybierz akcję"
                         
-                        # POPRAWKA: Dodano blok try-catch do obsługi błędów poleceń DISM.
                         try {
                             switch ($actionChoice) {
                                 "1" {
@@ -272,7 +283,7 @@ function Main-Menu {
             }
             "q" {
                 Write-Host "Zamykanie narzędzia. Do widzenia!"
-                return # Użycie return zamiast exit, aby zakończyć pętlę i funkcję.
+                return
             }
             default {
                 Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
