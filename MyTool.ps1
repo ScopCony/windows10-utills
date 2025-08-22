@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.3 - Poprawiono błąd w tworzeniu listy, przywracając prawidłowy widok dwukolumnowy.
+# Wersja: 4.5 - Przywrócono opisy programów w widoku jednokolumnowym.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
@@ -92,40 +92,21 @@ function Get-JsonData($fileName) {
     }
 }
 
-function Show-AppsMenu($allApps) {
+# ZMIANA: Powrót do widoku jednokolumnowego, aby wyświetlić opisy programów.
+function Show-AppsMenu($appsData) {
     Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor Magenta
+    
+    $count = 1 # Ogólny licznik dla numeracji programów
 
-    # Definiujemy szerokość pierwszej kolumny. Dostosuj w razie potrzeby.
-    $columnWidth = 55
-
-    for ($i = 0; $i -lt $allApps.Count; $i += 2) {
-        # --- Lewa kolumna ---
-        $numLeft = $i + 1
-        $appLeft = $allApps[$i]
-
-        # Wyświetl numer i nazwę dla lewej kolumny
-        Write-Host ("{0,3}. " -f $numLeft) -ForegroundColor Green -NoNewline
-        Write-Host $appLeft.Name -ForegroundColor Yellow -NoNewline
-
-        # Oblicz, ile znaków zajęła lewa kolumna i dodaj dopełnienie (padding)
-        $leftTextLength = ("{0,3}. " -f $numLeft).Length + $appLeft.Name.Length
-        # Upewnij się, że dopełnienie nie jest ujemne, jeśli nazwa jest bardzo długa
-        $paddingCount = [Math]::Max(0, $columnWidth - $leftTextLength)
-        $padding = " " * $paddingCount
-        Write-Host $padding -NoNewline
-
-        # --- Prawa kolumna (jeśli istnieje) ---
-        if (($i + 1) -lt $allApps.Count) {
-            $numRight = $i + 2
-            $appRight = $allApps[$i + 1]
-
-            # Wyświetl numer i nazwę dla prawej kolumny
-            Write-Host ("{0,3}. " -f $numRight) -ForegroundColor Green -NoNewline
-            Write-Host $appRight.Name -ForegroundColor Yellow
-        }
-        else {
-            # Jeśli nie ma prawej kolumny, po prostu zakończ linię
-            Write-Host ""
+    foreach ($category in $appsData) {
+        Write-Host "`n---- $($category.Category) ----" -ForegroundColor Magenta
+        
+        foreach ($app in $category.Apps) {
+            # Formatowanie: Numer. Nazwa - Opis
+            Write-Host ("{0,3}. " -f $count) -ForegroundColor Green -NoNewline
+            Write-Host $app.Name -ForegroundColor Yellow -NoNewline
+            Write-Host " - $($app.Description)" -ForegroundColor White
+            $count++
         }
     }
 
@@ -187,7 +168,7 @@ function Main-Menu {
         exit
     }
     
-    # POPRAWKA: Powrót do bardziej niezawodnej, pętlowej metody spłaszczania listy aplikacji.
+    # Tworzymy spłaszczoną listę, która jest potrzebna do łatwego wyboru programu po numerze.
     $allApps = [System.Collections.Generic.List[object]]::new()
     foreach ($category in $appsData) {
         if ($null -ne $category.Apps) {
@@ -208,7 +189,7 @@ function Main-Menu {
             "1" {
                 do {
                     Clear-Host
-                    $appChoice = Show-AppsMenu -allApps $allApps
+                    $appChoice = Show-AppsMenu -appsData $appsData
                     if ($appChoice -eq "q") { break }
 
                     if ($appChoice -match "^\d+$" -and [int]$appChoice -gt 0 -and [int]$appChoice -le $allApps.Count) {
