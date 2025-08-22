@@ -27,7 +27,7 @@ $colors = @{
     Error       = "Red"      # Kolor dla komunikatów o błędach.
     Success     = "Green"    # Kolor dla komunikatów o powodzeniu (np. numery list, pomyślne zakończenie).
     Highlight   = "Blue"     # Kolor do podświetlania ważnych elementów (np. nazwy programów, tytuły menu).
-    Header      = "Magenta"  # Kolor dla nagłówków sekcji i kategorii.
+    Header      = "DarkRed"  # Kolor dla nagłówków sekcji i kategorii.
     Info        = "Cyan"     # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
     DefaultText = "Gray"    # Standardowy kolor tekstu (np. opisy programów).
 }
