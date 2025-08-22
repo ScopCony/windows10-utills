@@ -10,7 +10,13 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 1.5 - Dodano obsługę kodowania UTF-8 dla polskich znaków.
+# Wersja: 1.6 - Wymuszenie kodowania UTF-8 na początku skryptu.
+
+# region Wymuszenie kodowania
+# Ta linia zapewnia poprawne wyświetlanie polskich znaków
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding = [System.Text.Encoding]::UTF8
+# endregion
 
 # region Konfiguracja
 # Zmień ten URL na link do Twojego repozytorium na GitHub!
