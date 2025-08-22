@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 2.0 - Poprawiono formatowanie tekstu w menu, aby uniknąć problemów z konsolą.
+# Wersja: 2.1 - Ostateczna poprawa formatowania tekstu w menu.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -66,8 +66,9 @@ function Show-AppsMenu($appsData) {
     foreach ($category in $appsData) {
         Write-Host "`n---- $($category.Category) ----" -ForegroundColor Yellow
         foreach ($app in $category.Apps) {
-            # Zmieniono sposób pogrubiania tekstu
-            Write-Host "$count. $($app.Name)" -ForegroundColor Cyan -NoNewline
+            # Zmieniono sposób pogrubiania tekstu na uniwersalne rozwiązanie
+            Write-Host "$count. " -NoNewline
+            Write-Host "$($app.Name)" -ForegroundColor Cyan -NoNewline
             Write-Host " - $($app.Description)"
             $global:allApps += $app
             $count++
