@@ -13,9 +13,9 @@
         "ChocoId": "googlechrome"
       },
       {
-        "Name": "Mozilla Firefox",
-        "Description": "Przeglądarka internetowa skupiająca się na prywatności.",
-        "ChocoId": "firefox"
+        "Name": "Chromium",
+        "Description": "Wersja przeglądarki Chrome z otwartym kodem źródłowym.",
+        "ChocoId": "chromium"
       },
       {
         "Name": "Microsoft Edge",
@@ -23,14 +23,69 @@
         "ChocoId": "microsoft-edge"
       },
       {
-        "Name": "Opera",
-        "Description": "Przeglądarka z wbudowanym VPN i blokowaniem reklam.",
-        "ChocoId": "opera"
+        "Name": "Falkon",
+        "Description": "Lekka przeglądarka oparta na silniku renderującym Qt.",
+        "ChocoId": "falkon"
+      },
+      {
+        "Name": "Mozilla Firefox",
+        "Description": "Przeglądarka internetowa skupiająca się na prywatności.",
+        "ChocoId": "firefox"
+      },
+      {
+        "Name": "Firefox ESR",
+        "Description": "Wersja Firefox z rozszerzoną pomocą techniczną.",
+        "ChocoId": "firefox-esr"
+      },
+      {
+        "Name": "Floorp",
+        "Description": "Przeglądarka oparta na Firefox z zaawansowanymi opcjami dostosowywania.",
+        "ChocoId": "floorp"
+      },
+      {
+        "Name": "LibreWolf",
+        "Description": "Wydanie Firefox skupione na prywatności i bezpieczeństwie.",
+        "ChocoId": "librewolf"
+      },
+      {
+        "Name": "Mullvad Browser",
+        "Description": "Przeglądarka internetowa zoptymalizowana do użytku z siecią Mullvad VPN.",
+        "ChocoId": "mullvad-browser"
+      },
+      {
+        "Name": "Pale Moon",
+        "Description": "Wydanie Firefox zoptymalizowane pod wydajność.",
+        "ChocoId": "palemoon"
+      },
+      {
+        "Name": "Thorium Browser AVX2",
+        "Description": "Wersja Chrome zoptymalizowana pod procesory AVX2.",
+        "ChocoId": "thorium-browser"
       },
       {
         "Name": "Tor Browser",
         "Description": "Przeglądarka zapewniająca anonimowe surfowanie po sieci.",
         "ChocoId": "tor-browser"
+      },
+      {
+        "Name": "Ungoogled Chromium",
+        "Description": "Wersja Chromium bez integracji z Google.",
+        "ChocoId": "ungoogled-chromium"
+      },
+      {
+        "Name": "Vivaldi",
+        "Description": "Przeglądarka z dużymi możliwościami dostosowania.",
+        "ChocoId": "vivaldi"
+      },
+      {
+        "Name": "Waterfox",
+        "Description": "64-bitowa przeglądarka oparta na silniku Gecko.",
+        "ChocoId": "waterfox"
+      },
+      {
+        "Name": "Zen Browser",
+        "Description": "Przeglądarka dla profesjonalistów.",
+        "ChocoId": "zen-browser"
       }
     ]
   },
