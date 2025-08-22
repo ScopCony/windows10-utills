@@ -10,12 +10,10 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 3.8 - Dodano zmianę tytułu okna w celu weryfikacji wersji.
+# Wersja: 3.9 - Ustawiono kolor tła konsoli na DarkBlue.
 
-# region Zmiana wyglądu konsoli
-# Testowa zmiana tytułu okna
-$Host.UI.RawUI.WindowTitle = "MyTool v3.8 - Test Wersji"
-# Ustawia tło na ciemny cyjan i tekst na biały, aby zapewnić spójny wygląd.
+# region Zmiana kolorów konsoli
+# Ustawia tło na ciemnoniebieskie i tekst na biały, aby zapewnić spójny wygląd.
 $Host.UI.RawUI.BackgroundColor = "DarkBlue"
 $Host.UI.RawUI.ForegroundColor = "White"
 Clear-Host
