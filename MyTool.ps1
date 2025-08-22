@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 2.1 - Ostateczna poprawa formatowania tekstu w menu.
+# Wersja: 2.2 - Usunięto formatowanie pogrubienia i kolorów.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -57,7 +57,7 @@ function Get-JsonData($fileName) {
 }
 
 function Show-AppsMenu($appsData) {
-    # Wyświetla menu programów z pogrubionymi nazwami (za pomocą koloru).
+    # Wyświetla menu programów.
     Write-Host "`n==== Zarządzanie programami ====`n"
     
     $global:allApps = @()
@@ -66,10 +66,8 @@ function Show-AppsMenu($appsData) {
     foreach ($category in $appsData) {
         Write-Host "`n---- $($category.Category) ----" -ForegroundColor Yellow
         foreach ($app in $category.Apps) {
-            # Zmieniono sposób pogrubiania tekstu na uniwersalne rozwiązanie
-            Write-Host "$count. " -NoNewline
-            Write-Host "$($app.Name)" -ForegroundColor Cyan -NoNewline
-            Write-Host " - $($app.Description)"
+            # Przywrócono domyślne wyświetlanie bez pogrubienia i koloru
+            Write-Host "$count. $($app.Name) - $($app.Description)"
             $global:allApps += $app
             $count++
         }
