@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 1.7 - Obsługa kategoryzacji programów z pliku apps.json.
+# Wersja: 1.8 - Dodano opcję wyboru ścieżki instalacji dla programów.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -122,18 +122,21 @@ function Main-Menu {
                         Write-Host "2. Odinstaluj"
                         $actionChoice = Read-Host "Wybierz akcję"
 
-                        switch ($actionChoice) {
-                            "1" {
+                        if ($actionChoice -eq "1") {
+                            $installPath = Read-Host "Czy chcesz zainstalować domyślnie na C:\Program Files? (y/n)"
+                            if ($installPath -eq "y") {
                                 Write-Host "`nRozpoczynam instalację $($selectedApp.Name) przez Chocolatey..."
                                 choco install "$($selectedApp.ChocoId)"
+                            } else {
+                                $customPath = Read-Host "Podaj ścieżkę instalacji (np. D:\Programy)"
+                                Write-Host "`nRozpoczynam instalację $($selectedApp.Name) do $customPath przez Chocolatey..."
+                                choco install "$($selectedApp.ChocoId)" --install-location "'$customPath'"
                             }
-                            "2" {
-                                Write-Host "`nRozpoczynam deinstalację $($selectedApp.Name) przez Chocolatey..."
-                                choco uninstall "$($selectedApp.ChocoId)"
-                            }
-                            default {
-                                Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
-                            }
+                        } elseif ($actionChoice -eq "2") {
+                            Write-Host "`nRozpoczynam deinstalację $($selectedApp.Name) przez Chocolatey..."
+                            choco uninstall "$($selectedApp.ChocoId)"
+                        } else {
+                            Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
                         }
                     } else {
                         Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
