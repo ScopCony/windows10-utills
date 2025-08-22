@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 2.4 - Użyto uniwersalnego koloru Yellow.
+# Wersja: 2.5 - Finalne rozwiązanie problemu z kolorami.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -66,10 +66,17 @@ function Show-AppsMenu($appsData) {
     foreach ($category in $appsData) {
         Write-Host "`n---- $($category.Category) ----" -ForegroundColor Yellow
         foreach ($app in $category.Apps) {
-            # Użycie koloru żółtego
+            # Nowa, bardziej niezawodna metoda formatowania tekstu
+            $appName = "$($app.Name)"
+            $appDescription = "- $($app.Description)"
+            
+            # Wypisujemy numer na białym tle
             Write-Host "$count. " -NoNewline
-            Write-Host "$($app.Name)" -ForegroundColor Yellow -NoNewline
-            Write-Host " - $($app.Description)"
+            # Wypisujemy nazwę aplikacji na żółtym tle
+            Write-Host "$appName" -ForegroundColor Yellow -NoNewline
+            # Wypisujemy opis na białym tle
+            Write-Host " $appDescription"
+            
             $global:allApps += $app
             $count++
         }
