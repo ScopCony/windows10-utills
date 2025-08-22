@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 2.3 - Zmieniono kolor nazw aplikacji na pomarańczowy.
+# Wersja: 2.4 - Użyto uniwersalnego koloru Yellow.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -66,9 +66,9 @@ function Show-AppsMenu($appsData) {
     foreach ($category in $appsData) {
         Write-Host "`n---- $($category.Category) ----" -ForegroundColor Yellow
         foreach ($app in $category.Apps) {
-            # Użycie koloru pomarańczowego
+            # Użycie koloru żółtego
             Write-Host "$count. " -NoNewline
-            Write-Host "$($app.Name)" -ForegroundColor DarkYellow -NoNewline
+            Write-Host "$($app.Name)" -ForegroundColor Yellow -NoNewline
             Write-Host " - $($app.Description)"
             $global:allApps += $app
             $count++
