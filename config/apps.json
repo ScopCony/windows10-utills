@@ -1,52 +1,167 @@
 [
   {
-    "Name": "7-Zip",
-    "Description": "Potężny i darmowy archiwizator plików.",
-    "ChocoId": "7zip.install"
+    "Category": "Browsers",
+    "Apps": [
+      {
+        "Name": "Brave",
+        "Description": "Przeglądarka internetowa z wbudowanym blokowaniem reklam.",
+        "ChocoId": "brave"
+      },
+      {
+        "Name": "Chrome",
+        "Description": "Przeglądarka internetowa od Google.",
+        "ChocoId": "googlechrome"
+      },
+      {
+        "Name": "Firefox",
+        "Description": "Przeglądarka internetowa skupiająca się na prywatności.",
+        "ChocoId": "firefox"
+      },
+      {
+        "Name": "Vivaldi",
+        "Description": "Przeglądarka z dużymi możliwościami dostosowania.",
+        "ChocoId": "vivaldi"
+      }
+    ]
   },
   {
-    "Name": "Notepad++",
-    "Description": "Lekki, a jednocześnie zaawansowany edytor tekstu dla programistów.",
-    "ChocoId": "notepadplusplus.install"
+    "Category": "Communications",
+    "Apps": [
+      {
+        "Name": "Discord",
+        "Description": "Platforma do komunikacji głosowej i tekstowej dla graczy i społeczności.",
+        "ChocoId": "discord"
+      },
+      {
+        "Name": "Telegram",
+        "Description": "Aplikacja do wysyłania wiadomości z naciskiem na szybkość i bezpieczeństwo.",
+        "ChocoId": "telegram"
+      },
+      {
+        "Name": "Signal",
+        "Description": "Aplikacja do szyfrowanych wiadomości.",
+        "ChocoId": "signal"
+      },
+      {
+        "Name": "Zoom",
+        "Description": "Popularna platforma do wideokonferencji.",
+        "ChocoId": "zoom"
+      }
+    ]
   },
   {
-    "Name": "VLC Media Player",
-    "Description": "Wszechstronny odtwarzacz multimediów, który radzi sobie z większością formatów.",
-    "ChocoId": "vlc"
+    "Category": "Development",
+    "Apps": [
+      {
+        "Name": "Git",
+        "Description": "Rozproszony system kontroli wersji.",
+        "ChocoId": "git"
+      },
+      {
+        "Name": "Node.js",
+        "Description": "Środowisko uruchomieniowe JavaScript.",
+        "ChocoId": "nodejs"
+      },
+      {
+        "Name": "Visual Studio Code",
+        "Description": "Lekki, a jednocześnie potężny edytor kodu.",
+        "ChocoId": "vscode"
+      },
+      {
+        "Name": "Python",
+        "Description": "Język programowania.",
+        "ChocoId": "python"
+      }
+    ]
   },
   {
-    "Name": "Google Chrome",
-    "Description": "Szybka i bezpieczna przeglądarka internetowa od Google.",
-    "ChocoId": "googlechrome"
+    "Category": "Document",
+    "Apps": [
+      {
+        "Name": "Adobe Acrobat Reader DC",
+        "Description": "Standardowy czytnik plików PDF.",
+        "ChocoId": "adobereader"
+      },
+      {
+        "Name": "Notepad++",
+        "Description": "Edytor tekstu dla programistów.",
+        "ChocoId": "notepadplusplus.install"
+      },
+      {
+        "Name": "LibreOffice",
+        "Description": "Darmowy i otwarty pakiet biurowy.",
+        "ChocoId": "libreoffice"
+      },
+      {
+        "Name": "Foxit PDF Reader",
+        "Description": "Szybki i lekki czytnik plików PDF.",
+        "ChocoId": "foxitreader"
+      }
+    ]
   },
   {
-    "Name": "Mozilla Firefox",
-    "Description": "Przeglądarka internetowa skupiająca się na prywatności i bezpieczeństwie.",
-    "ChocoId": "firefox"
+    "Category": "Utilities",
+    "Apps": [
+      {
+        "Name": "7-Zip",
+        "Description": "Potężny i darmowy archiwizator plików.",
+        "ChocoId": "7zip.install"
+      },
+      {
+        "Name": "Rufus",
+        "Description": "Tworzy bootowalne nośniki USB.",
+        "ChocoId": "rufus"
+      },
+      {
+        "Name": "Wireshark",
+        "Description": "Analizator protokołów sieciowych.",
+        "ChocoId": "wireshark"
+      },
+      {
+        "Name": "PuTTY",
+        "Description": "Klient Telnet i SSH.",
+        "ChocoId": "putty"
+      }
+    ]
   },
   {
-    "Name": "Visual Studio Code",
-    "Description": "Darmowy, potężny edytor kodu od Microsoftu.",
-    "ChocoId": "vscode"
+    "Category": "Multimedia",
+    "Apps": [
+      {
+        "Name": "VLC Media Player",
+        "Description": "Odtwarzacz multimediów obsługujący większość formatów.",
+        "ChocoId": "vlc"
+      },
+      {
+        "Name": "HandBrake",
+        "Description": "Narzędzie do konwersji wideo.",
+        "ChocoId": "handbrake"
+      },
+      {
+        "Name": "Audacity",
+        "Description": "Darmowy edytor audio.",
+        "ChocoId": "audacity"
+      }
+    ]
   },
   {
-    "Name": "Python",
-    "Description": "Język programowania. Wymagane, aby aplikacje Python mogły działać.",
-    "ChocoId": "python3"
-  },
-  {
-    "Name": "Git",
-    "Description": "System kontroli wersji, niezbędny do pracy z repozytoriami, takimi jak to.",
-    "ChocoId": "git"
-  },
-  {
-    "Name": "Adobe Acrobat Reader DC",
-    "Description": "Standardowy czytnik plików PDF.",
-    "ChocoId": "adobereader"
-  },
-  {
-    "Name": "Discord",
-    "Description": "Platforma do komunikacji głosowej, wideo i tekstowej.",
-    "ChocoId": "discord"
+    "Category": "Pro Tools",
+    "Apps": [
+      {
+        "Name": "Nmap",
+        "Description": "Narzędzie do skanowania sieci.",
+        "ChocoId": "nmap"
+      },
+      {
+        "Name": "Wireshark",
+        "Description": "Analizator protokołów sieciowych.",
+        "ChocoId": "wireshark"
+      },
+      {
+        "Name": "PuTTY",
+        "Description": "Klient Telnet i SSH.",
+        "ChocoId": "putty"
+      }
+    ]
   }
 ]
