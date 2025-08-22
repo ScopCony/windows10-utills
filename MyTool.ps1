@@ -11,13 +11,26 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.7 - Zmieniono kolor podświetlenia z żółtego na niebieski.
+# Wersja: 4.8 - Scentralizowano definicje kolorów dla łatwej personalizacji.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
 $Host.UI.RawUI.BackgroundColor = "Black"
 $Host.UI.RawUI.ForegroundColor = "White"
 Clear-Host
+# endregion
+
+# region Definicje kolorów
+# Centralne miejsce do zarządzania kolorami w skrypcie.
+# Zmień poniższe wartości, aby dostosować wygląd całego narzędzia.
+$colors = @{
+    Error       = "Red"      # Kolor dla komunikatów o błędach.
+    Success     = "Green"    # Kolor dla komunikatów o powodzeniu (np. numery list, pomyślne zakończenie).
+    Highlight   = "Blue"     # Kolor do podświetlania ważnych elementów (np. nazwy programów, tytuły menu).
+    Header      = "Magenta"  # Kolor dla nagłówków sekcji i kategorii.
+    Info        = "Cyan"     # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
+    DefaultText = "White"    # Standardowy kolor tekstu (np. opisy programów).
+}
 # endregion
 
 # region Wymuszenie kodowania
@@ -37,7 +50,7 @@ function Check-Admin {
     # Sprawdza, czy skrypt jest uruchomiony z uprawnieniami administratora.
     $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Host "Ten skrypt musi być uruchomiony z uprawnieniami administratora." -ForegroundColor Red
+        Write-Host "Ten skrypt musi być uruchomiony z uprawnieniami administratora." -ForegroundColor $colors.Error
         Write-Host "Proszę zamknij to okno i uruchom ponownie PowerShell jako administrator."
         Write-Host "Następnie użyj komendy:"
         Write-Host "irm https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1 | iex"
@@ -50,29 +63,29 @@ function Check-Chocolatey {
     # Sprawdza, czy polecenie 'choco' jest dostępne.
     $chocoExists = Get-Command choco -ErrorAction SilentlyContinue
     if (-not $chocoExists) {
-        Write-Host "Narzędzie Chocolatey nie zostało znalezione." -ForegroundColor Blue
+        Write-Host "Narzędzie Chocolatey nie zostało znalezione." -ForegroundColor $colors.Highlight
         $installChoice = Read-Host "Czy chcesz je teraz zainstalować? (y/n)"
         if ($installChoice -eq 'y') {
-            Write-Host "Instalowanie Chocolatey..." -ForegroundColor Green
+            Write-Host "Instalowanie Chocolatey..." -ForegroundColor $colors.Success
             try {
                 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-                Write-Host "Chocolatey został pomyślnie zainstalowany. Uruchom skrypt ponownie." -ForegroundColor Green
+                Write-Host "Chocolatey został pomyślnie zainstalowany. Uruchom skrypt ponownie." -ForegroundColor $colors.Success
             }
             catch {
-                Write-Host "Wystąpił błąd podczas instalacji Chocolatey." -ForegroundColor Red
+                Write-Host "Wystąpił błąd podczas instalacji Chocolatey." -ForegroundColor $colors.Error
                 Write-Host "Szczegóły błędu: $($_.Exception.Message)"
             }
             Read-Host "Naciśnij Enter, aby zamknąć..."
             exit
         }
         else {
-            Write-Host "Instalacja programów nie będzie możliwa bez Chocolatey. Zamykanie skryptu." -ForegroundColor Red
+            Write-Host "Instalacja programów nie będzie możliwa bez Chocolatey. Zamykanie skryptu." -ForegroundColor $colors.Error
             Read-Host "Naciśnij Enter, aby zamknąć..."
             exit
         }
     }
     else {
-        Write-Host "Znaleziono zainstalowane narzędzie Chocolatey." -ForegroundColor Green
+        Write-Host "Znaleziono zainstalowane narzędzie Chocolatey." -ForegroundColor $colors.Success
     }
 }
 
@@ -81,31 +94,30 @@ function Get-JsonData($fileName) {
     # Pobiera i parsuje plik JSON z GitHub.
     $url = "$($githubRepoUrl)/config/$($fileName)"
     try {
-        Write-Host "Pobieram dane z $url..." -ForegroundColor Cyan
+        Write-Host "Pobieram dane z $url..." -ForegroundColor $colors.Info
         $data = Invoke-RestMethod -Uri $url
         return $data
     }
     catch {
-        Write-Host "Błąd podczas pobierania pliku $fileName." -ForegroundColor Red
+        Write-Host "Błąd podczas pobierania pliku $fileName." -ForegroundColor $colors.Error
         Write-Host "Szczegóły błędu: $($_.Exception.Message)"
         return $null
     }
 }
 
-# Przywrócono widok jednokolumnowy z opisami.
 function Show-AppsMenu($appsData) {
-    Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor Magenta
+    Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor $colors.Header
     
     $count = 1 # Ogólny licznik dla numeracji programów
 
     foreach ($category in $appsData) {
-        Write-Host "`n---- $($category.Category) ----" -ForegroundColor Magenta
+        Write-Host "`n---- $($category.Category) ----" -ForegroundColor $colors.Header
         
         foreach ($app in $category.Apps) {
             # Formatowanie: Numer. Nazwa - Opis
-            Write-Host ("{0,3}. " -f $count) -ForegroundColor Green -NoNewline
-            Write-Host $app.Name -ForegroundColor Blue -NoNewline
-            Write-Host " - $($app.Description)" -ForegroundColor White
+            Write-Host ("{0,3}. " -f $count) -ForegroundColor $colors.Success -NoNewline
+            Write-Host $app.Name -ForegroundColor $colors.Highlight -NoNewline
+            Write-Host " - $($app.Description)" -ForegroundColor $colors.DefaultText
             $count++
         }
     }
@@ -117,7 +129,7 @@ function Show-AppsMenu($appsData) {
 
 function Show-FeaturesMenu($features) {
     # Wyświetla menu funkcji Windows.
-    Write-Host "`n==== Zarządzanie funkcjami Windows ====`n" -ForegroundColor Magenta
+    Write-Host "`n==== Zarządzanie funkcjami Windows ====`n" -ForegroundColor $colors.Header
     for ($i = 0; $i -lt $features.Count; $i++) {
         $feature = $features[$i]
         $status = (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
@@ -138,21 +150,21 @@ function Invoke-ChocoCommand {
     $chocoArgs = @($Command, $PackageId, "-y")
     if ($Command -eq "install" -and -not [string]::IsNullOrEmpty($InstallPath)) {
         $chocoArgs += "--install-directory=`"$InstallPath`""
-        Write-Host "Uwaga: Nie wszystkie pakiety Chocolatey wspierają niestandardową ścieżkę instalacji." -ForegroundColor Blue
+        Write-Host "Uwaga: Nie wszystkie pakiety Chocolatey wspierają niestandardową ścieżkę instalacji." -ForegroundColor $colors.Highlight
     }
 
-    Write-Host "Wykonywanie polecenia: choco $($chocoArgs -join ' ')" -ForegroundColor Cyan
+    Write-Host "Wykonywanie polecenia: choco $($chocoArgs -join ' ')" -ForegroundColor $colors.Info
     try {
         $process = Start-Process choco -ArgumentList $chocoArgs -Wait -PassThru -NoNewWindow
         if ($process.ExitCode -eq 0) {
-            Write-Host "Polecenie wykonane pomyślnie." -ForegroundColor Green
+            Write-Host "Polecenie wykonane pomyślnie." -ForegroundColor $colors.Success
         }
         else {
-            Write-Host "Polecenie zakończyło się błędem (kod wyjścia: $($process.ExitCode))." -ForegroundColor Red
+            Write-Host "Polecenie zakończyło się błędem (kod wyjścia: $($process.ExitCode))." -ForegroundColor $colors.Error
         }
     }
     catch {
-        Write-Host "Wystąpił krytyczny błąd podczas wykonywania polecenia choco." -ForegroundColor Red
+        Write-Host "Wystąpił krytyczny błąd podczas wykonywania polecenia choco." -ForegroundColor $colors.Error
         Write-Host "Szczegóły: $($_.Exception.Message)"
     }
 }
@@ -163,7 +175,7 @@ function Main-Menu {
     $featuresData = Get-JsonData "features.json"
 
     if (-not $appsData -or -not $featuresData) {
-        Write-Host "Nie można kontynuować z powodu błędów pobierania danych konfiguracyjnych." -ForegroundColor Red
+        Write-Host "Nie można kontynuować z powodu błędów pobierania danych konfiguracyjnych." -ForegroundColor $colors.Error
         Read-Host "Naciśnij Enter, aby zakończyć..."
         exit
     }
@@ -178,7 +190,7 @@ function Main-Menu {
 
     do {
         Clear-Host
-        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor Blue
+        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor $colors.Highlight
         Write-Host "1. Zarządzaj programami (instalacja/deinstalacja)"
         Write-Host "2. Zarządzaj funkcjami Windows (włączanie/wyłączanie)"
         Write-Host "q. Zakończ"
@@ -196,7 +208,7 @@ function Main-Menu {
                         $selectedIndex = [int]$appChoice - 1
                         $selectedApp = $allApps[$selectedIndex]
                         
-                        Write-Host "`nWybrano: $($selectedApp.Name)" -ForegroundColor Blue
+                        Write-Host "`nWybrano: $($selectedApp.Name)" -ForegroundColor $colors.Highlight
                         Write-Host "1. Zainstaluj"
                         Write-Host "2. Odinstaluj"
                         $actionChoice = Read-Host "Wybierz akcję"
@@ -213,11 +225,11 @@ function Main-Menu {
                             Invoke-ChocoCommand -Command "uninstall" -PackageId $selectedApp.ChocoId
                         }
                         else {
-                            Write-Host "Nieprawidłowy wybór." -ForegroundColor Red
+                            Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
                         }
                     }
                     else {
-                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor Red
+                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor $colors.Error
                     }
                     Read-Host "Naciśnij Enter, aby kontynuować..."
                 } while ($true)
@@ -232,7 +244,7 @@ function Main-Menu {
                         $selectedIndex = [int]$featureChoice - 1
                         $selectedFeature = $featuresData[$selectedIndex]
                         
-                        Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor Blue
+                        Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor $colors.Highlight
                         Write-Host "1. Włącz"
                         Write-Host "2. Wyłącz"
                         $actionChoice = Read-Host "Wybierz akcję"
@@ -240,27 +252,27 @@ function Main-Menu {
                         try {
                             switch ($actionChoice) {
                                 "1" {
-                                    Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor Cyan
+                                    Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
                                     Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All -NoRestart
-                                    Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor Green
+                                    Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
                                 }
                                 "2" {
-                                    Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor Cyan
+                                    Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
                                     Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -NoRestart
-                                    Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor Green
+                                    Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
                                 }
                                 default {
-                                    Write-Host "Nieprawidłowy wybór." -ForegroundColor Red
+                                    Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
                                 }
                             }
                         }
                         catch {
-                             Write-Host "Wystąpił błąd podczas zmiany statusu funkcji." -ForegroundColor Red
+                             Write-Host "Wystąpił błąd podczas zmiany statusu funkcji." -ForegroundColor $colors.Error
                              Write-Host "Szczegóły: $($_.Exception.Message)"
                         }
                     }
                     else {
-                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor Red
+                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor $colors.Error
                     }
                     Read-Host "Naciśnij Enter, aby kontynuować..."
                 } while ($true)
@@ -270,7 +282,7 @@ function Main-Menu {
                 return
             }
             default {
-                Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor Red
+                Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor $colors.Error
                 Read-Host "Naciśnij Enter, aby kontynuować..."
             }
         }
