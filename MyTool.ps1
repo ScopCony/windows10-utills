@@ -11,13 +11,13 @@
 # 5. Wykonuje odpowiednie polecenia (choco, DISM) na podstawie danych z plików JSON.
 #
 # Autor: asystent Gemini
-# Wersja: 1.2 - Poprawki błędów, dodano sprawdzanie Chocolatey
+# Wersja: 1.3 - Zaktualizowano URL repozytorium
 
 # region Konfiguracja
 # Zmień ten URL na link do Twojego repozytorium na GitHub!
 # Pamiętaj, aby wskazywał na surowy plik (raw).
 # Przykład: https://raw.githubusercontent.com/TWOJA_NAZWA_UZYTKOWNIKA/TWOJE_REPOZYTORIUM/main
-$githubRepoUrl = "https://raw.githubusercontent.com/TWOJA_NAZWA_UZYTKOWNIKA/TWOJE_REPOZYTORIUM/main"
+$githubRepoUrl = "https://raw.githubusercontent.com/ScopCony/windows10-utills/main"
 # endregion
 
 # region Funkcje pomocnicze
