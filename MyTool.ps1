@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 1.6 - Wymuszenie kodowania UTF-8 na początku skryptu.
+# Wersja: 1.7 - Obsługa kategoryzacji programów z pliku apps.json.
 
 # region Wymuszenie kodowania
 # Ta linia zapewnia poprawne wyświetlanie polskich znaków
@@ -56,12 +56,22 @@ function Get-JsonData($fileName) {
     }
 }
 
-function Show-AppsMenu($apps) {
+function Show-AppsMenu($appsData) {
     # Wyświetla menu programów.
     Write-Host "`n==== Zarządzanie programami ====`n"
-    for ($i = 0; $i -lt $apps.Count; $i++) {
-        Write-Host "$($i + 1). $($apps[$i].Name) - $($apps[$i].Description)"
+    
+    $global:allApps = @()
+    $count = 1
+
+    foreach ($category in $appsData) {
+        Write-Host "`n---- $($category.Category) ----" -ForegroundColor Yellow
+        foreach ($app in $category.Apps) {
+            Write-Host "$count. $($app.Name) - $($app.Description)"
+            $global:allApps += $app
+            $count++
+        }
     }
+
     Write-Host "`nq. Powrót do głównego menu`n"
     $choice = Read-Host "Wybierz numer, aby zainstalować lub odinstalować program"
     return $choice
@@ -103,9 +113,9 @@ function Main-Menu {
                     $appChoice = Show-AppsMenu($appsData)
                     if ($appChoice -eq "q") { break }
 
-                    if ($appChoice -match "^\d+$" -and $appChoice -le $appsData.Count) {
+                    if ($appChoice -match "^\d+$" -and [int]$appChoice -le $global:allApps.Count) {
                         $selectedIndex = [int]$appChoice - 1
-                        $selectedApp = $appsData[$selectedIndex]
+                        $selectedApp = $global:allApps[$selectedIndex]
                         
                         Write-Host "`nWybrano: $($selectedApp.Name)" -ForegroundColor Yellow
                         Write-Host "1. Zainstaluj"
