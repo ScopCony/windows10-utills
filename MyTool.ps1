@@ -10,7 +10,7 @@
 # 4. Wykonuje odpowiednie polecenia (choco, dism) na podstawie danych z plików JSON.
 #
 # Autor: Sebastian Brański
-# Wersja: 3.2 - Dodano zmianę motywu kolorystycznego konsoli na niebieski.
+# Wersja: 3.4 - Przywrócono ciemnoniebieskie tło konsoli.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na ciemnoniebieskie i tekst na biały
