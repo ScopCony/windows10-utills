@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.6 - Przywrócono klasyczny widok jednokolumnowy zgodnie z prośbą.
+# Wersja: 4.7 - Zmieniono kolor podświetlenia z żółtego na niebieski.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
@@ -50,7 +50,7 @@ function Check-Chocolatey {
     # Sprawdza, czy polecenie 'choco' jest dostępne.
     $chocoExists = Get-Command choco -ErrorAction SilentlyContinue
     if (-not $chocoExists) {
-        Write-Host "Narzędzie Chocolatey nie zostało znalezione." -ForegroundColor Yellow
+        Write-Host "Narzędzie Chocolatey nie zostało znalezione." -ForegroundColor Blue
         $installChoice = Read-Host "Czy chcesz je teraz zainstalować? (y/n)"
         if ($installChoice -eq 'y') {
             Write-Host "Instalowanie Chocolatey..." -ForegroundColor Green
@@ -104,7 +104,7 @@ function Show-AppsMenu($appsData) {
         foreach ($app in $category.Apps) {
             # Formatowanie: Numer. Nazwa - Opis
             Write-Host ("{0,3}. " -f $count) -ForegroundColor Green -NoNewline
-            Write-Host $app.Name -ForegroundColor Yellow -NoNewline
+            Write-Host $app.Name -ForegroundColor Blue -NoNewline
             Write-Host " - $($app.Description)" -ForegroundColor White
             $count++
         }
@@ -138,7 +138,7 @@ function Invoke-ChocoCommand {
     $chocoArgs = @($Command, $PackageId, "-y")
     if ($Command -eq "install" -and -not [string]::IsNullOrEmpty($InstallPath)) {
         $chocoArgs += "--install-directory=`"$InstallPath`""
-        Write-Host "Uwaga: Nie wszystkie pakiety Chocolatey wspierają niestandardową ścieżkę instalacji." -ForegroundColor Yellow
+        Write-Host "Uwaga: Nie wszystkie pakiety Chocolatey wspierają niestandardową ścieżkę instalacji." -ForegroundColor Blue
     }
 
     Write-Host "Wykonywanie polecenia: choco $($chocoArgs -join ' ')" -ForegroundColor Cyan
@@ -178,7 +178,7 @@ function Main-Menu {
 
     do {
         Clear-Host
-        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor Yellow
+        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor Blue
         Write-Host "1. Zarządzaj programami (instalacja/deinstalacja)"
         Write-Host "2. Zarządzaj funkcjami Windows (włączanie/wyłączanie)"
         Write-Host "q. Zakończ"
@@ -196,7 +196,7 @@ function Main-Menu {
                         $selectedIndex = [int]$appChoice - 1
                         $selectedApp = $allApps[$selectedIndex]
                         
-                        Write-Host "`nWybrano: $($selectedApp.Name)" -ForegroundColor Yellow
+                        Write-Host "`nWybrano: $($selectedApp.Name)" -ForegroundColor Blue
                         Write-Host "1. Zainstaluj"
                         Write-Host "2. Odinstaluj"
                         $actionChoice = Read-Host "Wybierz akcję"
@@ -232,7 +232,7 @@ function Main-Menu {
                         $selectedIndex = [int]$featureChoice - 1
                         $selectedFeature = $featuresData[$selectedIndex]
                         
-                        Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor Yellow
+                        Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor Blue
                         Write-Host "1. Włącz"
                         Write-Host "2. Wyłącz"
                         $actionChoice = Read-Host "Wybierz akcję"
