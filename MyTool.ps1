@@ -29,7 +29,7 @@ $colors = @{
     Highlight   = "Blue"     # Kolor do podświetlania ważnych elementów (np. nazwy programów, tytuły menu).
     Header      = "Magenta"  # Kolor dla nagłówków sekcji i kategorii.
     Info        = "Cyan"     # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
-    DefaultText = "White"    # Standardowy kolor tekstu (np. opisy programów).
+    DefaultText = "Gray"    # Standardowy kolor tekstu (np. opisy programów).
 }
 # endregion
 
