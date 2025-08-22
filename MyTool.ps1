@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.5 - Przywrócono opisy programów w widoku jednokolumnowym.
+# Wersja: 4.6 - Przywrócono klasyczny widok jednokolumnowy zgodnie z prośbą.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
@@ -92,7 +92,7 @@ function Get-JsonData($fileName) {
     }
 }
 
-# ZMIANA: Powrót do widoku jednokolumnowego, aby wyświetlić opisy programów.
+# Przywrócono widok jednokolumnowy z opisami.
 function Show-AppsMenu($appsData) {
     Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor Magenta
     
