@@ -1,12 +1,37 @@
 [
-    {
-        "Name": "Windows Subsystem for Linux (WSL)",
-        "Description": "Umożliwia uruchamianie środowisk Linux na Windows",
-        "FeatureName": "Microsoft-Windows-Subsystem-Linux"
-    },
-    {
-        "Name": "Telnet Client",
-        "Description": "Narzędzie sieciowe Telnet",
-        "FeatureName": "TelnetClient"
-    }
+  {
+    "Name": "Windows Subsystem for Linux (WSL)",
+    "Description": "Umożliwia uruchamianie środowisk Linux na Windows, niezbędny dla programistów.",
+    "FeatureName": "Microsoft-Windows-Subsystem-Linux"
+  },
+  {
+    "Name": "Client Telnet",
+    "Description": "Narzędzie sieciowe do komunikacji z serwerami za pomocą protokołu Telnet.",
+    "FeatureName": "TelnetClient"
+  },
+  {
+    "Name": "Protokół SMB 1.0",
+    "Description": "Umożliwia łączenie się ze starszymi zasobami udostępnionymi w sieci.",
+    "FeatureName": "SMB1Protocol"
+  },
+  {
+    "Name": "Hyper-V",
+    "Description": "Platforma wirtualizacji od Microsoftu do tworzenia maszyn wirtualnych.",
+    "FeatureName": "Microsoft-Hyper-V"
+  },
+  {
+    "Name": "IIS (Internet Information Services)",
+    "Description": "Serwer WWW od Microsoftu, używany do hostowania stron i aplikacji internetowych.",
+    "FeatureName": "IIS-WebServerRole"
+  },
+  {
+    "Name": "Windows Defender Application Guard",
+    "Description": "Zwiększa bezpieczeństwo przeglądania stron, izolując sesje w Hyper-V.",
+    "FeatureName": "Windows-Defender-ApplicationGuard"
+  },
+  {
+    "Name": "Funkcja Windows Sandbox",
+    "Description": "Tworzy tymczasowe, izolowane środowisko do bezpiecznego uruchamiania aplikacji.",
+    "FeatureName": "Containers-DisposableClientVM"
+  }
 ]
