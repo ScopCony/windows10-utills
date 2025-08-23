@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 5.3 - Dodano prawdziwe autouzupełnianie z TAB jak w systemach Linux.
+# Wersja: 5.4 - Poprawiono błąd w autouzupełnianiu.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -164,19 +164,26 @@ function Get-AutocompleteSuggestions($allApps, $searchTerm) {
                 $firstLetters[$firstLetter] = $true
             }
         }
-        $suggestions.AddRange(($firstLetters.Keys | Sort-Object))
+        foreach ($letter in ($firstLetters.Keys | Sort-Object)) {
+            $suggestions.Add($letter)
+        }
     }
     else {
         # Znajdź programy pasujące do aktualnego wyszukiwania
-        $matchingApps = @()
+        $matchingApps = [System.Collections.Generic.List[string]]::new()
         foreach ($app in $allApps) {
             if ($app.Name -like "$searchTerm*") {
-                $matchingApps += $app.Name
+                $matchingApps.Add($app.Name)
             }
         }
         
         # Dodaj pierwsze 10 unikalnych propozycji
-        $suggestions.AddRange(($matchingApps | Sort-Object | Select-Object -First 10))
+        $sortedApps = $matchingApps | Sort-Object | Select-Object -First 10
+        if ($null -ne $sortedApps) {
+            foreach ($appName in $sortedApps) {
+                $suggestions.Add($appName)
+            }
+        }
     }
     
     return $suggestions
