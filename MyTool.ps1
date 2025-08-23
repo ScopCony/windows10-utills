@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 5.5 - Poprawiono wyświetlanie oryginalnych numerów w wynikach wyszukiwania.
+# Wersja: 5.6 - Poprawiono autouzupełnianie TAB do działania jak w systemach Linux.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -229,11 +229,52 @@ function Show-SuggestionsMenu($suggestions, $searchTerm) {
     }
 }
 
+function Find-CommonPrefix($suggestions, $currentTerm) {
+    if ($suggestions.Count -eq 0) {
+        return $currentTerm
+    }
+    
+    if ($suggestions.Count -eq 1) {
+        return $suggestions[0]
+    }
+    
+    # Znajdź najkrótszy string
+    $shortest = $suggestions[0]
+    foreach ($suggestion in $suggestions) {
+        if ($suggestion.Length -lt $shortest.Length) {
+            $shortest = $suggestion
+        }
+    }
+    
+    # Znajdź wspólny prefiks
+    $commonPrefix = ""
+    for ($i = 0; $i -lt $shortest.Length; $i++) {
+        $char = $shortest[$i]
+        $allMatch = $true
+        
+        foreach ($suggestion in $suggestions) {
+            if ($suggestion[$i] -ne $char) {
+                $allMatch = $false
+                break
+            }
+        }
+        
+        if ($allMatch) {
+            $commonPrefix += $char
+        }
+        else {
+            break
+        }
+    }
+    
+    return $commonPrefix
+}
+
 function Search-Apps-Interactive($allApps) {
     Write-Host "`n==== Interaktywne wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
     Write-Host "Sterowanie:" -ForegroundColor $colors.Info
     Write-Host "- Wpisz litery: wyszukiwanie" -ForegroundColor $colors.DefaultText
-    Write-Host "- TAB: propozycje uzupełnienia" -ForegroundColor $colors.DefaultText
+    Write-Host "- TAB: autouzupełnienie do wspólnego prefiksu" -ForegroundColor $colors.DefaultText
     Write-Host "- BACKSPACE: usuń ostatni znak" -ForegroundColor $colors.DefaultText
     Write-Host "- ENTER: wybierz programy z wyników" -ForegroundColor $colors.DefaultText
     Write-Host "- ESC: wyczyść wyszukiwanie" -ForegroundColor $colors.DefaultText
@@ -256,25 +297,42 @@ function Search-Apps-Interactive($allApps) {
             Show-AutocompleteHints -allApps $allApps -searchTerm $searchTerm
         }
         
-        Write-Host "`nWpisz znak (TAB=propozycje, ENTER=wybierz, ESC=wyczyść, Q=wyjście):" -ForegroundColor $colors.Info
+        Write-Host "`nWpisz znak (TAB=uzupełnij, ENTER=wybierz, ESC=wyczyść, Q=wyjście):" -ForegroundColor $colors.Info
         
         # Czytaj pojedyncze naciśnięcie klawisza
         $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         
         switch ($key.VirtualKeyCode) {
             9 { # TAB
-                if ([string]::IsNullOrEmpty($searchTerm)) {
-                    # Pokaż pierwsze litery wszystkich programów
-                    $suggestions = Get-AutocompleteSuggestions -allApps $allApps -searchTerm ""
-                } else {
-                    $suggestions = Get-AutocompleteSuggestions -allApps $allApps -searchTerm $searchTerm
-                }
+                $suggestions = Get-AutocompleteSuggestions -allApps $allApps -searchTerm $searchTerm
                 
-                if ($suggestions.Count -gt 0) {
-                    $selected = Show-SuggestionsMenu -suggestions $suggestions -searchTerm $searchTerm
-                    if ($null -ne $selected) {
-                        $searchTerm = $selected
-                        # Aktualizacja wyników dla nowego terminu
+                if ($suggestions.Count -eq 0) {
+                    Write-Host "`nBrak propozycji uzupełnienia." -ForegroundColor $colors.Error
+                    Start-Sleep -Milliseconds 800
+                }
+                elseif ($suggestions.Count -eq 1) {
+                    # Jedna propozycja - automatycznie uzupełnij
+                    $searchTerm = $suggestions[0]
+                    # Aktualizacja wyników
+                    $foundApps.Clear()
+                    for ($i = 0; $i -lt $allApps.Count; $i++) {
+                        $app = $allApps[$i]
+                        if ($app.Name -like "$searchTerm*") {
+                            $foundApps.Add(@{
+                                App = $app
+                                OriginalIndex = $i + 1
+                            })
+                        }
+                    }
+                }
+                else {
+                    # Wiele propozycji - znajdź wspólny prefiks
+                    $commonPrefix = Find-CommonPrefix -suggestions $suggestions -currentTerm $searchTerm
+                    
+                    if ($commonPrefix.Length -gt $searchTerm.Length) {
+                        # Jest wspólny prefiks dłuższy niż aktualny term - uzupełnij
+                        $searchTerm = $commonPrefix
+                        # Aktualizacja wyników
                         $foundApps.Clear()
                         for ($i = 0; $i -lt $allApps.Count; $i++) {
                             $app = $allApps[$i]
@@ -286,10 +344,24 @@ function Search-Apps-Interactive($allApps) {
                             }
                         }
                     }
-                }
-                else {
-                    Write-Host "`nBrak propozycji uzupełnienia dla '$searchTerm'" -ForegroundColor $colors.Error
-                    Start-Sleep -Milliseconds 1000
+                    else {
+                        # Brak wspólnego prefiksu - pokaż menu
+                        $selected = Show-SuggestionsMenu -suggestions $suggestions -searchTerm $searchTerm
+                        if ($null -ne $selected) {
+                            $searchTerm = $selected
+                            # Aktualizacja wyników
+                            $foundApps.Clear()
+                            for ($i = 0; $i -lt $allApps.Count; $i++) {
+                                $app = $allApps[$i]
+                                if ($app.Name -like "$searchTerm*") {
+                                    $foundApps.Add(@{
+                                        App = $app
+                                        OriginalIndex = $i + 1
+                                    })
+                                }
+                            }
+                        }
+                    }
                 }
             }
             8 { # BACKSPACE
