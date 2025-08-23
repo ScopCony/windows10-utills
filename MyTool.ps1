@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.8.1 - Dodano obsługę TLS 1.2 dla poprawy kompatybilności sieciowej.
+# Wersja: 4.9 - Dodano możliwość instalacji/deinstalacji wielu programów jednocześnie.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -46,7 +46,7 @@ $colors = @{
 # endregion
 
 # region Konfiguracja
-# URL do repozytorium GitHub z plikami konfiguracyjymi.
+# URL do repozytorium GitHub z plikami konfiguracyjnymi.
 $githubRepoUrl = "https://raw.githubusercontent.com/ScopCony/windows10-utills/main"
 # endregion
 
@@ -129,7 +129,8 @@ function Show-AppsMenu($appsData) {
     }
 
     Write-Host "`nq. Powrót do głównego menu`n"
-    $choice = Read-Host "Wybierz numer, aby zainstalować lub odinstalować program"
+    # ZMIANA: Zaktualizowano treść pytania, aby umożliwić wybór wielu programów.
+    $choice = Read-Host "Wybierz numer programu (lub numery po przecinku, np. 1,5,8)"
     return $choice
 }
 
@@ -207,37 +208,57 @@ function Main-Menu {
             "1" {
                 do {
                     Clear-Host
-                    $appChoice = Show-AppsMenu -appsData $appsData
-                    if ($appChoice -eq "q") { break }
+                    # ZMIANA: Nazwa zmiennej dla czytelności
+                    $appChoiceString = Show-AppsMenu -appsData $appsData
+                    if ($appChoiceString -eq "q") { break }
 
-                    if ($appChoice -match "^\d+$" -and [int]$appChoice -gt 0 -and [int]$appChoice -le $allApps.Count) {
-                        $selectedIndex = [int]$appChoice - 1
-                        $selectedApp = $allApps[$selectedIndex]
-                        
-                        Write-Host "`nWybrano: $($selectedApp.Name)" -ForegroundColor $colors.Highlight
+                    # ZMIANA: Całkowicie nowa logika do obsługi wielu wyborów.
+                    # Dzielimy wpisany tekst na pojedyncze numery
+                    $appChoices = $appChoiceString.Split(',')
+
+                    if ($appChoices.Count -gt 0 -and $appChoiceString) {
+                        Write-Host "`nWybrano numery: $($appChoiceString)" -ForegroundColor $colors.Highlight
                         Write-Host "1. Zainstaluj"
                         Write-Host "2. Odinstaluj"
-                        $actionChoice = Read-Host "Wybierz akcję"
+                        $actionChoice = Read-Host "Wybierz akcję dla wszystkich wybranych programów"
 
-                        if ($actionChoice -eq "1") {
-                            $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji? (y/n)"
-                            $customPath = ""
-                            if ($pathChoice -eq 'y') {
-                                $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
+                        # Pętla przez każdy wybrany numer
+                        foreach ($choice in $appChoices) {
+                            $trimmedChoice = $choice.Trim()
+                            if ($trimmedChoice -match "^\d+$" -and [int]$trimmedChoice -gt 0 -and [int]$trimmedChoice -le $allApps.Count) {
+                                $selectedIndex = [int]$trimmedChoice - 1
+                                $selectedApp = $allApps[$selectedIndex]
+                                
+                                Write-Host "`n--- Przetwarzanie: $($selectedApp.Name) ---" -ForegroundColor $colors.Highlight
+
+                                if ($actionChoice -eq "1") {
+                                    # Pytanie o ścieżkę tylko, gdy wybrano JEDEN program
+                                    $customPath = ""
+                                    if ($appChoices.Count -eq 1) {
+                                        $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji? (y/n)"
+                                        if ($pathChoice -eq 'y') {
+                                            $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
+                                        }
+                                    }
+                                    Invoke-ChocoCommand -Command "install" -PackageId $selectedApp.ChocoId -InstallPath $customPath
+                                }
+                                elseif ($actionChoice -eq "2") {
+                                    Invoke-ChocoCommand -Command "uninstall" -PackageId $selectedApp.ChocoId
+                                }
+                                else {
+                                    Write-Host "Pominięto z powodu nieprawidłowego wyboru akcji (1 lub 2)." -ForegroundColor $colors.Error
+                                    break # Przerywamy pętlę, jeśli wybór akcji był zły
+                                }
                             }
-                            Invoke-ChocoCommand -Command "install" -PackageId $selectedApp.ChocoId -InstallPath $customPath
-                        }
-                        elseif ($actionChoice -eq "2") {
-                            Invoke-ChocoCommand -Command "uninstall" -PackageId $selectedApp.ChocoId
-                        }
-                        else {
-                            Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
+                            else {
+                                Write-Host "`n--- Pominięto nieprawidłowy numer: '$($choice.Trim())' ---" -ForegroundColor $colors.Error
+                            }
                         }
                     }
                     else {
-                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor $colors.Error
+                        Write-Host "Nie wprowadzono żadnego numeru." -ForegroundColor $colors.Error
                     }
-                    Read-Host "Naciśnij Enter, aby kontynuować..."
+                    Read-Host "Wszystkie operacje zakończone. Naciśnij Enter, aby kontynuować..."
                 } while ($true)
             }
             "2" {
