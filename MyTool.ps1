@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 5.0 - Dodano wyszukiwanie programów po nazwie.
+# Wersja: 5.1 - Dodano interaktywne wyszukiwanie z autouzupełnianiem.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -128,77 +128,133 @@ function Show-AppsMenu($appsData) {
         }
     }
 
-    Write-Host "`ns. Wyszukaj program" -ForegroundColor $colors.Highlight
+    Write-Host "`ns. Wyszukaj program (z autouzupełnianiem)" -ForegroundColor $colors.Highlight
     Write-Host "q. Powrót do głównego menu`n"
     $choice = Read-Host "Wybierz numer programu, 's' aby wyszukać, lub numery po przecinku (np. 1,5,8)"
     return $choice
 }
 
-function Search-Apps($allApps) {
-    Write-Host "`n==== Wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
-    $searchTerm = Read-Host "Wpisz fragment nazwy programu do wyszukania"
-    
-    if ([string]::IsNullOrWhiteSpace($searchTerm)) {
-        Write-Host "Nie wprowadzono frazy do wyszukania." -ForegroundColor $colors.Error
-        return $null
-    }
-
-    # Wyszukiwanie programów (case-insensitive, w nazwie i opisie)
-    $foundApps = [System.Collections.Generic.List[object]]::new()
-    for ($i = 0; $i -lt $allApps.Count; $i++) {
-        $app = $allApps[$i]
-        if ($app.Name -like "*$searchTerm*" -or $app.Description -like "*$searchTerm*") {
-            $foundApps.Add(@{
-                App = $app
-                OriginalIndex = $i + 1  # Zachowujemy oryginalny numer z głównej listy
-            })
-        }
-    }
-
+function Show-SearchResults($foundApps, $searchTerm) {
     if ($foundApps.Count -eq 0) {
-        Write-Host "Nie znaleziono programów zawierających frazę: '$searchTerm'" -ForegroundColor $colors.Error
-        Read-Host "Naciśnij Enter, aby kontynuować..."
-        return $null
+        Write-Host "Brak wyników dla: '$searchTerm'" -ForegroundColor $colors.Error
+        return
     }
 
-    Write-Host "`nZnaleziono $($foundApps.Count) programów:`n" -ForegroundColor $colors.Success
+    Write-Host "`nZnaleziono $($foundApps.Count) programów dla: '$searchTerm'`n" -ForegroundColor $colors.Success
 
     # Wyświetlenie wyników wyszukiwania
     for ($i = 0; $i -lt $foundApps.Count; $i++) {
         $foundApp = $foundApps[$i]
         Write-Host ("{0,3}. " -f ($i + 1)) -ForegroundColor $colors.Success -NoNewline
-        Write-Host $foundApp.App.Name -ForegroundColor $colors.Highlight -NoNewline
+        
+        # Podświetlenie wyszukiwanego fragmentu w nazwie
+        $highlightedName = $foundApp.App.Name -replace "(?i)($([regex]::Escape($searchTerm)))", "[$1]"
+        Write-Host $highlightedName -ForegroundColor $colors.Highlight -NoNewline
         Write-Host " - $($foundApp.App.Description)" -ForegroundColor $colors.DefaultText
         Write-Host "     (Oryginalny numer: $($foundApp.OriginalIndex))" -ForegroundColor $colors.Info
     }
+}
 
-    Write-Host "`nq. Powrót do menu programów`n"
-    $choice = Read-Host "Wybierz numer z wyników wyszukiwania (lub numery po przecinku, np. 1,3,5)"
-    
-    if ($choice -eq "q") {
-        return $null
+function Search-Apps-Interactive($allApps) {
+    Write-Host "`n==== Interaktywne wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
+    Write-Host "Wpisuj kolejne litery, aby zawęzić wyniki wyszukiwania." -ForegroundColor $colors.Info
+    Write-Host "Dostępne komendy:" -ForegroundColor $colors.Info
+    Write-Host "- Wpisz litery/cyfry: wyszukiwanie" -ForegroundColor $colors.DefaultText
+    Write-Host "- 'clear': wyczyść wyszukiwanie" -ForegroundColor $colors.DefaultText
+    Write-Host "- 'select': wybierz programy z aktualnych wyników" -ForegroundColor $colors.DefaultText
+    Write-Host "- 'q': powrót do menu`n" -ForegroundColor $colors.DefaultText
+
+    $searchTerm = ""
+    $foundApps = [System.Collections.Generic.List[object]]::new()
+
+    # Inicjalne wyświetlenie - wszystkie programy
+    for ($i = 0; $i -lt $allApps.Count; $i++) {
+        $foundApps.Add(@{
+            App = $allApps[$i]
+            OriginalIndex = $i + 1
+        })
     }
 
-    # Konwersja wyborów z wyników wyszukiwania na oryginalne numery
-    $searchChoices = $choice.Split(',')
-    $originalNumbers = [System.Collections.Generic.List[string]]::new()
-    
-    foreach ($searchChoice in $searchChoices) {
-        $trimmedChoice = $searchChoice.Trim()
-        if ($trimmedChoice -match "^\d+$" -and [int]$trimmedChoice -gt 0 -and [int]$trimmedChoice -le $foundApps.Count) {
-            $selectedIndex = [int]$trimmedChoice - 1
-            $originalNumbers.Add($foundApps[$selectedIndex].OriginalIndex.ToString())
+    while ($true) {
+        Clear-Host
+        Write-Host "`n==== Interaktywne wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
+        Write-Host "Aktualne wyszukiwanie: '$searchTerm'" -ForegroundColor $colors.Highlight
+        
+        Show-SearchResults -foundApps $foundApps -searchTerm $searchTerm
+        
+        Write-Host "`nWpisz kolejne litery, 'clear', 'select' lub 'q':" -ForegroundColor $colors.Info
+        $input = Read-Host
+
+        switch ($input.ToLower()) {
+            "q" {
+                return $null
+            }
+            "clear" {
+                $searchTerm = ""
+                $foundApps.Clear()
+                for ($i = 0; $i -lt $allApps.Count; $i++) {
+                    $foundApps.Add(@{
+                        App = $allApps[$i]
+                        OriginalIndex = $i + 1
+                    })
+                }
+            }
+            "select" {
+                if ($foundApps.Count -eq 0) {
+                    Write-Host "Brak wyników do wyboru." -ForegroundColor $colors.Error
+                    Read-Host "Naciśnij Enter, aby kontynuować..."
+                    continue
+                }
+                
+                Write-Host "`nWybierz numery z aktualnych wyników (np. 1,3,5):" -ForegroundColor $colors.Highlight
+                $choice = Read-Host
+                
+                if ([string]::IsNullOrWhiteSpace($choice)) {
+                    continue
+                }
+
+                # Konwersja wyborów z wyników wyszukiwania na oryginalne numery
+                $searchChoices = $choice.Split(',')
+                $originalNumbers = [System.Collections.Generic.List[string]]::new()
+                
+                foreach ($searchChoice in $searchChoices) {
+                    $trimmedChoice = $searchChoice.Trim()
+                    if ($trimmedChoice -match "^\d+$" -and [int]$trimmedChoice -gt 0 -and [int]$trimmedChoice -le $foundApps.Count) {
+                        $selectedIndex = [int]$trimmedChoice - 1
+                        $originalNumbers.Add($foundApps[$selectedIndex].OriginalIndex.ToString())
+                    }
+                    else {
+                        Write-Host "Pominięto nieprawidłowy numer: '$($trimmedChoice)'" -ForegroundColor $colors.Error
+                    }
+                }
+
+                if ($originalNumbers.Count -gt 0) {
+                    return ($originalNumbers -join ',')
+                }
+                else {
+                    Write-Host "Nie wybrano żadnych prawidłowych programów." -ForegroundColor $colors.Error
+                    Read-Host "Naciśnij Enter, aby kontynuować..."
+                }
+            }
+            default {
+                # Dodanie nowych znaków do wyszukiwania
+                if (-not [string]::IsNullOrWhiteSpace($input)) {
+                    $searchTerm += $input
+                    
+                    # Aktualizacja wyników wyszukiwania
+                    $foundApps.Clear()
+                    for ($i = 0; $i -lt $allApps.Count; $i++) {
+                        $app = $allApps[$i]
+                        if ($app.Name -like "*$searchTerm*" -or $app.Description -like "*$searchTerm*") {
+                            $foundApps.Add(@{
+                                App = $app
+                                OriginalIndex = $i + 1
+                            })
+                        }
+                    }
+                }
+            }
         }
-        else {
-            Write-Host "Pominięto nieprawidłowy numer: '$($trimmedChoice)'" -ForegroundColor $colors.Error
-        }
-    }
-
-    if ($originalNumbers.Count -gt 0) {
-        return ($originalNumbers -join ',')
-    }
-    else {
-        return $null
     }
 }
 
@@ -281,7 +337,7 @@ function Main-Menu {
 
                     # Obsługa wyszukiwania
                     if ($appChoiceString -eq "s") {
-                        $searchResult = Search-Apps -allApps $allApps
+                        $searchResult = Search-Apps-Interactive -allApps $allApps
                         if ($null -ne $searchResult) {
                             $appChoiceString = $searchResult
                         }
