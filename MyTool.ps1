@@ -222,6 +222,15 @@ function Main-Menu {
                         Write-Host "2. Odinstaluj"
                         $actionChoice = Read-Host "Wybierz akcję dla wszystkich wybranych programów"
 
+                        # ZMIANA: Pytanie o ścieżkę przed pętlą, dla wszystkich programów jednocześnie
+                        $customPath = ""
+                        if ($actionChoice -eq "1") {
+                            $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji dla wszystkich programów? (y/n)"
+                            if ($pathChoice -eq 'y') {
+                                $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
+                            }
+                        }
+
                         # Pętla przez każdy wybrany numer
                         foreach ($choice in $appChoices) {
                             $trimmedChoice = $choice.Trim()
@@ -232,14 +241,6 @@ function Main-Menu {
                                 Write-Host "`n--- Przetwarzanie: $($selectedApp.Name) ---" -ForegroundColor $colors.Highlight
 
                                 if ($actionChoice -eq "1") {
-                                    # Pytanie o ścieżkę tylko, gdy wybrano JEDEN program
-                                    $customPath = ""
-                                    if ($appChoices.Count -eq 1) {
-                                        $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji? (y/n)"
-                                        if ($pathChoice -eq 'y') {
-                                            $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
-                                        }
-                                    }
                                     Invoke-ChocoCommand -Command "install" -PackageId $selectedApp.ChocoId -InstallPath $customPath
                                 }
                                 elseif ($actionChoice -eq "2") {
