@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.9 - Dodano możliwość instalacji/deinstalacji wielu programów jednocześnie.
+# Wersja: 4.9.1 - Poprawiono błąd uniemożliwiający uruchomienie po zmianach.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
@@ -24,12 +24,12 @@ Clear-Host
 # Centralne miejsce do zarządzania kolorami w skrypcie.
 # Zmień poniższe wartości, aby dostosować wygląd całego narzędzia.
 $colors = @{
-    Error       = "Red"     # Kolor dla komunikatów o błędach.
-    Success     = "Green"   # Kolor dla komunikatów o powodzeniu (np. numery list, pomyślne zakończenie).
-    Highlight   = "Blue"    # Kolor do podświetlania ważnych elementów (np. nazwy programów, tytuły menu).
-    Header      = "DarkRed" # Kolor dla nagłówków sekcji i kategorii.
-    Info        = "White"   # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
-    DefaultText = "Gray"    # Standardowy kolor tekstu (np. opisy programów).
+    Error       = "Red"
+    Success     = "Green"
+    Highlight   = "Blue"
+    Header      = "DarkRed"
+    Info        = "White"
+    DefaultText = "Gray"
 }
 # endregion
 
@@ -123,7 +123,6 @@ function Show-AppsMenu($appsData) {
     }
 
     Write-Host "`nq. Powrót do głównego menu`n"
-    # ZMIANA: Zaktualizowano treść pytania, aby umożliwić wybór wielu programów.
     $choice = Read-Host "Wybierz numery programów (oddzielone przecinkami, np. 1,5,8)"
     return $choice
 }
@@ -144,12 +143,10 @@ function Show-FeaturesMenu($features) {
 function Invoke-ChocoCommand {
     param(
         [string]$Command,
-        # ZMIANA: $PackageId może teraz przyjąć wiele ID oddzielonych spacją.
         [string]$PackageIds,
         [string]$InstallPath = ""
     )
     
-    # ZMIANA: Argumenty są teraz budowane w oparciu o $PackageIds.
     $chocoArgs = @($Command, $PackageIds, "-y")
     if ($Command -eq "install" -and -not [string]::IsNullOrEmpty($InstallPath)) {
         # Uwaga: niestandardowa ścieżka ma sens tylko przy instalacji jednego pakietu.
@@ -184,7 +181,6 @@ function Main-Menu {
         exit
     }
     
-    # Tworzymy spłaszczoną listę, która jest potrzebna do łatwego wyboru programu po numerze.
     $allApps = [System.Collections.Generic.List[object]]::new()
     foreach ($category in $appsData) {
         if ($null -ne $category.Apps) {
@@ -208,24 +204,25 @@ function Main-Menu {
                     $appChoiceInput = Show-AppsMenu -appsData $appsData
                     if ($appChoiceInput -eq "q") { break }
 
-                    # ZMIANA: Całkowicie nowa logika do obsługi wielu wyborów.
-                    $selectedApps = @()
-                    $invalidChoices = @()
+                    $selectedApps = [System.Collections.Generic.List[object]]::new()
+                    $invalidChoices = [System.Collections.Generic.List[string]]::new()
                     
                     $choices = $appChoiceInput.Split(',') | ForEach-Object { $_.Trim() }
 
                     foreach ($choice in $choices) {
                         if ($choice -match "^\d+$" -and [int]$choice -gt 0 -and [int]$choice -le $allApps.Count) {
                             $selectedIndex = [int]$choice - 1
-                            $selectedApps += $allApps[$selectedIndex]
+                            $selectedApps.Add($allApps[$selectedIndex])
                         }
                         else {
-                            $invalidChoices += $choice
+                            if (-not [string]::IsNullOrWhiteSpace($choice)) {
+                                $invalidChoices.Add($choice)
+                            }
                         }
                     }
 
                     if ($invalidChoices.Count -gt 0) {
-                        Write-Host "Pominięto nieprawidłowe wybory: $($invalidChoices -join ', ')" -ForegroundColor $colors.Error
+                        Write-Host "`nPominięto nieprawidłowe lub puste wybory: $($invalidChoices -join ', ')" -ForegroundColor $colors.Error
                     }
 
                     if ($selectedApps.Count -gt 0) {
@@ -256,9 +253,28 @@ function Main-Menu {
                         }
                     }
                     else {
-                        Write-Host "Nie wybrano żadnych prawidłowych programów." -ForegroundColor $colors.Error
+                        Write-Host "`nNie wybrano żadnych prawidłowych programów." -ForegroundColor $colors.Error
                     }
-                    # KONIEC ZMIANY
 
                     Read-Host "Naciśnij Enter, aby kontynuować..."
-                } while ($
+                } while ($true)
+            }
+            "2" {
+                do {
+                    Clear-Host
+                    $featureChoice = Show-FeaturesMenu($featuresData)
+                    if ($featureChoice -eq "q") { break }
+
+                    if ($featureChoice -match "^\d+$" -and $featureChoice -gt 0 -and $featureChoice -le $featuresData.Count) {
+                        $selectedIndex = [int]$featureChoice - 1
+                        $selectedFeature = $featuresData[$selectedIndex]
+                        
+                        Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor $colors.Highlight
+                        Write-Host "1. Włącz"
+                        Write-Host "2. Wyłącz"
+                        $actionChoice = Read-Host "Wybierz akcję"
+                        
+                        try {
+                            switch ($actionChoice) {
+                                "1" {
+                                    Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $
