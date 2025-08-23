@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.8 - Scentralizowano definicje kolorów dla łatwej personalizacji.
+# Wersja: 4.9 - Dodano możliwość instalacji/deinstalacji wielu programów jednocześnie.
 
 # region Zmiana kolorów konsoli
 # Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
@@ -24,11 +24,11 @@ Clear-Host
 # Centralne miejsce do zarządzania kolorami w skrypcie.
 # Zmień poniższe wartości, aby dostosować wygląd całego narzędzia.
 $colors = @{
-    Error       = "Red"      # Kolor dla komunikatów o błędach.
-    Success     = "Green"    # Kolor dla komunikatów o powodzeniu (np. numery list, pomyślne zakończenie).
-    Highlight   = "Blue"     # Kolor do podświetlania ważnych elementów (np. nazwy programów, tytuły menu).
-    Header      = "DarkRed"  # Kolor dla nagłówków sekcji i kategorii.
-    Info        = "White"     # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
+    Error       = "Red"     # Kolor dla komunikatów o błędach.
+    Success     = "Green"   # Kolor dla komunikatów o powodzeniu (np. numery list, pomyślne zakończenie).
+    Highlight   = "Blue"    # Kolor do podświetlania ważnych elementów (np. nazwy programów, tytuły menu).
+    Header      = "DarkRed" # Kolor dla nagłówków sekcji i kategorii.
+    Info        = "White"   # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
     DefaultText = "Gray"    # Standardowy kolor tekstu (np. opisy programów).
 }
 # endregion
@@ -123,7 +123,8 @@ function Show-AppsMenu($appsData) {
     }
 
     Write-Host "`nq. Powrót do głównego menu`n"
-    $choice = Read-Host "Wybierz numer, aby zainstalować lub odinstalować program"
+    # ZMIANA: Zaktualizowano treść pytania, aby umożliwić wybór wielu programów.
+    $choice = Read-Host "Wybierz numery programów (oddzielone przecinkami, np. 1,5,8)"
     return $choice
 }
 
@@ -143,12 +144,15 @@ function Show-FeaturesMenu($features) {
 function Invoke-ChocoCommand {
     param(
         [string]$Command,
-        [string]$PackageId,
+        # ZMIANA: $PackageId może teraz przyjąć wiele ID oddzielonych spacją.
+        [string]$PackageIds,
         [string]$InstallPath = ""
     )
     
-    $chocoArgs = @($Command, $PackageId, "-y")
+    # ZMIANA: Argumenty są teraz budowane w oparciu o $PackageIds.
+    $chocoArgs = @($Command, $PackageIds, "-y")
     if ($Command -eq "install" -and -not [string]::IsNullOrEmpty($InstallPath)) {
+        # Uwaga: niestandardowa ścieżka ma sens tylko przy instalacji jednego pakietu.
         $chocoArgs += "--install-directory=`"$InstallPath`""
         Write-Host "Uwaga: Nie wszystkie pakiety Chocolatey wspierają niestandardową ścieżkę instalacji." -ForegroundColor $colors.Highlight
     }
@@ -201,97 +205,60 @@ function Main-Menu {
             "1" {
                 do {
                     Clear-Host
-                    $appChoice = Show-AppsMenu -appsData $appsData
-                    if ($appChoice -eq "q") { break }
+                    $appChoiceInput = Show-AppsMenu -appsData $appsData
+                    if ($appChoiceInput -eq "q") { break }
 
-                    if ($appChoice -match "^\d+$" -and [int]$appChoice -gt 0 -and [int]$appChoice -le $allApps.Count) {
-                        $selectedIndex = [int]$appChoice - 1
-                        $selectedApp = $allApps[$selectedIndex]
-                        
-                        Write-Host "`nWybrano: $($selectedApp.Name)" -ForegroundColor $colors.Highlight
-                        Write-Host "1. Zainstaluj"
-                        Write-Host "2. Odinstaluj"
-                        $actionChoice = Read-Host "Wybierz akcję"
+                    # ZMIANA: Całkowicie nowa logika do obsługi wielu wyborów.
+                    $selectedApps = @()
+                    $invalidChoices = @()
+                    
+                    $choices = $appChoiceInput.Split(',') | ForEach-Object { $_.Trim() }
 
-                        if ($actionChoice -eq "1") {
-                            $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji? (y/n)"
-                            $customPath = ""
-                            if ($pathChoice -eq 'y') {
-                                $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
-                            }
-                            Invoke-ChocoCommand -Command "install" -PackageId $selectedApp.ChocoId -InstallPath $customPath
-                        }
-                        elseif ($actionChoice -eq "2") {
-                            Invoke-ChocoCommand -Command "uninstall" -PackageId $selectedApp.ChocoId
+                    foreach ($choice in $choices) {
+                        if ($choice -match "^\d+$" -and [int]$choice -gt 0 -and [int]$choice -le $allApps.Count) {
+                            $selectedIndex = [int]$choice - 1
+                            $selectedApps += $allApps[$selectedIndex]
                         }
                         else {
-                            Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
+                            $invalidChoices += $choice
                         }
                     }
-                    else {
-                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor $colors.Error
-                    }
-                    Read-Host "Naciśnij Enter, aby kontynuować..."
-                } while ($true)
-            }
-            "2" {
-                do {
-                    Clear-Host
-                    $featureChoice = Show-FeaturesMenu($featuresData)
-                    if ($featureChoice -eq "q") { break }
 
-                    if ($featureChoice -match "^\d+$" -and $featureChoice -gt 0 -and $featureChoice -le $featuresData.Count) {
-                        $selectedIndex = [int]$featureChoice - 1
-                        $selectedFeature = $featuresData[$selectedIndex]
+                    if ($invalidChoices.Count -gt 0) {
+                        Write-Host "Pominięto nieprawidłowe wybory: $($invalidChoices -join ', ')" -ForegroundColor $colors.Error
+                    }
+
+                    if ($selectedApps.Count -gt 0) {
+                        Write-Host "`nWybrano następujące programy:" -ForegroundColor $colors.Highlight
+                        $selectedApps.Name | ForEach-Object { Write-Host "- $_" }
                         
-                        Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor $colors.Highlight
-                        Write-Host "1. Włącz"
-                        Write-Host "2. Wyłącz"
-                        $actionChoice = Read-Host "Wybierz akcję"
+                        Write-Host "`n1. Zainstaluj"
+                        Write-Host "2. Odinstaluj"
+                        $actionChoice = Read-Host "Wybierz akcję dla wybranych programów"
                         
-                        try {
-                            switch ($actionChoice) {
-                                "1" {
-                                    Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
-                                    Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All -NoRestart
-                                    Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
-                                }
-                                "2" {
-                                    Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
-                                    Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -NoRestart
-                                    Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
-                                }
-                                default {
-                                    Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
+                        $packageIds = ($selectedApps.ChocoId) -join ' '
+                        
+                        if ($actionChoice -eq "1") {
+                            $customPath = ""
+                            if ($selectedApps.Count -eq 1) {
+                                $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji? (y/n)"
+                                if ($pathChoice -eq 'y') {
+                                    $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
                                 }
                             }
+                            Invoke-ChocoCommand -Command "install" -PackageIds $packageIds -InstallPath $customPath
                         }
-                        catch {
-                             Write-Host "Wystąpił błąd podczas zmiany statusu funkcji." -ForegroundColor $colors.Error
-                             Write-Host "Szczegóły: $($_.Exception.Message)"
+                        elseif ($actionChoice -eq "2") {
+                            Invoke-ChocoCommand -Command "uninstall" -PackageIds $packageIds
+                        }
+                        else {
+                            Write-Host "Nieprawidłowy wybór akcji." -ForegroundColor $colors.Error
                         }
                     }
                     else {
-                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor $colors.Error
+                        Write-Host "Nie wybrano żadnych prawidłowych programów." -ForegroundColor $colors.Error
                     }
+                    # KONIEC ZMIANY
+
                     Read-Host "Naciśnij Enter, aby kontynuować..."
-                } while ($true)
-            }
-            "q" {
-                Write-Host "Zamykanie narzędzia. Do widzenia!"
-                return
-            }
-            default {
-                Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor $colors.Error
-                Read-Host "Naciśnij Enter, aby kontynuować..."
-            }
-        }
-    } while ($true)
-}
-
-# endregion
-
-# Uruchomienie skryptu
-Check-Admin
-Check-Chocolatey
-Main-Menu
+                } while ($
