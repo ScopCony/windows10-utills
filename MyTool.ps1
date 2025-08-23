@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 5.7 - Poprawiono TAB do prawdziwego autouzupełniania jak w Linux.
+# Wersja: 5.8 - Poprawiono formatowanie menu z zielonymi literami s i q.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -127,8 +127,11 @@ function Show-AppsMenu($appsData) {
         }
     }
 
-    Write-Host "`ns. Wyszukaj program (z autouzupełnianiem TAB)" -ForegroundColor $colors.Highlight
-    Write-Host "q. Powrót do głównego menu`n"
+    Write-Host "`n" -NoNewline
+    Write-Host "s" -ForegroundColor $colors.Success -NoNewline
+    Write-Host " - Wyszukaj program (z autouzupełnianiem TAB)"
+    Write-Host "q" -ForegroundColor $colors.Success -NoNewline
+    Write-Host " - Powrót do głównego menu`n"
     $choice = Read-Host "Wybierz numer programu, 's' aby wyszukać, lub numery po przecinku (np. 1,5,8)"
     return $choice
 }
@@ -427,7 +430,9 @@ function Show-FeaturesMenu($features) {
         $status = (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
         Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
     }
-    Write-Host "`nq. Powrót do głównego menu`n"
+    Write-Host "`n" -NoNewline
+    Write-Host "q" -ForegroundColor $colors.Success -NoNewline
+    Write-Host " - Powrót do głównego menu`n"
     $choice = Read-Host "Wybierz numer, aby włączyć/wyłączyć funkcję"
     return $choice
 }
