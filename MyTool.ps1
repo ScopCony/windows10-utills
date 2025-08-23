@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 5.6 - Poprawiono autouzupełnianie TAB do działania jak w systemach Linux.
+# Wersja: 5.7 - Poprawiono TAB do prawdziwego autouzupełniania jak w Linux.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -175,8 +175,8 @@ function Get-AutocompleteSuggestions($allApps, $searchTerm) {
             }
         }
         
-        # Dodaj pierwsze 10 unikalnych propozycji
-        $sortedApps = $matchingApps | Sort-Object | Select-Object -First 10
+        # Dodaj wszystkie propozycje (usunięto ograniczenie do 10)
+        $sortedApps = $matchingApps | Sort-Object
         if ($null -ne $sortedApps) {
             foreach ($appName in $sortedApps) {
                 $suggestions.Add($appName)
@@ -201,31 +201,6 @@ function Show-AutocompleteHints($allApps, $searchTerm) {
             $hintText += "..."
         }
         Write-Host $hintText -ForegroundColor $colors.DefaultText
-    }
-}
-
-function Show-SuggestionsMenu($suggestions, $searchTerm) {
-    Write-Host "`n==== Propozycje uzupełnienia dla: '$searchTerm' ====" -ForegroundColor $colors.Header
-    
-    for ($i = 0; $i -lt $suggestions.Count; $i++) {
-        Write-Host ("{0,3}. {1}" -f ($i + 1), $suggestions[$i]) -ForegroundColor $colors.Success
-    }
-    
-    Write-Host "`nq. Powrót bez wyboru"
-    $choice = Read-Host "Wybierz numer propozycji do użycia"
-    
-    if ($choice -eq "q") {
-        return $null
-    }
-    
-    if ($choice -match "^\d+$" -and [int]$choice -gt 0 -and [int]$choice -le $suggestions.Count) {
-        $selectedIndex = [int]$choice - 1
-        return $suggestions[$selectedIndex]
-    }
-    else {
-        Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
-        Read-Host "Naciśnij Enter, aby kontynuować..."
-        return $null
     }
 }
 
@@ -304,17 +279,36 @@ function Search-Apps-Interactive($allApps) {
         
         switch ($key.VirtualKeyCode) {
             9 { # TAB
-                $suggestions = Get-AutocompleteSuggestions -allApps $allApps -searchTerm $searchTerm
-                
-                if ($suggestions.Count -eq 0) {
-                    Write-Host "`nBrak propozycji uzupełnienia." -ForegroundColor $colors.Error
-                    Start-Sleep -Milliseconds 800
+                # Znajdź wszystkie programy pasujące do aktualnego wyszukiwania
+                $matchingApps = [System.Collections.Generic.List[string]]::new()
+                foreach ($app in $allApps) {
+                    if ($app.Name -like "$searchTerm*") {
+                        $matchingApps.Add($app.Name)
+                    }
                 }
-                elseif ($suggestions.Count -eq 1) {
-                    # Jedna propozycja - automatycznie uzupełnij
-                    $searchTerm = $suggestions[0]
-                    # Aktualizacja wyników
-                    $foundApps.Clear()
+                
+                if ($matchingApps.Count -eq 0) {
+                    # Brak dopasowań - nic nie rób
+                    continue
+                }
+                elseif ($matchingApps.Count -eq 1) {
+                    # Jedna opcja - uzupełnij całą nazwę
+                    $searchTerm = $matchingApps[0]
+                }
+                else {
+                    # Wiele opcji - znajdź wspólny prefiks
+                    $commonPrefix = Find-CommonPrefix -suggestions $matchingApps -currentTerm $searchTerm
+                    
+                    if ($commonPrefix.Length -gt $searchTerm.Length) {
+                        # Jest dłuższy wspólny prefiks - uzupełnij do niego
+                        $searchTerm = $commonPrefix
+                    }
+                    # Jeśli nie ma dłuższego wspólnego prefiksu - nic nie rób (jak w Linux)
+                }
+                
+                # Aktualizacja wyników po każdej zmianie
+                $foundApps.Clear()
+                if (-not [string]::IsNullOrEmpty($searchTerm)) {
                     for ($i = 0; $i -lt $allApps.Count; $i++) {
                         $app = $allApps[$i]
                         if ($app.Name -like "$searchTerm*") {
@@ -322,44 +316,6 @@ function Search-Apps-Interactive($allApps) {
                                 App = $app
                                 OriginalIndex = $i + 1
                             })
-                        }
-                    }
-                }
-                else {
-                    # Wiele propozycji - znajdź wspólny prefiks
-                    $commonPrefix = Find-CommonPrefix -suggestions $suggestions -currentTerm $searchTerm
-                    
-                    if ($commonPrefix.Length -gt $searchTerm.Length) {
-                        # Jest wspólny prefiks dłuższy niż aktualny term - uzupełnij
-                        $searchTerm = $commonPrefix
-                        # Aktualizacja wyników
-                        $foundApps.Clear()
-                        for ($i = 0; $i -lt $allApps.Count; $i++) {
-                            $app = $allApps[$i]
-                            if ($app.Name -like "$searchTerm*") {
-                                $foundApps.Add(@{
-                                    App = $app
-                                    OriginalIndex = $i + 1
-                                })
-                            }
-                        }
-                    }
-                    else {
-                        # Brak wspólnego prefiksu - pokaż menu
-                        $selected = Show-SuggestionsMenu -suggestions $suggestions -searchTerm $searchTerm
-                        if ($null -ne $selected) {
-                            $searchTerm = $selected
-                            # Aktualizacja wyników
-                            $foundApps.Clear()
-                            for ($i = 0; $i -lt $allApps.Count; $i++) {
-                                $app = $allApps[$i]
-                                if ($app.Name -like "$searchTerm*") {
-                                    $foundApps.Add(@{
-                                        App = $app
-                                        OriginalIndex = $i + 1
-                                    })
-                                }
-                            }
                         }
                     }
                 }
@@ -389,7 +345,7 @@ function Search-Apps-Interactive($allApps) {
                     continue
                 }
                 
-                Write-Host "`nWybierz oryginalne numery z wyników (np. 11,63,64):" -ForegroundColor $colors.Highlight
+                Write-Host "`nWybierz oryginalne numery z wyników (np. 40,41,79):" -ForegroundColor $colors.Highlight
                 $choice = Read-Host
                 
                 if ([string]::IsNullOrWhiteSpace($choice)) {
