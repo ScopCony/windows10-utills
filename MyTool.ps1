@@ -146,10 +146,7 @@ function Show-SearchResults($foundApps, $searchTerm) {
     for ($i = 0; $i -lt $foundApps.Count; $i++) {
         $foundApp = $foundApps[$i]
         Write-Host ("{0,3}. " -f ($i + 1)) -ForegroundColor $colors.Success -NoNewline
-        
-        # Podświetlenie wyszukiwanego fragmentu w nazwie
-        $highlightedName = $foundApp.App.Name -replace "(?i)($([regex]::Escape($searchTerm)))", "[$1]"
-        Write-Host $highlightedName -ForegroundColor $colors.Highlight -NoNewline
+        Write-Host $foundApp.App.Name -ForegroundColor $colors.Highlight -NoNewline
         Write-Host " - $($foundApp.App.Description)" -ForegroundColor $colors.DefaultText
         Write-Host "     (Oryginalny numer: $($foundApp.OriginalIndex))" -ForegroundColor $colors.Info
     }
