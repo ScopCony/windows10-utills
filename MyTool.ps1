@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 5.4 - Poprawiono błąd w autouzupełnianiu.
+# Wersja: 5.5 - Poprawiono wyświetlanie oryginalnych numerów w wynikach wyszukiwania.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -142,13 +142,12 @@ function Show-SearchResults($foundApps, $searchTerm) {
 
     Write-Host "`nZnaleziono $($foundApps.Count) programów dla: '$searchTerm'`n" -ForegroundColor $colors.Success
 
-    # Wyświetlenie wyników wyszukiwania
+    # Wyświetlenie wyników wyszukiwania z oryginalnymi numerami
     for ($i = 0; $i -lt $foundApps.Count; $i++) {
         $foundApp = $foundApps[$i]
-        Write-Host ("{0,3}. " -f ($i + 1)) -ForegroundColor $colors.Success -NoNewline
+        Write-Host ("{0,3}. " -f $foundApp.OriginalIndex) -ForegroundColor $colors.Success -NoNewline
         Write-Host $foundApp.App.Name -ForegroundColor $colors.Highlight -NoNewline
         Write-Host " - $($foundApp.App.Description)" -ForegroundColor $colors.DefaultText
-        Write-Host "     (Oryginalny numer: $($foundApp.OriginalIndex))" -ForegroundColor $colors.Info
     }
 }
 
@@ -319,22 +318,33 @@ function Search-Apps-Interactive($allApps) {
                     continue
                 }
                 
-                Write-Host "`nWybierz numery z aktualnych wyników (np. 1,3,5):" -ForegroundColor $colors.Highlight
+                Write-Host "`nWybierz oryginalne numery z wyników (np. 11,63,64):" -ForegroundColor $colors.Highlight
                 $choice = Read-Host
                 
                 if ([string]::IsNullOrWhiteSpace($choice)) {
                     continue
                 }
 
-                # Konwersja wyborów z wyników wyszukiwania na oryginalne numery
+                # Konwersja wyborów - sprawdź czy wpisane numery to oryginalne numery z wyników
                 $searchChoices = $choice.Split(',')
                 $originalNumbers = [System.Collections.Generic.List[string]]::new()
                 
                 foreach ($searchChoice in $searchChoices) {
                     $trimmedChoice = $searchChoice.Trim()
-                    if ($trimmedChoice -match "^\d+$" -and [int]$trimmedChoice -gt 0 -and [int]$trimmedChoice -le $foundApps.Count) {
-                        $selectedIndex = [int]$trimmedChoice - 1
-                        $originalNumbers.Add($foundApps[$selectedIndex].OriginalIndex.ToString())
+                    if ($trimmedChoice -match "^\d+$") {
+                        $inputNumber = [int]$trimmedChoice
+                        # Sprawdź czy ten numer jest w wynikach wyszukiwania
+                        $foundMatch = $false
+                        foreach ($foundApp in $foundApps) {
+                            if ($foundApp.OriginalIndex -eq $inputNumber) {
+                                $originalNumbers.Add($inputNumber.ToString())
+                                $foundMatch = $true
+                                break
+                            }
+                        }
+                        if (-not $foundMatch) {
+                            Write-Host "Pominięto numer '$($trimmedChoice)' - nie ma go w wynikach wyszukiwania." -ForegroundColor $colors.Error
+                        }
                     }
                     else {
                         Write-Host "Pominięto nieprawidłowy numer: '$($trimmedChoice)'" -ForegroundColor $colors.Error
@@ -345,7 +355,7 @@ function Search-Apps-Interactive($allApps) {
                     return ($originalNumbers -join ',')
                 }
                 else {
-                    Write-Host "Nie wybrano żadnych prawidłowych programów." -ForegroundColor $colors.Error
+                    Write-Host "Nie wybrano żadnych prawidłowych programów z wyników." -ForegroundColor $colors.Error
                     Read-Host "Naciśnij Enter, aby kontynuować..."
                 }
             }
