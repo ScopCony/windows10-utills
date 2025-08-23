@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 5.2 - Dodano inteligentne autouzupełnianie z propozycjami.
+# Wersja: 5.3 - Dodano prawdziwe autouzupełnianie z TAB jak w systemach Linux.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -128,7 +128,7 @@ function Show-AppsMenu($appsData) {
         }
     }
 
-    Write-Host "`ns. Wyszukaj program (z inteligentnym autouzupełnianiem)" -ForegroundColor $colors.Highlight
+    Write-Host "`ns. Wyszukaj program (z autouzupełnianiem TAB)" -ForegroundColor $colors.Highlight
     Write-Host "q. Powrót do głównego menu`n"
     $choice = Read-Host "Wybierz numer programu, 's' aby wyszukać, lub numery po przecinku (np. 1,5,8)"
     return $choice
@@ -159,27 +159,24 @@ function Get-AutocompleteSuggestions($allApps, $searchTerm) {
         # Jeśli brak wyszukiwania, pokaż pierwsze litery wszystkich programów
         $firstLetters = @{}
         foreach ($app in $allApps) {
-            $firstLetter = $app.Name.Substring(0,1).ToUpper()
-            $firstLetters[$firstLetter] = $true
+            if ($app.Name.Length -gt 0) {
+                $firstLetter = $app.Name.Substring(0,1).ToUpper()
+                $firstLetters[$firstLetter] = $true
+            }
         }
         $suggestions.AddRange(($firstLetters.Keys | Sort-Object))
     }
     else {
-        # Znajdź unikalne następne możliwe uzupełnienia
-        $nextChars = @{}
+        # Znajdź programy pasujące do aktualnego wyszukiwania
+        $matchingApps = @()
         foreach ($app in $allApps) {
-            if ($app.Name -like "$searchTerm*" -and $app.Name.Length -gt $searchTerm.Length) {
-                # Sprawdź, czy możemy dodać kolejny znak
-                for ($i = $searchTerm.Length; $i -le $app.Name.Length; $i++) {
-                    $possibleCompletion = $app.Name.Substring(0, $i)
-                    if ($possibleCompletion.Length -gt $searchTerm.Length) {
-                        $nextChars[$possibleCompletion] = $true
-                        break # Dodajemy tylko najbliższe uzupełnienie
-                    }
-                }
+            if ($app.Name -like "$searchTerm*") {
+                $matchingApps += $app.Name
             }
         }
-        $suggestions.AddRange(($nextChars.Keys | Sort-Object))
+        
+        # Dodaj pierwsze 10 unikalnych propozycji
+        $suggestions.AddRange(($matchingApps | Sort-Object | Select-Object -First 10))
     }
     
     return $suggestions
@@ -191,11 +188,12 @@ function Show-AutocompleteHints($allApps, $searchTerm) {
     }
     
     $hints = Get-AutocompleteSuggestions -allApps $allApps -searchTerm $searchTerm
-    if ($hints.Count -gt 0 -and $hints.Count -le 10) {
-        Write-Host "`nPropozycje uzupełnienia:" -ForegroundColor $colors.Info
-        $hintText = ($hints | Select-Object -First 5) -join ", "
+    if ($hints.Count -gt 0) {
+        Write-Host "`nPropozycje (TAB): " -ForegroundColor $colors.Info -NoNewline
+        $displayHints = $hints | Select-Object -First 5
+        $hintText = $displayHints -join ", "
         if ($hints.Count -gt 5) {
-            $hintText += "... (wpisz 'tab' aby zobaczyć wszystkie)"
+            $hintText += "..."
         }
         Write-Host $hintText -ForegroundColor $colors.DefaultText
     }
@@ -228,56 +226,45 @@ function Show-SuggestionsMenu($suggestions, $searchTerm) {
 
 function Search-Apps-Interactive($allApps) {
     Write-Host "`n==== Interaktywne wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
-    Write-Host "Wpisuj kolejne litery, aby zawęzić wyniki wyszukiwania." -ForegroundColor $colors.Info
-    Write-Host "Dostępne komendy:" -ForegroundColor $colors.Info
-    Write-Host "- Wpisz litery/cyfry: wyszukiwanie (programy zaczynające się na podany tekst)" -ForegroundColor $colors.DefaultText
-    Write-Host "- 'tab': pokaż propozycje uzupełnienia" -ForegroundColor $colors.DefaultText
-    Write-Host "- 'clear': wyczyść wyszukiwanie" -ForegroundColor $colors.DefaultText
-    Write-Host "- 'select': wybierz programy z aktualnych wyników" -ForegroundColor $colors.DefaultText
-    Write-Host "- 'q': powrót do menu`n" -ForegroundColor $colors.DefaultText
+    Write-Host "Sterowanie:" -ForegroundColor $colors.Info
+    Write-Host "- Wpisz litery: wyszukiwanie" -ForegroundColor $colors.DefaultText
+    Write-Host "- TAB: propozycje uzupełnienia" -ForegroundColor $colors.DefaultText
+    Write-Host "- BACKSPACE: usuń ostatni znak" -ForegroundColor $colors.DefaultText
+    Write-Host "- ENTER: wybierz programy z wyników" -ForegroundColor $colors.DefaultText
+    Write-Host "- ESC: wyczyść wyszukiwanie" -ForegroundColor $colors.DefaultText
+    Write-Host "- Q lub CTRL+C: powrót do menu`n" -ForegroundColor $colors.DefaultText
 
     $searchTerm = ""
     $foundApps = [System.Collections.Generic.List[object]]::new()
 
-    # Inicjalne wyświetlenie - wszystkie programy
-    for ($i = 0; $i -lt $allApps.Count; $i++) {
-        $foundApps.Add(@{
-            App = $allApps[$i]
-            OriginalIndex = $i + 1
-        })
-    }
-
     while ($true) {
         Clear-Host
         Write-Host "`n==== Interaktywne wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
-        Write-Host "Aktualne wyszukiwanie: '$searchTerm'" -ForegroundColor $colors.Highlight
         
-        Show-SearchResults -foundApps $foundApps -searchTerm $searchTerm
-        
-        # Pokazuj propozycje automatycznie jeśli jest wyszukiwanie
-        if (-not [string]::IsNullOrEmpty($searchTerm)) {
+        if ([string]::IsNullOrEmpty($searchTerm)) {
+            Write-Host "Wpisz pierwsze litery nazwy programu..." -ForegroundColor $colors.Info
+        } else {
+            Write-Host "Wyszukiwanie: '$searchTerm'" -ForegroundColor $colors.Highlight
+            Show-SearchResults -foundApps $foundApps -searchTerm $searchTerm
+            
+            # Pokazuj propozycje automatycznie jeśli jest wyszukiwanie
             Show-AutocompleteHints -allApps $allApps -searchTerm $searchTerm
         }
         
-        Write-Host "`nWpisz kolejne litery, 'tab' (propozycje), 'clear', 'select' lub 'q':" -ForegroundColor $colors.Info
-        $input = Read-Host
-
-        switch ($input.ToLower()) {
-            "q" {
-                return $null
-            }
-            "clear" {
-                $searchTerm = ""
-                $foundApps.Clear()
-                for ($i = 0; $i -lt $allApps.Count; $i++) {
-                    $foundApps.Add(@{
-                        App = $allApps[$i]
-                        OriginalIndex = $i + 1
-                    })
+        Write-Host "`nWpisz znak (TAB=propozycje, ENTER=wybierz, ESC=wyczyść, Q=wyjście):" -ForegroundColor $colors.Info
+        
+        # Czytaj pojedyncze naciśnięcie klawisza
+        $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        
+        switch ($key.VirtualKeyCode) {
+            9 { # TAB
+                if ([string]::IsNullOrEmpty($searchTerm)) {
+                    # Pokaż pierwsze litery wszystkich programów
+                    $suggestions = Get-AutocompleteSuggestions -allApps $allApps -searchTerm ""
+                } else {
+                    $suggestions = Get-AutocompleteSuggestions -allApps $allApps -searchTerm $searchTerm
                 }
-            }
-            "tab" {
-                $suggestions = Get-AutocompleteSuggestions -allApps $allApps -searchTerm $searchTerm
+                
                 if ($suggestions.Count -gt 0) {
                     $selected = Show-SuggestionsMenu -suggestions $suggestions -searchTerm $searchTerm
                     if ($null -ne $selected) {
@@ -296,14 +283,32 @@ function Search-Apps-Interactive($allApps) {
                     }
                 }
                 else {
-                    Write-Host "Brak propozycji uzupełnienia dla '$searchTerm'" -ForegroundColor $colors.Error
-                    Read-Host "Naciśnij Enter, aby kontynuować..."
+                    Write-Host "`nBrak propozycji uzupełnienia dla '$searchTerm'" -ForegroundColor $colors.Error
+                    Start-Sleep -Milliseconds 1000
                 }
             }
-            "select" {
+            8 { # BACKSPACE
+                if ($searchTerm.Length -gt 0) {
+                    $searchTerm = $searchTerm.Substring(0, $searchTerm.Length - 1)
+                    # Aktualizacja wyników
+                    $foundApps.Clear()
+                    if (-not [string]::IsNullOrEmpty($searchTerm)) {
+                        for ($i = 0; $i -lt $allApps.Count; $i++) {
+                            $app = $allApps[$i]
+                            if ($app.Name -like "$searchTerm*") {
+                                $foundApps.Add(@{
+                                    App = $app
+                                    OriginalIndex = $i + 1
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+            13 { # ENTER
                 if ($foundApps.Count -eq 0) {
-                    Write-Host "Brak wyników do wyboru." -ForegroundColor $colors.Error
-                    Read-Host "Naciśnij Enter, aby kontynuować..."
+                    Write-Host "`nBrak wyników do wyboru. Wpisz fragment nazwy programu." -ForegroundColor $colors.Error
+                    Start-Sleep -Milliseconds 1000
                     continue
                 }
                 
@@ -337,16 +342,26 @@ function Search-Apps-Interactive($allApps) {
                     Read-Host "Naciśnij Enter, aby kontynuować..."
                 }
             }
+            27 { # ESC
+                $searchTerm = ""
+                $foundApps.Clear()
+            }
+            81 { # Q
+                return $null
+            }
+            3 { # CTRL+C
+                return $null
+            }
             default {
-                # Dodanie nowych znaków do wyszukiwania
-                if (-not [string]::IsNullOrWhiteSpace($input)) {
-                    $searchTerm += $input
+                # Sprawdź czy to litera lub cyfra
+                $char = $key.Character
+                if ($char -match '[a-zA-Z0-9\s\-\.]') {
+                    $searchTerm += $char
                     
-                    # Aktualizacja wyników wyszukiwania - szukaj tylko na początku nazwy
+                    # Aktualizacja wyników wyszukiwania
                     $foundApps.Clear()
                     for ($i = 0; $i -lt $allApps.Count; $i++) {
                         $app = $allApps[$i]
-                        # Szukaj tylko programów zaczynających się na podany tekst (case-insensitive)
                         if ($app.Name -like "$searchTerm*") {
                             $foundApps.Add(@{
                                 App = $app
