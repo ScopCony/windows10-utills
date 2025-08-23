@@ -95,7 +95,6 @@ function Check-Chocolatey {
     }
 }
 
-
 function Get-JsonData($fileName) {
     # Pobiera i parsuje plik JSON z GitHub.
     $url = "$($githubRepoUrl)/config/$($fileName)"
