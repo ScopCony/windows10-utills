@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 4.9 - Dodano możliwość instalacji/deinstalacji wielu programów jednocześnie.
+# Wersja: 5.0 - Dodano wyszukiwanie programów po nazwie.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -128,10 +128,78 @@ function Show-AppsMenu($appsData) {
         }
     }
 
-    Write-Host "`nq. Powrót do głównego menu`n"
-    # ZMIANA: Zaktualizowano treść pytania, aby umożliwić wybór wielu programów.
-    $choice = Read-Host "Wybierz numer programu (lub numery po przecinku, np. 1,5,8)"
+    Write-Host "`ns. Wyszukaj program" -ForegroundColor $colors.Highlight
+    Write-Host "q. Powrót do głównego menu`n"
+    $choice = Read-Host "Wybierz numer programu, 's' aby wyszukać, lub numery po przecinku (np. 1,5,8)"
     return $choice
+}
+
+function Search-Apps($allApps) {
+    Write-Host "`n==== Wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
+    $searchTerm = Read-Host "Wpisz fragment nazwy programu do wyszukania"
+    
+    if ([string]::IsNullOrWhiteSpace($searchTerm)) {
+        Write-Host "Nie wprowadzono frazy do wyszukania." -ForegroundColor $colors.Error
+        return $null
+    }
+
+    # Wyszukiwanie programów (case-insensitive, w nazwie i opisie)
+    $foundApps = [System.Collections.Generic.List[object]]::new()
+    for ($i = 0; $i -lt $allApps.Count; $i++) {
+        $app = $allApps[$i]
+        if ($app.Name -like "*$searchTerm*" -or $app.Description -like "*$searchTerm*") {
+            $foundApps.Add(@{
+                App = $app
+                OriginalIndex = $i + 1  # Zachowujemy oryginalny numer z głównej listy
+            })
+        }
+    }
+
+    if ($foundApps.Count -eq 0) {
+        Write-Host "Nie znaleziono programów zawierających frazę: '$searchTerm'" -ForegroundColor $colors.Error
+        Read-Host "Naciśnij Enter, aby kontynuować..."
+        return $null
+    }
+
+    Write-Host "`nZnaleziono $($foundApps.Count) programów:`n" -ForegroundColor $colors.Success
+
+    # Wyświetlenie wyników wyszukiwania
+    for ($i = 0; $i -lt $foundApps.Count; $i++) {
+        $foundApp = $foundApps[$i]
+        Write-Host ("{0,3}. " -f ($i + 1)) -ForegroundColor $colors.Success -NoNewline
+        Write-Host $foundApp.App.Name -ForegroundColor $colors.Highlight -NoNewline
+        Write-Host " - $($foundApp.App.Description)" -ForegroundColor $colors.DefaultText
+        Write-Host "     (Oryginalny numer: $($foundApp.OriginalIndex))" -ForegroundColor $colors.Info
+    }
+
+    Write-Host "`nq. Powrót do menu programów`n"
+    $choice = Read-Host "Wybierz numer z wyników wyszukiwania (lub numery po przecinku, np. 1,3,5)"
+    
+    if ($choice -eq "q") {
+        return $null
+    }
+
+    # Konwersja wyborów z wyników wyszukiwania na oryginalne numery
+    $searchChoices = $choice.Split(',')
+    $originalNumbers = [System.Collections.Generic.List[string]]::new()
+    
+    foreach ($searchChoice in $searchChoices) {
+        $trimmedChoice = $searchChoice.Trim()
+        if ($trimmedChoice -match "^\d+$" -and [int]$trimmedChoice -gt 0 -and [int]$trimmedChoice -le $foundApps.Count) {
+            $selectedIndex = [int]$trimmedChoice - 1
+            $originalNumbers.Add($foundApps[$selectedIndex].OriginalIndex.ToString())
+        }
+        else {
+            Write-Host "Pominięto nieprawidłowy numer: '$($trimmedChoice)'" -ForegroundColor $colors.Error
+        }
+    }
+
+    if ($originalNumbers.Count -gt 0) {
+        return ($originalNumbers -join ',')
+    }
+    else {
+        return $null
+    }
 }
 
 function Show-FeaturesMenu($features) {
@@ -208,11 +276,20 @@ function Main-Menu {
             "1" {
                 do {
                     Clear-Host
-                    # ZMIANA: Nazwa zmiennej dla czytelności
                     $appChoiceString = Show-AppsMenu -appsData $appsData
                     if ($appChoiceString -eq "q") { break }
 
-                    # ZMIANA: Całkowicie nowa logika do obsługi wielu wyborów.
+                    # Obsługa wyszukiwania
+                    if ($appChoiceString -eq "s") {
+                        $searchResult = Search-Apps -allApps $allApps
+                        if ($null -ne $searchResult) {
+                            $appChoiceString = $searchResult
+                        }
+                        else {
+                            continue  # Powrót do menu jeśli wyszukiwanie nie zwróciło wyników
+                        }
+                    }
+
                     # Dzielimy wpisany tekst na pojedyncze numery
                     $appChoices = $appChoiceString.Split(',')
 
@@ -222,7 +299,7 @@ function Main-Menu {
                         Write-Host "2. Odinstaluj"
                         $actionChoice = Read-Host "Wybierz akcję dla wszystkich wybranych programów"
 
-                        # ZMIANA: Pytanie o ścieżkę przed pętlą, dla wszystkich programów jednocześnie
+                        # Pytanie o ścieżkę przed pętlą, dla wszystkich programów jednocześnie
                         $customPath = ""
                         if ($actionChoice -eq "1") {
                             $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji dla wszystkich programów? (y/n)"
