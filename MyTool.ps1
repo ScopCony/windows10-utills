@@ -1,265 +1,198 @@
-# MyTool.ps1
-#
-# To jest narzędzie PowerShell do instalacji/deinstalacji programów
-# i zarządzania funkcjami Windows, bazujące na zewnętrznym repozytorium GitHub.
-#
-# Działanie:
-# 1. Sprawdza uprawnienia administratora.
-# 2. Sprawdza, czy Chocolatey jest zainstalowany i proponuje instalację.
-# 3. Pobiera pliki konfiguracyjne JSON z repozytorium GitHub.
-# 4. Wyświetla menu tekstowe z opcjami.
-# 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
-#
-# Autor: Sebastian Brański
-# Wersja: 5.8 - Poprawiono formatowanie menu z zielonymi literami s i q.
-
-# region Konfiguracja protokołu sieciowego
-# Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
-# Ta linia rozwiązuje problem z połączeniem przy pobieraniu skryptu i jego danych.
-[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
-# endregion
-
-# region Zmiana kolorów konsoli
-# Ustawia tło na czarne i tekst na biały, aby zapewnić spójny wygląd.
-$Host.UI.RawUI.BackgroundColor = "Black"
-$Host.UI.RawUI.ForegroundColor = "Cyan"
-Clear-Host
-# endregion
-
-# region Definicje kolorów
-# Centralne miejsce do zarządzania kolorami w skrypcie.
-# Zmień poniższe wartości, aby dostosować wygląd całego narzędzia.
-$colors = @{
-    Error       = "Red"     # Kolor dla komunikatów o błędach.
-    Success     = "Green"   # Kolor dla komunikatów o powodzeniu (np. numery list, pomyślne zakończenie).
-    Highlight   = "Blue"    # Kolor do podświetlania ważnych elementów (np. nazwy programów, tytuły menu).
-    Header      = "DarkRed" # Kolor dla nagłówków sekcji i kategorii.
-    Info        = "White"   # Kolor dla komunikatów informacyjnych (np. "Pobieram dane...").
-    DefaultText = "Gray"    # Standardowy kolor tekstu (np. opisy programów).
+# Sprawdzanie wersji systemu
+$os = Get-CimInstance -ClassName Win32_OperatingSystem
+if ($os.Caption -notlike "*Windows 10*") {
+    Write-Host "This script is designed for Windows 10 only." -ForegroundColor Red
+    exit
 }
-# endregion
 
-# region Wymuszenie kodowania
-# Ta linia zapewnia poprawne wyświetlanie polskich znaków
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-[Console]::InputEncoding = [System.Text.Encoding]::UTF8
-# endregion
-
-# region Konfiguracja
-# URL do repozytorium GitHub z plikami konfiguracyjnymi.
-$githubRepoUrl = "https://raw.githubusercontent.com/ScopCony/windows10-utills/main"
-# endregion
-
-# region Funkcje pomocnicze
-
-function Check-Admin {
-    # Sprawdza, czy skrypt jest uruchomiony z uprawnieniami administratora.
-    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    if (-not $isAdmin) {
-        Write-Host "Ten skrypt musi być uruchomiony z uprawnieniami administratora." -ForegroundColor $colors.Error
-        Write-Host "Proszę zamknij to okno i uruchom ponownie PowerShell jako administrator."
-        Write-Host "Następnie użyj komendy:"
-        Write-Host "irm https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1 | iex"
-        Read-Host "Naciśnij Enter, aby zamknąć..."
-        exit
+# Funkcja do odinstalowywania aplikacji
+function Uninstall-App {
+    param (
+        [string]$AppName
+    )
+    $app = Get-AppxPackage -Name $AppName -ErrorAction SilentlyContinue
+    if ($app) {
+        Write-Host "Uninstalling $AppName..." -ForegroundColor Yellow
+        Remove-AppxPackage -Package $app.PackageFullName -ErrorAction Stop
+        Write-Host "$AppName uninstalled successfully." -ForegroundColor Green
+    } else {
+        Write-Host "$AppName is not installed." -ForegroundColor Gray
     }
 }
 
-function Check-Chocolatey {
-    # Sprawdza, czy polecenie 'choco' jest dostępne.
-    $chocoExists = Get-Command choco -ErrorAction SilentlyContinue
-    if (-not $chocoExists) {
-        Write-Host "Narzędzie Chocolatey nie zostało znalezione." -ForegroundColor $colors.Highlight
-        $installChoice = Read-Host "Czy chcesz je teraz zainstalować? (y/n)"
-        if ($installChoice -eq 'y') {
-            Write-Host "Instalowanie Chocolatey..." -ForegroundColor $colors.Success
-            try {
-                Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-                Write-Host "Chocolatey został pomyślnie zainstalowany. Uruchom skrypt ponownie." -ForegroundColor $colors.Success
-            }
-            catch {
-                Write-Host "Wystąpił błąd podczas instalacji Chocolatey." -ForegroundColor $colors.Error
-                Write-Host "Szczegóły błędu: $($_.Exception.Message)"
-            }
-            Read-Host "Naciśnij Enter, aby zamknąć..."
-            exit
-        }
-        else {
-            Write-Host "Instalacja programów nie będzie możliwa bez Chocolatey. Zamykanie skryptu." -ForegroundColor $colors.Error
-            Read-Host "Naciśnij Enter, aby zamknąć..."
-            exit
-        }
-    }
-    else {
-        Write-Host "Znaleziono zainstalowane narzędzie Chocolatey." -ForegroundColor $colors.Success
+# Funkcja do instalacji pakietów Chocolatey
+function Install-ChocolateyPackage {
+    param (
+        [string]$PackageName
+    )
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+        Write-Host "Installing $PackageName via Chocolatey..." -ForegroundColor Yellow
+        choco install $PackageName -y
+    } else {
+        Write-Host "Chocolatey not found. Installing Chocolatey first..." -ForegroundColor Yellow
+        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        Write-Host "Installing $PackageName via Chocolatey..." -ForegroundColor Yellow
+        choco install $PackageName -y
     }
 }
 
-function Get-JsonData($fileName) {
-    # Pobiera i parsuje plik JSON z GitHub.
-    $url = "$($githubRepoUrl)/config/$($fileName)"
-    try {
-        Write-Host "Pobieram dane z $url..." -ForegroundColor $colors.Info
-        $data = Invoke-RestMethod -Uri $url
-        return $data
+# Funkcja do konfiguracji ustawień prywatności
+function Configure-PrivacySettings {
+    Write-Host "Configuring privacy settings..." -ForegroundColor Yellow
+
+    # Wyłącz telemetrię
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Value 0 -Type DWord -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Value 0 -Type DWord -ErrorAction SilentlyContinue
+
+    # Wyłącz Cortanę
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "AllowCortana" -Value 0 -Type DWord -ErrorAction SilentlyContinue
+
+    # Wyłącz lokalizację
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" -Name "DisableLocation" -Value 1 -Type DWord -ErrorAction SilentlyContinue
+
+    # Wyłącz synchronizację ustawień
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync" -Name "DisableSettingSync" -Value 2 -Type DWord -ErrorAction SilentlyContinue
+
+    Write-Host "Privacy settings configured." -ForegroundColor Green
+}
+
+# Funkcja do optymalizacji systemu
+function Optimize-System {
+    Write-Host "Optimizing system..." -ForegroundColor Yellow
+
+    # Wyłącz animacje
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" -Value 0 -Type String -ErrorAction SilentlyContinue
+
+    # Wyłącz efekty wizualne
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 2 -Type DWord -ErrorAction SilentlyContinue
+
+    # Optymalizacja usług
+    $services = @(
+        "DiagTrack",
+        "dmwappushservice",
+        "WSearch"
+    )
+    foreach ($service in $services) {
+        if (Get-Service -Name $service -ErrorAction SilentlyContinue) {
+            Stop-Service -Name $service -Force -ErrorAction SilentlyContinue
+            Set-Service -Name $service -StartupType Disabled -ErrorAction SilentlyContinue
+            Write-Host "$service disabled." -ForegroundColor Green
+        }
     }
-    catch {
-        Write-Host "Błąd podczas pobierania pliku $fileName." -ForegroundColor $colors.Error
-        Write-Host "Szczegóły błędu: $($_.Exception.Message)"
-        return $null
+
+    Write-Host "System optimization completed." -ForegroundColor Green
+}
+
+# Funkcja do usuwania OneDrive
+function Remove-OneDrive {
+    Write-Host "Removing OneDrive..." -ForegroundColor Yellow
+
+    # Zatrzymaj procesy OneDrive
+    taskkill /f /im OneDrive.exe 2>nul
+
+    # Odinstaluj OneDrive
+    $oneDriveSetup = "$env:SystemRoot\System32\OneDriveSetup.exe"
+    if (Test-Path $oneDriveSetup) {
+        Start-Process -FilePath $oneDriveSetup -ArgumentList "/uninstall" -Wait -NoNewWindow
+    }
+
+    # Usuń folder OneDrive
+    $oneDriveFolder = "$env:USERPROFILE\OneDrive"
+    if (Test-Path $oneDriveFolder) {
+        Remove-Item -Path $oneDriveFolder -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    Write-Host "OneDrive removed." -ForegroundColor Green
+}
+
+# Menu główne
+function Show-Menu {
+    Clear-Host
+    Write-Host "================ MyTool ================" -ForegroundColor Cyan
+    Write-Host "1: Uninstall bloatware" -ForegroundColor White
+    Write-Host "2: Install useful software" -ForegroundColor White
+    Write-Host "3: Configure privacy settings" -ForegroundColor White
+    Write-Host "4: Optimize system" -ForegroundColor White
+    Write-Host "5: Remove OneDrive" -ForegroundColor White
+    Write-Host "6: Exit" -ForegroundColor White
+    Write-Host "========================================" -ForegroundColor Cyan
+}
+
+# Funkcja do odinstalowywania zbędnych aplikacji
+function Uninstall-Bloatware {
+    Write-Host "Uninstalling bloatware..." -ForegroundColor Yellow
+    $bloatware = @(
+        "Microsoft.3DBuilder",
+        "Microsoft.BingFinance",
+        "Microsoft.BingNews",
+        "Microsoft.BingSports",
+        "Microsoft.BingWeather",
+        "Microsoft.GetHelp",
+        "Microsoft.Getstarted",
+        "Microsoft.Messaging",
+        "Microsoft.Microsoft3DViewer",
+        "Microsoft.MicrosoftOfficeHub",
+        "Microsoft.MicrosoftSolitaireCollection",
+        "Microsoft.MixedReality.Portal",
+        "Microsoft.Office.Lens",
+        "Microsoft.Office.Sway",
+        "Microsoft.OneConnect",
+        "Microsoft.People",
+        "Microsoft.Print3D",
+        "Microsoft.SkypeApp",
+        "Microsoft.StorePurchaseApp",
+        "Microsoft.Whiteboard",
+        "Microsoft.WindowsAlarms",
+        "Microsoft.WindowsCamera",
+        "microsoft.windowscommunicationsapps",
+        "Microsoft.WindowsFeedbackHub",
+        "Microsoft.WindowsMaps",
+        "Microsoft.WindowsSoundRecorder",
+        "Microsoft.Xbox.TCUI",
+        "Microsoft.XboxApp",
+        "Microsoft.XboxGameOverlay",
+        "Microsoft.XboxGamingOverlay",
+        "Microsoft.XboxIdentityProvider",
+        "Microsoft.XboxSpeechToTextOverlay",
+        "Microsoft.ZuneMusic",
+        "Microsoft.ZuneVideo"
+    )
+
+    foreach ($app in $bloatware) {
+        Uninstall-App -AppName $app
     }
 }
 
-function Show-AppsMenu($appsData) {
-    Write-Host "`n==== Zarządzanie programami ====`n" -ForegroundColor $colors.Header
-    
-    $count = 1 # Ogólny licznik dla numeracji programów
+# Funkcja do instalacji przydatnego oprogramowania
+function Install-UsefulSoftware {
+    Write-Host "Installing useful software..." -ForegroundColor Yellow
+    $packages = @(
+        "googlechrome",
+        "7zip",
+        "notepadplusplus",
+        "vlc"
+    )
 
-    foreach ($category in $appsData) {
-        Write-Host "`n---- $($category.Category) ----" -ForegroundColor $colors.Header
-        
-        foreach ($app in $category.Apps) {
-            # Formatowanie: Numer. Nazwa - Opis
-            Write-Host ("{0,3}. " -f $count) -ForegroundColor $colors.Success -NoNewline
-            Write-Host $app.Name -ForegroundColor $colors.Highlight -NoNewline
-            Write-Host " - $($app.Description)" -ForegroundColor $colors.DefaultText
-            $count++
-        }
-    }
-
-    Write-Host "`n" -NoNewline
-    Write-Host "s" -ForegroundColor $colors.Success -NoNewline
-    Write-Host " - Wyszukaj program (z autouzupełnianiem TAB)"
-    Write-Host "q" -ForegroundColor $colors.Success -NoNewline
-    Write-Host " - Powrót do głównego menu`n"
-    $choice = Read-Host "Wybierz numer programu, 's' aby wyszukać, lub numery po przecinku (np. 1,5,8)"
-    return $choice
-}
-
-function Show-SearchResults($foundApps, $searchTerm) {
-    if ($foundApps.Count -eq 0) {
-        Write-Host "Brak wyników dla: '$searchTerm'" -ForegroundColor $colors.Error
-        return
-    }
-
-    Write-Host "`nZnaleziono $($foundApps.Count) programów dla: '$searchTerm'`n" -ForegroundColor $colors.Success
-
-    # Wyświetlenie wyników wyszukiwania z oryginalnymi numerami
-    for ($i = 0; $i -lt $foundApps.Count; $i++) {
-        $foundApp = $foundApps[$i]
-        Write-Host ("{0,3}. " -f $foundApp.OriginalIndex) -ForegroundColor $colors.Success -NoNewline
-        Write-Host $foundApp.App.Name -ForegroundColor $colors.Highlight -NoNewline
-        Write-Host " - $($foundApp.App.Description)" -ForegroundColor $colors.DefaultText
+    foreach ($package in $packages) {
+        Install-ChocolateyPackage -PackageName $package
     }
 }
 
-function Get-AutocompleteSuggestions($allApps, $searchTerm) {
-    $suggestions = [System.Collections.Generic.List[string]]::new()
-    
-    if ([string]::IsNullOrEmpty($searchTerm)) {
-        # Jeśli brak wyszukiwania, pokaż pierwsze litery wszystkich programów
-        $firstLetters = @{}
-        foreach ($app in $allApps) {
-            if ($app.Name.Length -gt 0) {
-                $firstLetter = $app.Name.Substring(0,1).ToUpper()
-                $firstLetters[$firstLetter] = $true
-            }
-        }
-        foreach ($letter in ($firstLetters.Keys | Sort-Object)) {
-            $suggestions.Add($letter)
-        }
-    }
-    else {
-        # Znajdź programy pasujące do aktualnego wyszukiwania
-        $matchingApps = [System.Collections.Generic.List[string]]::new()
-        foreach ($app in $allApps) {
-            if ($app.Name -like "$searchTerm*") {
-                $matchingApps.Add($app.Name)
-            }
-        }
-        
-        # Dodaj wszystkie propozycje (usunięto ograniczenie do 10)
-        $sortedApps = $matchingApps | Sort-Object
-        if ($null -ne $sortedApps) {
-            foreach ($appName in $sortedApps) {
-                $suggestions.Add($appName)
-            }
-        }
-    }
-    
-    return $suggestions
-}
-
-function Show-AutocompleteHints($allApps, $searchTerm) {
-    if ([string]::IsNullOrEmpty($searchTerm)) {
-        return
-    }
-    
-    $hints = Get-AutocompleteSuggestions -allApps $allApps -searchTerm $searchTerm
-    if ($hints.Count -gt 0) {
-        Write-Host "`nPropozycje (TAB): " -ForegroundColor $colors.Info -NoNewline
-        $displayHints = $hints | Select-Object -First 5
-        $hintText = $displayHints -join ", "
-        if ($hints.Count -gt 5) {
-            $hintText += "..."
-        }
-        Write-Host $hintText -ForegroundColor $colors.DefaultText
-    }
-}
-
-function Find-CommonPrefix($suggestions, $currentTerm) {
-    if ($suggestions.Count -eq 0) {
-        return $currentTerm
-    }
-    
-    if ($suggestions.Count -eq 1) {
-        return $suggestions[0]
-    }
-    
-    # Znajdź najkrótszy string
-    $shortest = $suggestions[0]
-    foreach ($suggestion in $suggestions) {
-        if ($suggestion.Length -lt $shortest.Length) {
-            $shortest = $suggestion
-        }
-    }
-    
-    # Znajdź wspólny prefiks
-    $commonPrefix = ""
-    for ($i = 0; $i -lt $shortest.Length; $i++) {
-        $char = $shortest[$i]
-        $allMatch = $true
-        
-        foreach ($suggestion in $suggestions) {
-            if ($suggestion[$i] -ne $char) {
-                $allMatch = $false
-                break
-            }
-        }
-        
-        if ($allMatch) {
-            $commonPrefix += $char
-        }
-        else {
-            break
-        }
-    }
-    
-    return $commonPrefix
-}
-
+# Nowa funkcja interaktywnego wyszukiwania
 function Search-Apps-Interactive($allApps) {
     Write-Host "`n==== Interaktywne wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
     Write-Host "Sterowanie:" -ForegroundColor $colors.Info
     Write-Host "- Wpisz litery: wyszukiwanie" -ForegroundColor $colors.DefaultText
+    Write-Host "- Wpisz numer: wybierz program bezpośrednio" -ForegroundColor $colors.DefaultText
     Write-Host "- TAB: autouzupełnienie do wspólnego prefiksu" -ForegroundColor $colors.DefaultText
     Write-Host "- BACKSPACE: usuń ostatni znak" -ForegroundColor $colors.DefaultText
-    Write-Host "- ENTER: wybierz programy z wyników" -ForegroundColor $colors.DefaultText
+    Write-Host "- ENTER: wybierz więcej programów z wyników" -ForegroundColor $colors.DefaultText
     Write-Host "- ESC: wyczyść wyszukiwanie" -ForegroundColor $colors.DefaultText
     Write-Host "- Q lub CTRL+C: powrót do menu`n" -ForegroundColor $colors.DefaultText
 
     $searchTerm = ""
     $foundApps = [System.Collections.Generic.List[object]]::new()
+    $numberInput = ""
 
     while ($true) {
         Clear-Host
@@ -275,13 +208,20 @@ function Search-Apps-Interactive($allApps) {
             Show-AutocompleteHints -allApps $allApps -searchTerm $searchTerm
         }
         
-        Write-Host "`nWpisz znak (TAB=uzupełnij, ENTER=wybierz, ESC=wyczyść, Q=wyjście):" -ForegroundColor $colors.Info
+        if (-not [string]::IsNullOrEmpty($numberInput)) {
+            Write-Host "`nWpisywany numer: $numberInput" -ForegroundColor $colors.Highlight
+        }
+        
+        Write-Host "`nWpisz znak (TAB=uzupełnij, ENTER=wybierz więcej, ESC=wyczyść, Q=wyjście):" -ForegroundColor $colors.Info
         
         # Czytaj pojedyncze naciśnięcie klawisza
         $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         
         switch ($key.VirtualKeyCode) {
             9 { # TAB
+                # Wyczyść wprowadzany numer przy TAB
+                $numberInput = ""
+                
                 # Znajdź wszystkie programy pasujące do aktualnego wyszukiwania
                 $matchingApps = [System.Collections.Generic.List[string]]::new()
                 foreach ($app in $allApps) {
@@ -324,7 +264,15 @@ function Search-Apps-Interactive($allApps) {
                 }
             }
             8 { # BACKSPACE
-                if ($searchTerm.Length -gt 0) {
+                if (-not [string]::IsNullOrEmpty($numberInput)) {
+                    # Usuń ostatnią cyfrę z wprowadzanego numeru
+                    if ($numberInput.Length -gt 1) {
+                        $numberInput = $numberInput.Substring(0, $numberInput.Length - 1)
+                    } else {
+                        $numberInput = ""
+                    }
+                }
+                elseif ($searchTerm.Length -gt 0) {
                     $searchTerm = $searchTerm.Substring(0, $searchTerm.Length - 1)
                     # Aktualizacja wyników
                     $foundApps.Clear()
@@ -342,13 +290,28 @@ function Search-Apps-Interactive($allApps) {
                 }
             }
             13 { # ENTER
+                # Sprawdź czy użytkownik wpisał numer
+                if (-not [string]::IsNullOrEmpty($numberInput)) {
+                    $inputNumber = [int]$numberInput
+                    # Sprawdź czy ten numer jest w wynikach wyszukiwania
+                    foreach ($foundApp in $foundApps) {
+                        if ($foundApp.OriginalIndex -eq $inputNumber) {
+                            return $inputNumber.ToString()
+                        }
+                    }
+                    Write-Host "`nNumer '$numberInput' nie ma w wynikach wyszukiwania." -ForegroundColor $colors.Error
+                    $numberInput = ""
+                    Start-Sleep -Milliseconds 1000
+                    continue
+                }
+                
                 if ($foundApps.Count -eq 0) {
                     Write-Host "`nBrak wyników do wyboru. Wpisz fragment nazwy programu." -ForegroundColor $colors.Error
                     Start-Sleep -Milliseconds 1000
                     continue
                 }
                 
-                Write-Host "`nWybierz oryginalne numery z wyników (np. 40,41,79):" -ForegroundColor $colors.Highlight
+                Write-Host "`nWybierz oryginalne numery z wyników (np. 74,75,213):" -ForegroundColor $colors.Highlight
                 $choice = Read-Host
                 
                 if ([string]::IsNullOrWhiteSpace($choice)) {
@@ -392,6 +355,7 @@ function Search-Apps-Interactive($allApps) {
             27 { # ESC
                 $searchTerm = ""
                 $foundApps.Clear()
+                $numberInput = ""
             }
             81 { # Q
                 return $null
@@ -400,9 +364,44 @@ function Search-Apps-Interactive($allApps) {
                 return $null
             }
             default {
-                # Sprawdź czy to litera lub cyfra
+                # Sprawdź czy to cyfra
                 $char = $key.Character
-                if ($char -match '[a-zA-Z0-9\s\-\.]') {
+                if ($char -match '[0-9]') {
+                    # Sprawdź czy mamy wyniki wyszukiwania
+                    if ($foundApps.Count -gt 0) {
+                        $numberInput += $char
+                        
+                        # Sprawdź czy wprowadzany numer już pasuje do któregoś wyniku
+                        if ($numberInput -match "^\d+$") {
+                            $potentialNumber = [int]$numberInput
+                            foreach ($foundApp in $foundApps) {
+                                if ($foundApp.OriginalIndex -eq $potentialNumber) {
+                                    # Znaleziono pasujący numer - od razu zwróć
+                                    return $potentialNumber.ToString()
+                                }
+                            }
+                        }
+                    } else {
+                        # Jeśli nie ma wyników, cyfra jest częścią wyszukiwania
+                        $searchTerm += $char
+                        $numberInput = ""
+                        
+                        # Aktualizacja wyników wyszukiwania
+                        $foundApps.Clear()
+                        for ($i = 0; $i -lt $allApps.Count; $i++) {
+                            $app = $allApps[$i]
+                            if ($app.Name -like "$searchTerm*") {
+                                $foundApps.Add(@{
+                                    App = $app
+                                    OriginalIndex = $i + 1
+                                })
+                            }
+                        }
+                    }
+                }
+                elseif ($char -match '[a-zA-Z\s\-\.]') {
+                    # Litera - czyści wprowadzany numer i dodaje do wyszukiwania
+                    $numberInput = ""
                     $searchTerm += $char
                     
                     # Aktualizacja wyników wyszukiwania
@@ -422,203 +421,34 @@ function Search-Apps-Interactive($allApps) {
     }
 }
 
-function Show-FeaturesMenu($features) {
-    # Wyświetla menu funkcji Windows.
-    Write-Host "`n==== Zarządzanie funkcjami Windows ====`n" -ForegroundColor $colors.Header
-    for ($i = 0; $i -lt $features.Count; $i++) {
-        $feature = $features[$i]
-        $status = (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
-        Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
-    }
-    Write-Host "`n" -NoNewline
-    Write-Host "q" -ForegroundColor $colors.Success -NoNewline
-    Write-Host " - Powrót do głównego menu`n"
-    $choice = Read-Host "Wybierz numer, aby włączyć/wyłączyć funkcję"
-    return $choice
-}
-
-function Invoke-ChocoCommand {
-    param(
-        [string]$Command,
-        [string]$PackageId,
-        [string]$InstallPath = ""
-    )
-    
-    $chocoArgs = @($Command, $PackageId, "-y")
-    if ($Command -eq "install" -and -not [string]::IsNullOrEmpty($InstallPath)) {
-        $chocoArgs += "--install-directory=`"$InstallPath`""
-        Write-Host "Uwaga: Nie wszystkie pakiety Chocolatey wspierają niestandardową ścieżkę instalacji." -ForegroundColor $colors.Highlight
-    }
-
-    Write-Host "Wykonywanie polecenia: choco $($chocoArgs -join ' ')" -ForegroundColor $colors.Info
-    try {
-        $process = Start-Process choco -ArgumentList $chocoArgs -Wait -PassThru -NoNewWindow
-        if ($process.ExitCode -eq 0) {
-            Write-Host "Polecenie wykonane pomyślnie." -ForegroundColor $colors.Success
+# Główna pętla skryptu
+do {
+    Show-Menu
+    $input = Read-Host "Please select an option"
+    switch ($input) {
+        '1' {
+            Uninstall-Bloatware
         }
-        else {
-            Write-Host "Polecenie zakończyło się błędem (kod wyjścia: $($process.ExitCode))." -ForegroundColor $colors.Error
+        '2' {
+            Install-UsefulSoftware
+        }
+        '3' {
+            Configure-PrivacySettings
+        }
+        '4' {
+            Optimize-System
+        }
+        '5' {
+            Remove-OneDrive
+        }
+        '6' {
+            Write-Host "Exiting..." -ForegroundColor Cyan
+            exit
+        }
+        default {
+            Write-Host "Invalid option. Please select again." -ForegroundColor Red
         }
     }
-    catch {
-        Write-Host "Wystąpił krytyczny błąd podczas wykonywania polecenia choco." -ForegroundColor $colors.Error
-        Write-Host "Szczegóły: $($_.Exception.Message)"
-    }
-}
-
-function Main-Menu {
-    # Główna pętla menu.
-    $appsData = Get-JsonData "apps.json"
-    $featuresData = Get-JsonData "features.json"
-
-    if (-not $appsData -or -not $featuresData) {
-        Write-Host "Nie można kontynuować z powodu błędów pobierania danych konfiguracyjnych." -ForegroundColor $colors.Error
-        Read-Host "Naciśnij Enter, aby zakończyć..."
-        exit
-    }
-    
-    # Tworzymy spłaszczoną listę, która jest potrzebna do łatwego wyboru programu po numerze.
-    $allApps = [System.Collections.Generic.List[object]]::new()
-    foreach ($category in $appsData) {
-        if ($null -ne $category.Apps) {
-            $allApps.AddRange($category.Apps)
-        }
-    }
-
-    do {
-        Clear-Host
-        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor $colors.Highlight
-        Write-Host "1. Zarządzaj programami (instalacja/deinstalacja)"
-        Write-Host "2. Zarządzaj funkcjami Windows (włączanie/wyłączanie)"
-        Write-Host "q. Zakończ"
-
-        $mainChoice = Read-Host "Wybierz opcję"
-
-        switch ($mainChoice) {
-            "1" {
-                do {
-                    Clear-Host
-                    $appChoiceString = Show-AppsMenu -appsData $appsData
-                    if ($appChoiceString -eq "q") { break }
-
-                    # Obsługa wyszukiwania
-                    if ($appChoiceString -eq "s") {
-                        $searchResult = Search-Apps-Interactive -allApps $allApps
-                        if ($null -ne $searchResult) {
-                            $appChoiceString = $searchResult
-                        }
-                        else {
-                            continue  # Powrót do menu jeśli wyszukiwanie nie zwróciło wyników
-                        }
-                    }
-
-                    # Dzielimy wpisany tekst na pojedyncze numery
-                    $appChoices = $appChoiceString.Split(',')
-
-                    if ($appChoices.Count -gt 0 -and $appChoiceString) {
-                        Write-Host "`nWybrano numery: $($appChoiceString)" -ForegroundColor $colors.Highlight
-                        Write-Host "1. Zainstaluj"
-                        Write-Host "2. Odinstaluj"
-                        $actionChoice = Read-Host "Wybierz akcję dla wszystkich wybranych programów"
-
-                        # Pytanie o ścieżkę przed pętlą, dla wszystkich programów jednocześnie
-                        $customPath = ""
-                        if ($actionChoice -eq "1") {
-                            $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji dla wszystkich programów? (y/n)"
-                            if ($pathChoice -eq 'y') {
-                                $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
-                            }
-                        }
-
-                        # Pętla przez każdy wybrany numer
-                        foreach ($choice in $appChoices) {
-                            $trimmedChoice = $choice.Trim()
-                            if ($trimmedChoice -match "^\d+$" -and [int]$trimmedChoice -gt 0 -and [int]$trimmedChoice -le $allApps.Count) {
-                                $selectedIndex = [int]$trimmedChoice - 1
-                                $selectedApp = $allApps[$selectedIndex]
-                                
-                                Write-Host "`n--- Przetwarzanie: $($selectedApp.Name) ---" -ForegroundColor $colors.Highlight
-
-                                if ($actionChoice -eq "1") {
-                                    Invoke-ChocoCommand -Command "install" -PackageId $selectedApp.ChocoId -InstallPath $customPath
-                                }
-                                elseif ($actionChoice -eq "2") {
-                                    Invoke-ChocoCommand -Command "uninstall" -PackageId $selectedApp.ChocoId
-                                }
-                                else {
-                                    Write-Host "Pominięto z powodu nieprawidłowego wyboru akcji (1 lub 2)." -ForegroundColor $colors.Error
-                                    break # Przerywamy pętlę, jeśli wybór akcji był zły
-                                }
-                            }
-                            else {
-                                Write-Host "`n--- Pominięto nieprawidłowy numer: '$($choice.Trim())' ---" -ForegroundColor $colors.Error
-                            }
-                        }
-                    }
-                    else {
-                        Write-Host "Nie wprowadzono żadnego numeru." -ForegroundColor $colors.Error
-                    }
-                    Read-Host "Wszystkie operacje zakończone. Naciśnij Enter, aby kontynuować..."
-                } while ($true)
-            }
-            "2" {
-                do {
-                    Clear-Host
-                    $featureChoice = Show-FeaturesMenu($featuresData)
-                    if ($featureChoice -eq "q") { break }
-
-                    if ($featureChoice -match "^\d+$" -and $featureChoice -gt 0 -and $featureChoice -le $featuresData.Count) {
-                        $selectedIndex = [int]$featureChoice - 1
-                        $selectedFeature = $featuresData[$selectedIndex]
-                        
-                        Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor $colors.Highlight
-                        Write-Host "1. Włącz"
-                        Write-Host "2. Wyłącz"
-                        $actionChoice = Read-Host "Wybierz akcję"
-                        
-                        try {
-                            switch ($actionChoice) {
-                                "1" {
-                                    Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
-                                    Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All -NoRestart
-                                    Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
-                                }
-                                "2" {
-                                    Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
-                                    Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -NoRestart
-                                    Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
-                                }
-                                default {
-                                    Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
-                                }
-                            }
-                        }
-                        catch {
-                             Write-Host "Wystąpił błąd podczas zmiany statusu funkcji." -ForegroundColor $colors.Error
-                             Write-Host "Szczegóły: $($_.Exception.Message)"
-                        }
-                    }
-                    else {
-                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor $colors.Error
-                    }
-                    Read-Host "Naciśnij Enter, aby kontynuować..."
-                } while ($true)
-            }
-            "q" {
-                Write-Host "Zamykanie narzędzia. Do widzenia!"
-                return
-            }
-            default {
-                Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor $colors.Error
-                Read-Host "Naciśnij Enter, aby kontynuować..."
-            }
-        }
-    } while ($true)
-}
-
-# endregion
-
-# Uruchomienie skryptu
-Check-Admin
-Check-Chocolatey
-Main-Menu
+    Write-Host "Press any key to continue..."
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+} while ($true)
