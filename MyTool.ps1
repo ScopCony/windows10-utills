@@ -1,6 +1,6 @@
 # Generowanie logo
-npx oh-my-logo@latest "My Tool" sunset --filled
-npx oh-my-logo@latest "by ScopCony" sunset --filled
+npx oh-my-logo@latest "Marian Tool" sunset --filled
+#npx oh-my-logo@latest "by ScopCony" sunset --filled
 
 # SystemDashboard - Monitoring System Status
 Write-Host ""
