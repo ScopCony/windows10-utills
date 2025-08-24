@@ -11,7 +11,7 @@
 # 5. Wykonuje odpowiednie polecenia (choco, dism) z ulepszoną obsługą błędów.
 #
 # Autor: Sebastian Brański
-# Wersja: 5.8 - Poprawiono formatowanie menu z zielonymi literami s i q.
+# Wersja: 5.9 - Dodano bezpośredni wybór programu numerem podczas wyszukiwania.
 
 # region Konfiguracja protokołu sieciowego
 # Wymusza użycie TLS 1.2, co jest wymagane przez nowoczesne serwery (np. GitHub).
@@ -252,14 +252,16 @@ function Search-Apps-Interactive($allApps) {
     Write-Host "`n==== Interaktywne wyszukiwanie programów ====`n" -ForegroundColor $colors.Header
     Write-Host "Sterowanie:" -ForegroundColor $colors.Info
     Write-Host "- Wpisz litery: wyszukiwanie" -ForegroundColor $colors.DefaultText
+    Write-Host "- Wpisz numer: wybierz program bezpośrednio" -ForegroundColor $colors.DefaultText
     Write-Host "- TAB: autouzupełnienie do wspólnego prefiksu" -ForegroundColor $colors.DefaultText
     Write-Host "- BACKSPACE: usuń ostatni znak" -ForegroundColor $colors.DefaultText
-    Write-Host "- ENTER: wybierz programy z wyników" -ForegroundColor $colors.DefaultText
+    Write-Host "- ENTER: wybierz więcej programów z wyników" -ForegroundColor $colors.DefaultText
     Write-Host "- ESC: wyczyść wyszukiwanie" -ForegroundColor $colors.DefaultText
     Write-Host "- Q lub CTRL+C: powrót do menu`n" -ForegroundColor $colors.DefaultText
 
     $searchTerm = ""
     $foundApps = [System.Collections.Generic.List[object]]::new()
+    $numberInput = ""
 
     while ($true) {
         Clear-Host
@@ -275,13 +277,20 @@ function Search-Apps-Interactive($allApps) {
             Show-AutocompleteHints -allApps $allApps -searchTerm $searchTerm
         }
         
-        Write-Host "`nWpisz znak (TAB=uzupełnij, ENTER=wybierz, ESC=wyczyść, Q=wyjście):" -ForegroundColor $colors.Info
+        if (-not [string]::IsNullOrEmpty($numberInput)) {
+            Write-Host "`nWpisywany numer: $numberInput" -ForegroundColor $colors.Highlight
+        }
+        
+        Write-Host "`nWpisz znak (TAB=uzupełnij, ENTER=wybierz więcej, ESC=wyczyść, Q=wyjście):" -ForegroundColor $colors.Info
         
         # Czytaj pojedyncze naciśnięcie klawisza
         $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         
         switch ($key.VirtualKeyCode) {
             9 { # TAB
+                # Wyczyść wprowadzany numer przy TAB
+                $numberInput = ""
+                
                 # Znajdź wszystkie programy pasujące do aktualnego wyszukiwania
                 $matchingApps = [System.Collections.Generic.List[string]]::new()
                 foreach ($app in $allApps) {
@@ -324,7 +333,15 @@ function Search-Apps-Interactive($allApps) {
                 }
             }
             8 { # BACKSPACE
-                if ($searchTerm.Length -gt 0) {
+                if (-not [string]::IsNullOrEmpty($numberInput)) {
+                    # Usuń ostatnią cyfrę z wprowadzanego numeru
+                    if ($numberInput.Length -gt 1) {
+                        $numberInput = $numberInput.Substring(0, $numberInput.Length - 1)
+                    } else {
+                        $numberInput = ""
+                    }
+                }
+                elseif ($searchTerm.Length -gt 0) {
                     $searchTerm = $searchTerm.Substring(0, $searchTerm.Length - 1)
                     # Aktualizacja wyników
                     $foundApps.Clear()
@@ -342,13 +359,28 @@ function Search-Apps-Interactive($allApps) {
                 }
             }
             13 { # ENTER
+                # Sprawdź czy użytkownik wpisał numer
+                if (-not [string]::IsNullOrEmpty($numberInput)) {
+                    $inputNumber = [int]$numberInput
+                    # Sprawdź czy ten numer jest w wynikach wyszukiwania
+                    foreach ($foundApp in $foundApps) {
+                        if ($foundApp.OriginalIndex -eq $inputNumber) {
+                            return $inputNumber.ToString()
+                        }
+                    }
+                    Write-Host "`nNumer '$numberInput' nie ma w wynikach wyszukiwania." -ForegroundColor $colors.Error
+                    $numberInput = ""
+                    Start-Sleep -Milliseconds 1000
+                    continue
+                }
+                
                 if ($foundApps.Count -eq 0) {
                     Write-Host "`nBrak wyników do wyboru. Wpisz fragment nazwy programu." -ForegroundColor $colors.Error
                     Start-Sleep -Milliseconds 1000
                     continue
                 }
                 
-                Write-Host "`nWybierz oryginalne numery z wyników (np. 40,41,79):" -ForegroundColor $colors.Highlight
+                Write-Host "`nWybierz oryginalne numery z wyników (np. 74,75,213):" -ForegroundColor $colors.Highlight
                 $choice = Read-Host
                 
                 if ([string]::IsNullOrWhiteSpace($choice)) {
@@ -392,6 +424,7 @@ function Search-Apps-Interactive($allApps) {
             27 { # ESC
                 $searchTerm = ""
                 $foundApps.Clear()
+                $numberInput = ""
             }
             81 { # Q
                 return $null
@@ -400,9 +433,44 @@ function Search-Apps-Interactive($allApps) {
                 return $null
             }
             default {
-                # Sprawdź czy to litera lub cyfra
+                # Sprawdź czy to cyfra
                 $char = $key.Character
-                if ($char -match '[a-zA-Z0-9\s\-\.]') {
+                if ($char -match '[0-9]') {
+                    # Sprawdź czy mamy wyniki wyszukiwania
+                    if ($foundApps.Count -gt 0) {
+                        $numberInput += $char
+                        
+                        # Sprawdź czy wprowadzany numer już pasuje do któregoś wyniku
+                        if ($numberInput -match "^\d+$") {
+                            $potentialNumber = [int]$numberInput
+                            foreach ($foundApp in $foundApps) {
+                                if ($foundApp.OriginalIndex -eq $potentialNumber) {
+                                    # Znaleziono pasujący numer - od razu zwróć
+                                    return $potentialNumber.ToString()
+                                }
+                            }
+                        }
+                    } else {
+                        # Jeśli nie ma wyników, cyfra jest częścią wyszukiwania
+                        $searchTerm += $char
+                        $numberInput = ""
+                        
+                        # Aktualizacja wyników wyszukiwania
+                        $foundApps.Clear()
+                        for ($i = 0; $i -lt $allApps.Count; $i++) {
+                            $app = $allApps[$i]
+                            if ($app.Name -like "$searchTerm*") {
+                                $foundApps.Add(@{
+                                    App = $app
+                                    OriginalIndex = $i + 1
+                                })
+                            }
+                        }
+                    }
+                }
+                elseif ($char -match '[a-zA-Z\s\-\.]') {
+                    # Litera - czyści wprowadzany numer i dodaje do wyszukiwania
+                    $numberInput = ""
                     $searchTerm += $char
                     
                     # Aktualizacja wyników wyszukiwania
