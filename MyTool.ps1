@@ -1,6 +1,4 @@
-# MyTool.ps1
-#
-## Generowanie logo
+# Generowanie logo
 npx oh-my-logo@latest "My Tool" sunset --filled
 npx oh-my-logo@latest "by ScopCony" sunset --filled
 
@@ -584,168 +582,150 @@ function Invoke-ChocoCommand {
     }
 }
 
-function Main-Menu {
-    $appsData = Get-JsonData "apps.json"
-    $featuresData = Get-JsonData "features.json"
-
-    if (-not $appsData -or -not $featuresData) {
-        Write-Host "Nie można kontynuować z powodu błędów pobierania danych konfiguracyjnych." -ForegroundColor $colors.Error
-        Read-Host "Naciśnij Enter, aby zakończyć..."
-        exit
-    }
-    
-    $allApps = [System.Collections.Generic.List[object]]::new()
-    foreach ($category in $appsData) {
-        if ($null -ne $category.Apps) {
-            $allApps.AddRange($category.Apps)
-        }
-    }
-
-    do {
-        Clear-Host
-        Write-Host "`n==== Główne Menu ====`n" -ForegroundColor $colors.Highlight
-        Write-Host "1. Zarządzaj programami (instalacja/deinstalacja)"
-        Write-Host "2. Zarządzaj funkcjami Windows (włączanie/wyłączanie)"
-        Write-Host "q. Zakończ"
-
-        $mainChoice = Read-Host "Wybierz opcję"
-
-        switch ($mainChoice) {
-            "1" {
-                do {
-                    Clear-Host
-                    $appChoiceString = Show-AppsMenu -appsData $appsData
-                    if ($appChoiceString -eq "q") { break }
-
-                    if ($appChoiceString -eq "s") {
-                        $searchResult = Search-Apps-Interactive -allApps $allApps
-                        if ($null -ne $searchResult) {
-                            $appChoiceString = $searchResult
-                        }
-                        else {
-                            continue
-                        }
-                    }
-
-                    $appChoices = $appChoiceString.Split(',')
-
-                    if ($appChoices.Count -gt 0 -and $appChoiceString) {
-                        Write-Host "`nWybrano numery: $($appChoiceString)" -ForegroundColor $colors.Highlight
-                        Write-Host "1. Zainstaluj"
-                        Write-Host "2. Odinstaluj"
-                        $actionChoice = Read-Host "Wybierz akcję dla wszystkich wybranych programów"
-
-                        $customPath = ""
-                        if ($actionChoice -eq "1") {
-                            $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji dla wszystkich programów? (y/n)"
-                            if ($pathChoice -eq 'y') {
-                                $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
-                            }
-                        }
-
-                        foreach ($choice in $appChoices) {
-                            $trimmedChoice = $choice.Trim()
-                            if ($trimmedChoice -match "^\d+$" -and [int]$trimmedChoice -gt 0 -and [int]$trimmedChoice -le $allApps.Count) {
-                                $selectedIndex = [int]$trimmedChoice - 1
-                                $selectedApp = $allApps[$selectedIndex]
-                                
-                                Write-Host "`n--- Przetwarzanie: $($selectedApp.Name) ---" -ForegroundColor $colors.Highlight
-
-                                if ($actionChoice -eq "1") {
-                                    Invoke-ChocoCommand -Command "install" -PackageId $selectedApp.ChocoId -InstallPath $customPath
-                                }
-                                elseif ($actionChoice -eq "2") {
-                                    Invoke-ChocoCommand -Command "uninstall" -PackageId $selectedApp.ChocoId
-                                }
-                                else {
-                                    Write-Host "Pominięto z powodu nieprawidłowego wyboru akcji (1 lub 2)." -ForegroundColor $colors.Error
-                                    break
-                                }
-                            }
-                            else {
-                                Write-Host "`n--- Pominięto nieprawidłowy numer: '$($choice.Trim())' ---" -ForegroundColor $colors.Error
-                            }
-                        }
-                    }
-                    else {
-                        Write-Host "Nie wprowadzono żadnego numeru." -ForegroundColor $colors.Error
-                    }
-                    Read-Host "Wszystkie operacje zakończone. Naciśnij Enter, aby kontynuować..."
-                } while ($true)
-            }
-            "2" {
-                do {
-                    Clear-Host
-                    $featureChoice = Show-FeaturesMenu($featuresData)
-                    if ($featureChoice -eq "q") { break }
-
-                    if ($featureChoice -match "^\d+$" -and $featureChoice -gt 0 -and $featureChoice -le $featuresData.Count) {
-                        $selectedIndex = [int]$featureChoice - 1
-                        $selectedFeature = $featuresData[$selectedIndex]
-                        
-                        Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor $colors.Highlight
-                        Write-Host "1. Włącz"
-                        Write-Host "2. Wyłącz"
-                        $actionChoice = Read-Host "Wybierz akcję"
-                        
-                        try {
-                            switch ($actionChoice) {
-                                "1" {
-                                    Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
-                                    Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All -NoRestart
-                                    Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
-                                }
-                                "2" {
-                                    Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
-                                    Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -NoRestart
-                                    Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
-                                }
-                                default {
-                                    Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
-                                }
-                            }
-                        }
-                        catch {
-                             Write-Host "Wystąpił błąd podczas zmiany statusu funkcji." -ForegroundColor $colors.Error
-                             Write-Host "Szczegóły: $($_.Exception.Message)"
-                        }
-                    }
-                    else {
-                        Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor $colors.Error
-                    }
-                    Read-Host "Naciśnij Enter, aby kontynuować..."
-                } while ($true)
-            }
-            "q" {
-                Write-Host "Zamykanie narzędzia. Do widzenia!"
-                return
-            }
-            default {
-                Write-Host "Nieprawidłowy wybór. Spróbuj ponownie." -ForegroundColor $colors.Error
-                Read-Host "Naciśnij Enter, aby kontynuować..."
-            }
-        }
-    } while ($true)
-}
-
 # endregion
 
 # Menu wyboru funkcji
-Write-Host "`n==== MyTool - Główne Menu ====`n" -ForegroundColor Cyan
-Write-Host "1. Pokaż tylko Dashboard (powyżej)"
-Write-Host "2. Zarządzanie programami i funkcjami Windows"
+Write-Host "==== Główne Menu ====" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "1. Zarządzaj programami (instalacja/deinstalacja)"
+Write-Host "2. Zarządzaj funkcjami Windows (włączanie/wyłączanie)"
 Write-Host "q. Zakończ"
+Write-Host ""
+Write-Host "Wybierz opcję: " -NoNewline
 
-$menuChoice = Read-Host "Wybierz opcję"
+$menuChoice = Read-Host
 
 switch ($menuChoice) {
     "1" {
-        Write-Host "`nDashboard wyświetlony powyżej. Koniec." -ForegroundColor Green
+        Check-Admin
+        Check-Chocolatey
+        
+        $appsData = Get-JsonData "apps.json"
+        if (-not $appsData) {
+            Write-Host "Nie można kontynuować z powodu błędów pobierania danych konfiguracyjnych." -ForegroundColor $colors.Error
+            Read-Host "Naciśnij Enter, aby zakończyć..."
+            exit
+        }
+        
+        $allApps = [System.Collections.Generic.List[object]]::new()
+        foreach ($category in $appsData) {
+            if ($null -ne $category.Apps) {
+                $allApps.AddRange($category.Apps)
+            }
+        }
+
+        do {
+            Clear-Host
+            $appChoiceString = Show-AppsMenu -appsData $appsData
+            if ($appChoiceString -eq "q") { break }
+
+            if ($appChoiceString -eq "s") {
+                $searchResult = Search-Apps-Interactive -allApps $allApps
+                if ($null -ne $searchResult) {
+                    $appChoiceString = $searchResult
+                }
+                else {
+                    continue
+                }
+            }
+
+            $appChoices = $appChoiceString.Split(',')
+
+            if ($appChoices.Count -gt 0 -and $appChoiceString) {
+                Write-Host "`nWybrano numery: $($appChoiceString)" -ForegroundColor $colors.Highlight
+                Write-Host "1. Zainstaluj"
+                Write-Host "2. Odinstaluj"
+                $actionChoice = Read-Host "Wybierz akcję dla wszystkich wybranych programów"
+
+                $customPath = ""
+                if ($actionChoice -eq "1") {
+                    $pathChoice = Read-Host "Czy chcesz podać niestandardową ścieżkę instalacji dla wszystkich programów? (y/n)"
+                    if ($pathChoice -eq 'y') {
+                        $customPath = Read-Host "Podaj pełną ścieżkę instalacji (np. D:\Programy)"
+                    }
+                }
+
+                foreach ($choice in $appChoices) {
+                    $trimmedChoice = $choice.Trim()
+                    if ($trimmedChoice -match "^\d+$" -and [int]$trimmedChoice -gt 0 -and [int]$trimmedChoice -le $allApps.Count) {
+                        $selectedIndex = [int]$trimmedChoice - 1
+                        $selectedApp = $allApps[$selectedIndex]
+                        
+                        Write-Host "`n--- Przetwarzanie: $($selectedApp.Name) ---" -ForegroundColor $colors.Highlight
+
+                        if ($actionChoice -eq "1") {
+                            Invoke-ChocoCommand -Command "install" -PackageId $selectedApp.ChocoId -InstallPath $customPath
+                        }
+                        elseif ($actionChoice -eq "2") {
+                            Invoke-ChocoCommand -Command "uninstall" -PackageId $selectedApp.ChocoId
+                        }
+                        else {
+                            Write-Host "Pominięto z powodu nieprawidłowego wyboru akcji (1 lub 2)." -ForegroundColor $colors.Error
+                            break
+                        }
+                    }
+                    else {
+                        Write-Host "`n--- Pominięto nieprawidłowy numer: '$($choice.Trim())' ---" -ForegroundColor $colors.Error
+                    }
+                }
+            }
+            else {
+                Write-Host "Nie wprowadzono żadnego numeru." -ForegroundColor $colors.Error
+            }
+            Read-Host "Wszystkie operacje zakończone. Naciśnij Enter, aby kontynuować..."
+        } while ($true)
     }
     "2" {
         Check-Admin
-        Check-Chocolatey
-        Main-Menu
+        
+        $featuresData = Get-JsonData "features.json"
+        if (-not $featuresData) {
+            Write-Host "Nie można kontynuować z powodu błędów pobierania danych konfiguracyjnych." -ForegroundColor $colors.Error
+            Read-Host "Naciśnij Enter, aby zakończyć..."
+            exit
+        }
+
+        do {
+            Clear-Host
+            $featureChoice = Show-FeaturesMenu($featuresData)
+            if ($featureChoice -eq "q") { break }
+
+            if ($featureChoice -match "^\d+$" -and $featureChoice -gt 0 -and $featureChoice -le $featuresData.Count) {
+                $selectedIndex = [int]$featureChoice - 1
+                $selectedFeature = $featuresData[$selectedIndex]
+                
+                Write-Host "`nWybrano: $($selectedFeature.Name)" -ForegroundColor $colors.Highlight
+                Write-Host "1. Włącz"
+                Write-Host "2. Wyłącz"
+                $actionChoice = Read-Host "Wybierz akcję"
+                
+                try {
+                    switch ($actionChoice) {
+                        "1" {
+                            Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
+                            Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All -NoRestart
+                            Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
+                        }
+                        "2" {
+                            Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
+                            Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -NoRestart
+                            Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
+                        }
+                        default {
+                            Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
+                        }
+                    }
+                }
+                catch {
+                     Write-Host "Wystąpił błąd podczas zmiany statusu funkcji." -ForegroundColor $colors.Error
+                     Write-Host "Szczegóły: $($_.Exception.Message)"
+                }
+            }
+            else {
+                Write-Host "Nieprawidłowy numer. Spróbuj ponownie." -ForegroundColor $colors.Error
+            }
+            Read-Host "Naciśnij Enter, aby kontynuować..."
+        } while ($true)
     }
     "q" {
         Write-Host "Zamykanie MyTool. Do widzenia!" -ForegroundColor Green
