@@ -1,6 +1,6 @@
 # Generowanie logo
-npx oh-my-logo@latest "Marian Tool" sunset --filled
-#npx oh-my-logo@latest "by ScopCony" sunset --filled
+npx oh-my-logo@latest "My Tool" sunset --filled
+npx oh-my-logo@latest "by ScopCony" sunset --filled
 
 # SystemDashboard - Monitoring System Status
 Write-Host ""
@@ -539,11 +539,53 @@ function Search-Apps-Interactive($allApps) {
     }
 }
 
+# NOWA FUNKCJA dla Registry Tweaks
+function Set-RegistryTweak {
+    param(
+        [string]$Path,
+        [string]$ValueName,
+        [int]$Value
+    )
+    
+    try {
+        if (-not (Test-Path $Path)) {
+            New-Item -Path $Path -Force | Out-Null
+            Write-Host "Utworzono ścieżkę rejestru: $Path" -ForegroundColor $colors.Info
+        }
+        
+        Set-ItemProperty -Path $Path -Name $ValueName -Value $Value -Type DWord
+        Write-Host "Ustawiono $ValueName = $Value w $Path" -ForegroundColor $colors.Success
+        return $true
+    }
+    catch {
+        Write-Host "Błąd podczas modyfikacji rejestru: $($_.Exception.Message)" -ForegroundColor $colors.Error
+        return $false
+    }
+}
+
+# ZMIENIONA FUNKCJA Show-FeaturesMenu
 function Show-FeaturesMenu($features) {
-    Write-Host "`n==== Zarządzanie funkcjami Windows ====`n" -ForegroundColor $colors.Header
+    Write-Host "`n==== Zarządzanie funkcjami Windows i System Tweaks ====`n" -ForegroundColor $colors.Header
     for ($i = 0; $i -lt $features.Count; $i++) {
         $feature = $features[$i]
-        $status = (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
+        
+        if ($feature.Type -eq "WindowsFeature") {
+            $status = (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
+        }
+        elseif ($feature.Type -eq "Registry") {
+            try {
+                $currentValue = Get-ItemProperty -Path $feature.FeatureName -Name $feature.ValueName -ErrorAction SilentlyContinue
+                if ($null -ne $currentValue) {
+                    $status = if ($currentValue.($feature.ValueName) -eq $feature.EnableValue) { "Enabled" } else { "Disabled" }
+                } else {
+                    $status = "Not Set"
+                }
+            }
+            catch {
+                $status = "Unknown"
+            }
+        }
+        
         Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
     }
     Write-Host "`n" -NoNewline
@@ -700,20 +742,46 @@ switch ($menuChoice) {
                 $actionChoice = Read-Host "Wybierz akcję"
                 
                 try {
-                    switch ($actionChoice) {
-                        "1" {
-                            Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
-                            Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All -NoRestart
-                            Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
+                    if ($selectedFeature.Type -eq "WindowsFeature") {
+                        switch ($actionChoice) {
+                            "1" {
+                                Write-Host "`nWłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
+                                Enable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -All -NoRestart
+                                Write-Host "Funkcja włączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
+                            }
+                            "2" {
+                                Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
+                                Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -NoRestart
+                                Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
+                            }
+                            default {
+                                Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
+                            }
                         }
-                        "2" {
-                            Write-Host "`nWyłączam funkcję $($selectedFeature.Name)..." -ForegroundColor $colors.Info
-                            Disable-WindowsOptionalFeature -Online -FeatureName $selectedFeature.FeatureName -NoRestart
-                            Write-Host "Funkcja wyłączona. Może być wymagane ponowne uruchomienie komputera." -ForegroundColor $colors.Success
+                    }
+                    elseif ($selectedFeature.Type -eq "Registry") {
+                        switch ($actionChoice) {
+                            "1" {
+                                Write-Host "`nWłączam tweak: $($selectedFeature.Name)..." -ForegroundColor $colors.Info
+                                $success = Set-RegistryTweak -Path $selectedFeature.FeatureName -ValueName $selectedFeature.ValueName -Value $selectedFeature.EnableValue
+                                if ($success) {
+                                    Write-Host "Tweak włączony pomyślnie." -ForegroundColor $colors.Success
+                                }
+                            }
+                            "2" {
+                                Write-Host "`nWyłączam tweak: $($selectedFeature.Name)..." -ForegroundColor $colors.Info
+                                $success = Set-RegistryTweak -Path $selectedFeature.FeatureName -ValueName $selectedFeature.ValueName -Value $selectedFeature.DisableValue
+                                if ($success) {
+                                    Write-Host "Tweak wyłączony pomyślnie." -ForegroundColor $colors.Success
+                                }
+                            }
+                            default {
+                                Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
+                            }
                         }
-                        default {
-                            Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
-                        }
+                    }
+                    else {
+                        Write-Host "Nieznany typ funkcji: $($selectedFeature.Type)" -ForegroundColor $colors.Error
                     }
                 }
                 catch {
