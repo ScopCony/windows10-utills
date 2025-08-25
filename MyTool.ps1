@@ -586,7 +586,7 @@ function Set-RegistryTweak {
     }
 }
 
-# POPRAWIONA FUNKCJA Invoke-PowerShellTweak z ODWRÓCONĄ LOGIKĄ dla funkcji "Removal"
+# POPRAWIONA FUNKCJA Invoke-PowerShellTweak z CAŁKOWICIE POPRAWNĄ LOGIKĄ
 function Invoke-PowerShellTweak {
     param(
         [string]$TweakName,
@@ -615,15 +615,17 @@ function Invoke-PowerShellTweak {
                     Write-Host "Nie można 'wyłączyć' usuwania plików tymczasowych." -ForegroundColor $colors.Error
                 }
             }
+            
+            # POPRAWIONE FUNKCJE "DISABLE" - POPRAWNA LOGIKA
             "DisableHibernation" {
                 if ($Action -eq "Enable") {
-                    Write-Host "Wyłączam hibernację..." -ForegroundColor $colors.Info
-                    powercfg /hibernate off
-                    Write-Host "Hibernacja wyłączona." -ForegroundColor $colors.Success
-                } else {
                     Write-Host "Włączam hibernację..." -ForegroundColor $colors.Info
                     powercfg /hibernate on
                     Write-Host "Hibernacja włączona." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Wyłączam hibernację..." -ForegroundColor $colors.Info
+                    powercfg /hibernate off
+                    Write-Host "Hibernacja wyłączona." -ForegroundColor $colors.Success
                 }
             }
             "RunDiskCleanup" {
@@ -690,7 +692,7 @@ function Invoke-PowerShellTweak {
                 }
             }
 
-            # NEW ADVANCED TWEAKS (poprawne)
+            # ADVANCED TWEAKS - POPRAWIONE
             "AdobeNetworkBlock" {
                 if ($Action -eq "Enable") {
                     Write-Host "Blokuję połączenia sieciowe Adobe..." -ForegroundColor $colors.Info
@@ -732,40 +734,42 @@ function Invoke-PowerShellTweak {
                     Write-Host "Procesy Adobe przywrócone." -ForegroundColor $colors.Success
                 }
             }
+            
+            # POPRAWIONE FUNKCJE "DISABLE" - POPRAWNA LOGIKA
             "DisableTeredo" {
                 if ($Action -eq "Enable") {
-                    Write-Host "Wyłączam tunelowanie Teredo..." -ForegroundColor $colors.Info
-                    netsh interface teredo set state disabled
-                    Write-Host "Teredo wyłączone." -ForegroundColor $colors.Success
-                } else {
                     Write-Host "Włączam tunelowanie Teredo..." -ForegroundColor $colors.Info
                     netsh interface teredo set state default
                     Write-Host "Teredo włączone." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Wyłączam tunelowanie Teredo..." -ForegroundColor $colors.Info
+                    netsh interface teredo set state disabled
+                    Write-Host "Teredo wyłączone." -ForegroundColor $colors.Success
                 }
             }
             "DisableDefender" {
                 if ($Action -eq "Enable") {
+                    Write-Host "Włączam Windows Defender..." -ForegroundColor $colors.Info
+                    Set-MpPreference -DisableRealtimeMonitoring $false -ErrorAction SilentlyContinue
+                    Write-Host "Windows Defender włączony." -ForegroundColor $colors.Success
+                } else {
                     Write-Host "⚠️ OSTRZEŻENIE: Wyłączam Windows Defender..." -ForegroundColor Red
                     Write-Host "To może sprawić, że komputer będzie podatny na zagrożenia!" -ForegroundColor Red
                     Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue
                     Write-Host "Windows Defender wyłączony." -ForegroundColor $colors.Success
-                } else {
-                    Write-Host "Włączam Windows Defender..." -ForegroundColor $colors.Info
-                    Set-MpPreference -DisableRealtimeMonitoring $false -ErrorAction SilentlyContinue
-                    Write-Host "Windows Defender włączony." -ForegroundColor $colors.Success
                 }
             }
             "DisableIntelMM" {
                 if ($Action -eq "Enable") {
-                    Write-Host "Wyłączam Intel Management Engine..." -ForegroundColor $colors.Info
-                    Stop-Service -Name "LMS" -Force -ErrorAction SilentlyContinue
-                    Set-Service -Name "LMS" -StartupType Disabled -ErrorAction SilentlyContinue
-                    Write-Host "Intel MM (vPro LMS) wyłączone." -ForegroundColor $colors.Success
-                } else {
                     Write-Host "Włączam Intel Management Engine..." -ForegroundColor $colors.Info
                     Set-Service -Name "LMS" -StartupType Automatic -ErrorAction SilentlyContinue
                     Start-Service -Name "LMS" -ErrorAction SilentlyContinue
                     Write-Host "Intel MM (vPro LMS) włączone." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Wyłączam Intel Management Engine..." -ForegroundColor $colors.Info
+                    Stop-Service -Name "LMS" -Force -ErrorAction SilentlyContinue
+                    Set-Service -Name "LMS" -StartupType Disabled -ErrorAction SilentlyContinue
+                    Write-Host "Intel MM (vPro LMS) wyłączone." -ForegroundColor $colors.Success
                 }
             }
             "SetDisplayPerformance" {
@@ -780,27 +784,28 @@ function Invoke-PowerShellTweak {
                 }
             }
 
-            # POPRAWIONE FUNKCJE "REMOVAL" - ODWRÓCONA LOGIKA
+            # POPRAWIONE FUNKCJE "REMOVAL" - POPRAWNA LOGIKA
             "RemoveAllStoreApps" {
                 if ($Action -eq "Enable") {
+                    Write-Host "Pozostawiam aplikacje ze sklepu Microsoft..." -ForegroundColor $colors.Info
+                    Write-Host "Aplikacje ze sklepu Microsoft pozostają w systemie." -ForegroundColor $colors.Success
+                } else {
                     Write-Host "⚠️ OSTRZEŻENIE: Usuwam WSZYSTKIE aplikacje ze sklepu Microsoft..." -ForegroundColor Red
                     Write-Host "To może uszkodzić system i usunąć ważne aplikacje!" -ForegroundColor Red
                     Get-AppxPackage -AllUsers | Remove-AppxPackage -ErrorAction SilentlyContinue
                     Write-Host "Wszystkie aplikacje ze sklepu Microsoft usunięte." -ForegroundColor $colors.Success
-                } else {
-                    Write-Host "Pozostawiam aplikacje ze sklepu Microsoft bez zmian..." -ForegroundColor $colors.Info
-                    Write-Host "Aplikacje ze sklepu Microsoft pozostają w systemie." -ForegroundColor $colors.Success
                 }
             }
             "RemoveOneDrive" {
                 if ($Action -eq "Enable") {
+                    Write-Host "Instaluję/pozostawiam OneDrive..." -ForegroundColor $colors.Info
+                    Start-Process -FilePath "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" -ErrorAction SilentlyContinue
+                    Write-Host "OneDrive zainstalowany/pozostaje w systemie." -ForegroundColor $colors.Success
+                } else {
                     Write-Host "Usuwam OneDrive..." -ForegroundColor $colors.Info
                     Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
                     Start-Process -FilePath "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" -ArgumentList "/uninstall" -Wait -ErrorAction SilentlyContinue
                     Write-Host "OneDrive usunięty." -ForegroundColor $colors.Success
-                } else {
-                    Write-Host "Pozostawiam OneDrive bez zmian..." -ForegroundColor $colors.Info
-                    Write-Host "OneDrive pozostaje w systemie." -ForegroundColor $colors.Success
                 }
             }
             "BlockRazerInstalls" {
