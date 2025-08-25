@@ -701,7 +701,7 @@ function Invoke-PowerShellTweak {
                         "127.0.0.1 practivate.adobe.com",
                         "127.0.0.1 lm.licenses.adobe.com"
                     )
-                    foreach ($host in $adobeHosts) {
+                    foreach ($hostEntry in $adobeHosts) {
                         Add-Content -Path $hostsPath -Value $host -ErrorAction SilentlyContinue
                     }
                     Write-Host "Połączenia sieciowe Adobe zablokowane." -ForegroundColor $colors.Success
