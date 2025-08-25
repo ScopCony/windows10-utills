@@ -258,8 +258,8 @@
     "DisableValue": 0
   },
   {
-    "Name": "Disable Microsoft Defender",
-    "Description": "⚠️ OSTRZEŻENIE: Wyłącza Windows Defender (niebezpieczne!)",
+    "Name": "Windows Defender Management",
+    "Description": "⚠️ OSTRZEŻENIE: Zarządza Windows Defender (niebezpieczne!)",
     "FeatureName": "DisableDefender",
     "Type": "PowerShell"
   },
@@ -312,14 +312,14 @@
     "DisableValue": 0
   },
   {
-    "Name": "Remove ALL MS Store Apps - NOT RECOMMENDED",
-    "Description": "⚠️ OSTRZEŻENIE: Usuwa WSZYSTKIE aplikacje ze sklepu Microsoft (może uszkodzić system!)",
+    "Name": "MS Store Apps Management",
+    "Description": "⚠️ OSTRZEŻENIE: Zarządza WSZYSTKIMI aplikacjami ze sklepu Microsoft (może uszkodzić system!)",
     "FeatureName": "RemoveAllStoreApps",
     "Type": "PowerShell"
   },
   {
-    "Name": "Remove Home from Explorer",
-    "Description": "Usuwa folder 'Dom' z Eksploratora plików",
+    "Name": "Explorer Home Management",
+    "Description": "Zarządza folder 'Dom' w Eksploratorze plików",
     "FeatureName": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}",
     "Type": "Registry",
     "ValueName": "Remove",
@@ -327,8 +327,8 @@
     "DisableValue": "Restore"
   },
   {
-    "Name": "Remove Gallery from Explorer",
-    "Description": "Usuwa galerię z Eksploratora plików",
+    "Name": "Explorer Gallery Management",
+    "Description": "Zarządza galerię w Eksploratorze plików",
     "FeatureName": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}",
     "Type": "Registry",
     "ValueName": "Remove",
@@ -336,8 +336,8 @@
     "DisableValue": "Restore"
   },
   {
-    "Name": "Remove OneDrive",
-    "Description": "Usuwa OneDrive z systemu",
+    "Name": "OneDrive Management",
+    "Description": "Zarządza OneDrive w systemie",
     "FeatureName": "RemoveOneDrive",
     "Type": "PowerShell"
   },
