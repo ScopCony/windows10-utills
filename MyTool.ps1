@@ -811,7 +811,7 @@ function Invoke-PowerShellTweak {
                         "127.0.0.1 razer.com",
                         "127.0.0.1 razerzone.com"
                     )
-                    foreach ($host in $razerHosts) {
+                    foreach ($hostEntry in $razerHosts) {
                         Add-Content -Path $hostsPath -Value $host -ErrorAction SilentlyContinue
                     }
                     Write-Host "Instalacje Razer zablokowane." -ForegroundColor $colors.Success
