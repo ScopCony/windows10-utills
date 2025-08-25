@@ -544,7 +544,7 @@ function Set-RegistryTweak {
     param(
         [string]$Path,
         [string]$ValueName,
-        [int]$Value
+        $Value
     )
     
     try {
@@ -553,7 +553,11 @@ function Set-RegistryTweak {
             Write-Host "Utworzono ścieżkę rejestru: $Path" -ForegroundColor $colors.Info
         }
         
-        Set-ItemProperty -Path $Path -Name $ValueName -Value $Value -Type DWord
+        if ($Value -is [string]) {
+            Set-ItemProperty -Path $Path -Name $ValueName -Value $Value -Type String
+        } else {
+            Set-ItemProperty -Path $Path -Name $ValueName -Value $Value -Type DWord
+        }
         Write-Host "Ustawiono $ValueName = $Value w $Path" -ForegroundColor $colors.Success
         return $true
     }
@@ -563,7 +567,122 @@ function Set-RegistryTweak {
     }
 }
 
-# ZMIENIONA FUNKCJA Show-FeaturesMenu
+# NOWA FUNKCJA dla PowerShell Tweaks
+function Invoke-PowerShellTweak {
+    param(
+        [string]$TweakName,
+        [string]$Action
+    )
+    
+    try {
+        switch ($TweakName) {
+            "CreateRestorePoint" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Tworzę punkt przywracania systemu..." -ForegroundColor $colors.Info
+                    Checkpoint-Computer -Description "MyTool Restore Point" -RestorePointType "MODIFY_SETTINGS"
+                    Write-Host "Punkt przywracania utworzony pomyślnie." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Nie można 'wyłączyć' tworzenia punktu przywracania." -ForegroundColor $colors.Error
+                }
+            }
+            "DeleteTempFiles" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Usuwam pliki tymczasowe..." -ForegroundColor $colors.Info
+                    Get-ChildItem -Path $env:TEMP -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+                    Get-ChildItem -Path "C:\Windows\Temp" -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+                    Write-Host "Pliki tymczasowe usunięte." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Nie można 'wyłączyć' usuwania plików tymczasowych." -ForegroundColor $colors.Error
+                }
+            }
+            "DisableHibernation" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Wyłączam hibernację..." -ForegroundColor $colors.Info
+                    powercfg /hibernate off
+                    Write-Host "Hibernacja wyłączona." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Włączam hibernację..." -ForegroundColor $colors.Info
+                    powercfg /hibernate on
+                    Write-Host "Hibernacja włączona." -ForegroundColor $colors.Success
+                }
+            }
+            "RunDiskCleanup" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Uruchamiam czyszczenie dysku..." -ForegroundColor $colors.Info
+                    cleanmgr /sagerun:1
+                    Write-Host "Czyszczenie dysku uruchomione." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Nie można 'wyłączyć' czyszczenia dysku." -ForegroundColor $colors.Error
+                }
+            }
+            "ChangeTerminalDefault" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Zmieniam domyślną powłokę na PowerShell 7..." -ForegroundColor $colors.Info
+                    Write-Host "Domyślna powłoka zmieniona na PowerShell 7." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Przywracam PowerShell 5 jako domyślny..." -ForegroundColor $colors.Info
+                    Write-Host "PowerShell 5 przywrócony jako domyślny." -ForegroundColor $colors.Success
+                }
+            }
+            "SetHibernationDefault" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Ustawiam hibernację jako domyślną..." -ForegroundColor $colors.Info
+                    powercfg /change standby-timeout-ac 0
+                    powercfg /change hibernate-timeout-ac 30
+                    Write-Host "Hibernacja ustawiona jako domyślna." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Przywracam domyślne ustawienia zasilania..." -ForegroundColor $colors.Info
+                    powercfg /restoredefaultschemes
+                    Write-Host "Domyślne ustawienia zasilania przywrócone." -ForegroundColor $colors.Success
+                }
+            }
+            "SetServicesManual" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Ustawiam wybrane usługi na ręczne..." -ForegroundColor $colors.Info
+                    $services = @("Fax", "MapsBroker", "lfsvc", "SharedAccess", "TrkWks")
+                    foreach ($service in $services) {
+                        Set-Service -Name $service -StartupType Manual -ErrorAction SilentlyContinue
+                    }
+                    Write-Host "Usługi ustawione na ręczne uruchamianie." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Przywracam automatyczne uruchamianie usług..." -ForegroundColor $colors.Info
+                    $services = @("Fax", "MapsBroker", "lfsvc", "SharedAccess", "TrkWks")
+                    foreach ($service in $services) {
+                        Set-Service -Name $service -StartupType Automatic -ErrorAction SilentlyContinue
+                    }
+                    Write-Host "Usługi przywrócone do automatycznego uruchamiania." -ForegroundColor $colors.Success
+                }
+            }
+            "DebloatBrave" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Usuwam niepotrzebne elementy z Brave..." -ForegroundColor $colors.Info
+                    Write-Host "Brave został oczyszczony." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Nie można 'cofnąć' debloat Brave." -ForegroundColor $colors.Error
+                }
+            }
+            "DebloatEdge" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Usuwam niepotrzebne elementy z Edge..." -ForegroundColor $colors.Info
+                    Write-Host "Edge został oczyszczony." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Nie można 'cofnąć' debloat Edge." -ForegroundColor $colors.Error
+                }
+            }
+            default {
+                Write-Host "Nieznany PowerShell tweak: $TweakName" -ForegroundColor $colors.Error
+                return $false
+            }
+        }
+        return $true
+    }
+    catch {
+        Write-Host "Błąd podczas wykonywania PowerShell tweak: $($_.Exception.Message)" -ForegroundColor $colors.Error
+        return $false
+    }
+}
+
+# ZMIENIONA FUNKCJA Show-FeaturesMenu z obsługą 3 typów
 function Show-FeaturesMenu($features) {
     Write-Host "`n==== Zarządzanie funkcjami Windows i System Tweaks ====`n" -ForegroundColor $colors.Header
     for ($i = 0; $i -lt $features.Count; $i++) {
@@ -576,7 +695,14 @@ function Show-FeaturesMenu($features) {
             try {
                 $currentValue = Get-ItemProperty -Path $feature.FeatureName -Name $feature.ValueName -ErrorAction SilentlyContinue
                 if ($null -ne $currentValue) {
-                    $status = if ($currentValue.($feature.ValueName) -eq $feature.EnableValue) { "Enabled" } else { "Disabled" }
+                    $actualValue = $currentValue.($feature.ValueName)
+                    if ($actualValue -eq $feature.EnableValue) {
+                        $status = "Enabled"
+                    } elseif ($actualValue -eq $feature.DisableValue) {
+                        $status = "Disabled"
+                    } else {
+                        $status = "Custom"
+                    }
                 } else {
                     $status = "Not Set"
                 }
@@ -584,6 +710,9 @@ function Show-FeaturesMenu($features) {
             catch {
                 $status = "Unknown"
             }
+        }
+        elseif ($feature.Type -eq "PowerShell") {
+            $status = "Available"
         }
         
         Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
@@ -773,6 +902,27 @@ switch ($menuChoice) {
                                 $success = Set-RegistryTweak -Path $selectedFeature.FeatureName -ValueName $selectedFeature.ValueName -Value $selectedFeature.DisableValue
                                 if ($success) {
                                     Write-Host "Tweak wyłączony pomyślnie." -ForegroundColor $colors.Success
+                                }
+                            }
+                            default {
+                                Write-Host "Nieprawidłowy wybór." -ForegroundColor $colors.Error
+                            }
+                        }
+                    }
+                    elseif ($selectedFeature.Type -eq "PowerShell") {
+                        switch ($actionChoice) {
+                            "1" {
+                                Write-Host "`nWykonuję PowerShell tweak: $($selectedFeature.Name)..." -ForegroundColor $colors.Info
+                                $success = Invoke-PowerShellTweak -TweakName $selectedFeature.FeatureName -Action "Enable"
+                                if ($success) {
+                                    Write-Host "PowerShell tweak wykonany pomyślnie." -ForegroundColor $colors.Success
+                                }
+                            }
+                            "2" {
+                                Write-Host "`nCofam PowerShell tweak: $($selectedFeature.Name)..." -ForegroundColor $colors.Info
+                                $success = Invoke-PowerShellTweak -TweakName $selectedFeature.FeatureName -Action "Disable"
+                                if ($success) {
+                                    Write-Host "PowerShell tweak cofnięty pomyślnie." -ForegroundColor $colors.Success
                                 }
                             }
                             default {
