@@ -1,37 +1,206 @@
 [
   {
+    "Name": "Create Restore Point",
+    "Description": "Tworzy punkt przywracania systemu",
+    "FeatureName": "CreateRestorePoint",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Delete Temporary Files",
+    "Description": "Usuwa pliki tymczasowe z systemu",
+    "FeatureName": "DeleteTempFiles", 
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Disable Consumer Features",
+    "Description": "Wyłącza automatyczne instalowanie aplikacji ze sklepu",
+    "FeatureName": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+    "Type": "Registry",
+    "ValueName": "DisableWindowsConsumerFeatures",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Disable Telemetry", 
+    "Description": "Wyłącza zbieranie danych telemetrycznych",
+    "FeatureName": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+    "Type": "Registry",
+    "ValueName": "AllowTelemetry",
+    "EnableValue": 0,
+    "DisableValue": 3
+  },
+  {
+    "Name": "Disable Activity History",
+    "Description": "Wyłącza historię aktywności Windows",
+    "FeatureName": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+    "Type": "Registry", 
+    "ValueName": "EnableActivityFeed",
+    "EnableValue": 0,
+    "DisableValue": 1
+  },
+  {
+    "Name": "Disable Explorer Automatic Folder Discovery",
+    "Description": "Wyłącza automatyczne wykrywanie folderów w Eksploratorze",
+    "FeatureName": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+    "Type": "Registry",
+    "ValueName": "FolderContentsInfoTip",
+    "EnableValue": 0,
+    "DisableValue": 1
+  },
+  {
+    "Name": "Disable GameDVR",
+    "Description": "Wyłącza nagrywanie gier w tle",
+    "FeatureName": "HKCU:\\System\\GameConfigStore",
+    "Type": "Registry",
+    "ValueName": "GameDVR_Enabled",
+    "EnableValue": 0,
+    "DisableValue": 1
+  },
+  {
+    "Name": "Disable Hibernation",
+    "Description": "Wyłącza hibernację systemu",
+    "FeatureName": "DisableHibernation",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Disable Homegroup",
+    "Description": "Wyłącza funkcję Grupy domowej",
+    "FeatureName": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\HomeGroup",
+    "Type": "Registry",
+    "ValueName": "DisableHomeGroup",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Disable Location Tracking",
+    "Description": "Wyłącza śledzenie lokalizacji",
+    "FeatureName": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location",
+    "Type": "Registry",
+    "ValueName": "Value",
+    "EnableValue": "Deny",
+    "DisableValue": "Allow"
+  },
+  {
+    "Name": "Disable Storage Sense",
+    "Description": "Wyłącza automatyczne czyszczenie dysku",
+    "FeatureName": "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
+    "Type": "Registry",
+    "ValueName": "01",
+    "EnableValue": 0,
+    "DisableValue": 1
+  },
+  {
+    "Name": "Disable Wi-Fi Sense",
+    "Description": "Wyłącza udostępnianie haseł Wi-Fi",
+    "FeatureName": "HKLM:\\SOFTWARE\\Microsoft\\PolicyManager\\default\\WiFi\\AllowWiFiHotSpotReporting",
+    "Type": "Registry",
+    "ValueName": "value",
+    "EnableValue": 0,
+    "DisableValue": 1
+  },
+  {
+    "Name": "Enable End Task With Right Click",
+    "Description": "Włącza kończenie zadań prawym klikiem",
+    "FeatureName": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings",
+    "Type": "Registry",
+    "ValueName": "TaskbarEndTask",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Run Disk Cleanup",
+    "Description": "Uruchamia czyszczenie dysku",
+    "FeatureName": "RunDiskCleanup",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Change Windows Terminal default: PowerShell 5 -> PowerShell 7",
+    "Description": "Zmienia domyślną powłokę Windows Terminal",
+    "FeatureName": "ChangeTerminalDefault",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Disable PowerShell 7 Telemetry",
+    "Description": "Wyłącza telemetrię PowerShell 7",
+    "FeatureName": "HKCU:\\SOFTWARE\\Microsoft\\PowerShell\\Telemetry",
+    "Type": "Registry",
+    "ValueName": "PSCoreTelemetryOptOut",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Disable Recall",
+    "Description": "Wyłącza funkcję Recall",
+    "FeatureName": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+    "Type": "Registry",
+    "ValueName": "DisableAIDataAnalysis",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Set Hibernation as default (good for laptops)",
+    "Description": "Ustawia hibernację jako domyślną (dobre dla laptopów)",
+    "FeatureName": "SetHibernationDefault",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Set Services to Manual",
+    "Description": "Ustawia wybrane usługi na ręczne uruchamianie",
+    "FeatureName": "SetServicesManual",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Debloat Brave",
+    "Description": "Usuwa niepotrzebne elementy z przeglądarki Brave",
+    "FeatureName": "DebloatBrave",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Debloat Edge",
+    "Description": "Usuwa niepotrzebne elementy z Microsoft Edge",
+    "FeatureName": "DebloatEdge",
+    "Type": "PowerShell"
+  },
+  {
     "Name": "Windows Subsystem for Linux (WSL)",
-    "Description": "Umożliwia uruchamianie środowisk Linux na Windows, niezbędny dla programistów.",
-    "FeatureName": "Microsoft-Windows-Subsystem-Linux"
+    "Description": "Umożliwia uruchamianie środowisk Linux na Windows, niezbędny dla programistów",
+    "FeatureName": "Microsoft-Windows-Subsystem-Linux",
+    "Type": "WindowsFeature"
   },
   {
     "Name": "Client Telnet",
-    "Description": "Narzędzie sieciowe do komunikacji z serwerami za pomocą protokołu Telnet.",
-    "FeatureName": "TelnetClient"
+    "Description": "Narzędzie sieciowe do komunikacji z serwerami za pomocą protokołu Telnet",
+    "FeatureName": "TelnetClient",
+    "Type": "WindowsFeature"
   },
   {
     "Name": "Protokół SMB 1.0",
-    "Description": "Umożliwia łączenie się ze starszymi zasobami udostępnionymi w sieci.",
-    "FeatureName": "SMB1Protocol"
+    "Description": "Umożliwia łączenie się ze starszymi zasobami udostępnionymi w sieci",
+    "FeatureName": "SMB1Protocol",
+    "Type": "WindowsFeature"
   },
   {
     "Name": "Hyper-V",
-    "Description": "Platforma wirtualizacji od Microsoftu do tworzenia maszyn wirtualnych.",
-    "FeatureName": "Microsoft-Hyper-V"
+    "Description": "Platforma wirtualizacji od Microsoftu do tworzenia maszyn wirtualnych",
+    "FeatureName": "Microsoft-Hyper-V-All",
+    "Type": "WindowsFeature"
   },
   {
     "Name": "IIS (Internet Information Services)",
-    "Description": "Serwer WWW od Microsoftu, używany do hostowania stron i aplikacji internetowych.",
-    "FeatureName": "IIS-WebServerRole"
+    "Description": "Serwer WWW od Microsoftu, używany do hostowania stron i aplikacji internetowych",
+    "FeatureName": "IIS-WebServerRole",
+    "Type": "WindowsFeature"
   },
   {
     "Name": "Windows Defender Application Guard",
-    "Description": "Zwiększa bezpieczeństwo przeglądania stron, izolując sesje w Hyper-V.",
-    "FeatureName": "Windows-Defender-ApplicationGuard"
+    "Description": "Zwiększa bezpieczeństwo przeglądarki stron, izoluje sesje w Hyper-V",
+    "FeatureName": "Windows-Defender-ApplicationGuard",
+    "Type": "WindowsFeature"
   },
   {
     "Name": "Funkcja Windows Sandbox",
-    "Description": "Tworzy tymczasowe, izolowane środowisko do bezpiecznego uruchamiania aplikacji.",
-    "FeatureName": "Containers-DisposableClientVM"
+    "Description": "Tworzy tymczasowe, izolowane środowisko do bezpiecznego uruchamiania aplikacji",
+    "FeatureName": "Containers-DisposableClientVM",
+    "Type": "WindowsFeature"
   }
 ]
