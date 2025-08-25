@@ -202,5 +202,149 @@
     "Description": "Tworzy tymczasowe, izolowane środowisko do bezpiecznego uruchamiania aplikacji",
     "FeatureName": "Containers-DisposableClientVM",
     "Type": "WindowsFeature"
+  },
+  {
+    "Name": "Adobe Network Block",
+    "Description": "Blokuje połączenia sieciowe Adobe (zapobiega aktywacji)",
+    "FeatureName": "AdobeNetworkBlock",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Adobe Debloat",
+    "Description": "Usuwa niepotrzebne procesy i usługi Adobe",
+    "FeatureName": "AdobeDebloat",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Disable IPv6",
+    "Description": "Wyłącza protokół IPv6 (może powodować problemy sieciowe)",
+    "FeatureName": "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters",
+    "Type": "Registry",
+    "ValueName": "DisabledComponents",
+    "EnableValue": 255,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Prefer IPv4 over IPv6",
+    "Description": "Preferuje IPv4 nad IPv6 w połączeniach sieciowych",
+    "FeatureName": "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters",
+    "Type": "Registry",
+    "ValueName": "DisabledComponents",
+    "EnableValue": 32,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Disable Teredo",
+    "Description": "Wyłącza tunelowanie Teredo IPv6",
+    "FeatureName": "DisableTeredo",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Disable Background Apps",
+    "Description": "Wyłącza aplikacje działające w tle",
+    "FeatureName": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications",
+    "Type": "Registry",
+    "ValueName": "GlobalUserDisabled",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Disable Fullscreen Optimizations",
+    "Description": "Wyłącza optymalizacje pełnoekranowe (lepsze dla gier)",
+    "FeatureName": "HKCU:\\System\\GameConfigStore",
+    "Type": "Registry",
+    "ValueName": "GameDVR_FSEBehaviorMode",
+    "EnableValue": 2,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Disable Microsoft Defender",
+    "Description": "⚠️ OSTRZEŻENIE: Wyłącza Windows Defender (niebezpieczne!)",
+    "FeatureName": "DisableDefender",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Disable Intel MM (vPro LMS)",
+    "Description": "Wyłącza Intel Management Engine (vPro LMS)",
+    "FeatureName": "DisableIntelMM",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Disable Notification Tray/Calendar",
+    "Description": "Wyłącza powiadomienia w zasobniku systemowym i kalendarz",
+    "FeatureName": "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer",
+    "Type": "Registry",
+    "ValueName": "DisableNotificationCenter",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Disable Windows Printing Bitmap Table (WPBT)",
+    "Description": "Wyłącza tablicę bitmap drukowania Windows",
+    "FeatureName": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment",
+    "Type": "Registry",
+    "ValueName": "ACPI_WPBT_DISABLE",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Set Display for Performance",
+    "Description": "Optymalizuje ustawienia wyświetlania dla wydajności",
+    "FeatureName": "SetDisplayPerformance",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Set Classic Right-Click Menu",
+    "Description": "Przywraca klasyczne menu prawego kliknięcia",
+    "FeatureName": "HKCU:\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32",
+    "Type": "Registry",
+    "ValueName": "",
+    "EnableValue": "",
+    "DisableValue": "Remove"
+  },
+  {
+    "Name": "Set Time to UTC (Dual Boot)",
+    "Description": "Ustawia czas systemowy na UTC (dla dual boot z Linux)",
+    "FeatureName": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation",
+    "Type": "Registry",
+    "ValueName": "RealTimeIsUniversal",
+    "EnableValue": 1,
+    "DisableValue": 0
+  },
+  {
+    "Name": "Remove ALL MS Store Apps - NOT RECOMMENDED",
+    "Description": "⚠️ OSTRZEŻENIE: Usuwa WSZYSTKIE aplikacje ze sklepu Microsoft (może uszkodzić system!)",
+    "FeatureName": "RemoveAllStoreApps",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Remove Home from Explorer",
+    "Description": "Usuwa folder 'Dom' z Eksploratora plików",
+    "FeatureName": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}",
+    "Type": "Registry",
+    "ValueName": "Remove",
+    "EnableValue": "Remove",
+    "DisableValue": "Restore"
+  },
+  {
+    "Name": "Remove Gallery from Explorer",
+    "Description": "Usuwa galerię z Eksploratora plików",
+    "FeatureName": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace\\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}",
+    "Type": "Registry",
+    "ValueName": "Remove",
+    "EnableValue": "Remove",
+    "DisableValue": "Restore"
+  },
+  {
+    "Name": "Remove OneDrive",
+    "Description": "Usuwa OneDrive z systemu",
+    "FeatureName": "RemoveOneDrive",
+    "Type": "PowerShell"
+  },
+  {
+    "Name": "Block Razer Software Installs",
+    "Description": "Blokuje automatyczne instalacje oprogramowania Razer",
+    "FeatureName": "BlockRazerInstalls",
+    "Type": "PowerShell"
   }
 ]
