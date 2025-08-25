@@ -836,22 +836,22 @@ function Invoke-PowerShellTweak {
     }
 }
 
-# FUNKCJA Show-FeaturesMenu z kategoriami Essential/Advanced/Additional
+# ZAKTUALIZOWANA FUNKCJA Show-FeaturesMenu z nową strukturą
 function Show-FeaturesMenu($features) {
     Write-Host "`n==== Zarządzanie funkcjami Windows i System Tweaks ====`n" -ForegroundColor $colors.Header
     
     $essentialCount = 0
+    $additionalCount = 0 
     $advancedCount = 0
-    $additionalCount = 0
     
     # Count items in each category
     for ($i = 0; $i -lt $features.Count; $i++) {
         if ($i -lt 21) {
             $essentialCount++
-        } elseif ($i -lt ($features.Count - 7)) {
-            $advancedCount++
-        } else {
+        } elseif ($i -ge 21 -and $i -lt 28) {
             $additionalCount++
+        } else {
+            $advancedCount++
         }
     }
     
@@ -866,12 +866,10 @@ function Show-FeaturesMenu($features) {
         Write-Host ""
     }
     
-    # Display Advanced Tweaks (22 to Count-7)
-    if ($advancedCount -gt 0) {
-        Write-Host "==== Advanced Tweaks - CAUTION ====" -ForegroundColor Red
-        $startIndex = 21
-        $endIndex = $features.Count - 7
-        for ($i = $startIndex; $i -lt $endIndex; $i++) {
+    # Display Additional Tweaks (22-28) - Windows Features
+    if ($additionalCount -gt 0) {
+        Write-Host "==== Additional Tweaks ====" -ForegroundColor Yellow
+        for ($i = 21; $i -lt 28 -and $i -lt $features.Count; $i++) {
             $feature = $features[$i]
             $status = Get-FeatureStatus -feature $feature
             Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
@@ -879,14 +877,22 @@ function Show-FeaturesMenu($features) {
         Write-Host ""
     }
     
-    # Display Additional Tweaks (last 7)
-    if ($additionalCount -gt 0) {
-        Write-Host "==== Additional Tweaks ====" -ForegroundColor Yellow
-        $startIndex = $features.Count - 7
-        for ($i = $startIndex; $i -lt $features.Count; $i++) {
+    # Display Advanced Tweaks (29+) - CAUTION
+    if ($advancedCount -gt 0) {
+        Write-Host "==== Advanced Tweaks - CAUTION ====" -ForegroundColor Red
+        for ($i = 28; $i -lt $features.Count; $i++) {
             $feature = $features[$i]
             $status = Get-FeatureStatus -feature $feature
-            Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
+            
+            # Highlight dangerous tweaks with warning colors
+            $nameColor = $colors.DefaultText
+            if ($feature.Description -like "*OSTRZEŻENIE*" -or $feature.Description -like "*NOT RECOMMENDED*") {
+                $nameColor = "Red"
+            }
+            
+            Write-Host ("{0,3}. " -f ($i + 1)) -NoNewline
+            Write-Host ("{0,-40}" -f $feature.Name) -ForegroundColor $nameColor -NoNewline
+            Write-Host " - {0} (Status: {1})" -f $feature.Description, $status
         }
     }
     
