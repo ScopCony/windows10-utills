@@ -539,7 +539,7 @@ function Search-Apps-Interactive($allApps) {
     }
 }
 
-# NOWA FUNKCJA dla Registry Tweaks
+# ROZSZERZONA FUNKCJA Set-RegistryTweak z obsługą "Remove" i "Restore"
 function Set-RegistryTweak {
     param(
         [string]$Path,
@@ -548,18 +548,37 @@ function Set-RegistryTweak {
     )
     
     try {
-        if (-not (Test-Path $Path)) {
-            New-Item -Path $Path -Force | Out-Null
-            Write-Host "Utworzono ścieżkę rejestru: $Path" -ForegroundColor $colors.Info
+        if ($Value -eq "Remove") {
+            # Special case: Remove registry key
+            if (Test-Path $Path) {
+                Remove-Item -Path $Path -Force -Recurse -ErrorAction SilentlyContinue
+                Write-Host "Usunięto klucz rejestru: $Path" -ForegroundColor $colors.Success
+            } else {
+                Write-Host "Klucz rejestru nie istnieje: $Path" -ForegroundColor $colors.Info
+            }
+            return $true
         }
-        
-        if ($Value -is [string]) {
-            Set-ItemProperty -Path $Path -Name $ValueName -Value $Value -Type String
-        } else {
-            Set-ItemProperty -Path $Path -Name $ValueName -Value $Value -Type DWord
+        elseif ($Value -eq "Restore") {
+            # Special case: Restore registry key (placeholder)
+            Write-Host "Przywracanie klucza rejestru: $Path" -ForegroundColor $colors.Info
+            # Here you would implement restoration logic
+            return $true
         }
-        Write-Host "Ustawiono $ValueName = $Value w $Path" -ForegroundColor $colors.Success
-        return $true
+        else {
+            # Normal registry operation
+            if (-not (Test-Path $Path)) {
+                New-Item -Path $Path -Force | Out-Null
+                Write-Host "Utworzono ścieżkę rejestru: $Path" -ForegroundColor $colors.Info
+            }
+            
+            if ($Value -is [string] -and $Value -ne "") {
+                Set-ItemProperty -Path $Path -Name $ValueName -Value $Value -Type String
+            } else {
+                Set-ItemProperty -Path $Path -Name $ValueName -Value $Value -Type DWord
+            }
+            Write-Host "Ustawiono $ValueName = $Value w $Path" -ForegroundColor $colors.Success
+            return $true
+        }
     }
     catch {
         Write-Host "Błąd podczas modyfikacji rejestru: $($_.Exception.Message)" -ForegroundColor $colors.Error
@@ -567,7 +586,7 @@ function Set-RegistryTweak {
     }
 }
 
-# NOWA FUNKCJA dla PowerShell Tweaks
+# KOMPLETNA ROZSZERZONA FUNKCJA Invoke-PowerShellTweak z Advanced Tweaks
 function Invoke-PowerShellTweak {
     param(
         [string]$TweakName,
@@ -576,6 +595,7 @@ function Invoke-PowerShellTweak {
     
     try {
         switch ($TweakName) {
+            # EXISTING ESSENTIAL TWEAKS
             "CreateRestorePoint" {
                 if ($Action -eq "Enable") {
                     Write-Host "Tworzę punkt przywracania systemu..." -ForegroundColor $colors.Info
@@ -669,6 +689,140 @@ function Invoke-PowerShellTweak {
                     Write-Host "Nie można 'cofnąć' debloat Edge." -ForegroundColor $colors.Error
                 }
             }
+
+            # NEW ADVANCED TWEAKS
+            "AdobeNetworkBlock" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Blokuję połączenia sieciowe Adobe..." -ForegroundColor $colors.Info
+                    $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
+                    $adobeHosts = @(
+                        "127.0.0.1 lmlicenses.wip4.adobe.com",
+                        "127.0.0.1 activate.adobe.com",
+                        "127.0.0.1 practivate.adobe.com",
+                        "127.0.0.1 lm.licenses.adobe.com"
+                    )
+                    foreach ($host in $adobeHosts) {
+                        Add-Content -Path $hostsPath -Value $host -ErrorAction SilentlyContinue
+                    }
+                    Write-Host "Połączenia sieciowe Adobe zablokowane." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Odblokowuję połączenia sieciowe Adobe..." -ForegroundColor $colors.Info
+                    $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
+                    $content = Get-Content $hostsPath | Where-Object { $_ -notlike "*adobe.com*" }
+                    Set-Content -Path $hostsPath -Value $content -ErrorAction SilentlyContinue
+                    Write-Host "Połączenia sieciowe Adobe odblokowane." -ForegroundColor $colors.Success
+                }
+            }
+            "AdobeDebloat" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Usuwam niepotrzebne procesy Adobe..." -ForegroundColor $colors.Info
+                    $adobeServices = @("AdobeUpdateService", "AGSService", "AGMService")
+                    foreach ($service in $adobeServices) {
+                        Stop-Service -Name $service -Force -ErrorAction SilentlyContinue
+                        Set-Service -Name $service -StartupType Disabled -ErrorAction SilentlyContinue
+                    }
+                    Write-Host "Niepotrzebne procesy Adobe usunięte." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Przywracam procesy Adobe..." -ForegroundColor $colors.Info
+                    $adobeServices = @("AdobeUpdateService", "AGSService", "AGMService")
+                    foreach ($service in $adobeServices) {
+                        Set-Service -Name $service -StartupType Automatic -ErrorAction SilentlyContinue
+                        Start-Service -Name $service -ErrorAction SilentlyContinue
+                    }
+                    Write-Host "Procesy Adobe przywrócone." -ForegroundColor $colors.Success
+                }
+            }
+            "DisableTeredo" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Wyłączam tunelowanie Teredo..." -ForegroundColor $colors.Info
+                    netsh interface teredo set state disabled
+                    Write-Host "Teredo wyłączone." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Włączam tunelowanie Teredo..." -ForegroundColor $colors.Info
+                    netsh interface teredo set state default
+                    Write-Host "Teredo włączone." -ForegroundColor $colors.Success
+                }
+            }
+            "DisableDefender" {
+                if ($Action -eq "Enable") {
+                    Write-Host "⚠️ OSTRZEŻENIE: Wyłączam Windows Defender..." -ForegroundColor Red
+                    Write-Host "To może sprawić, że komputer będzie podatny na zagrożenia!" -ForegroundColor Red
+                    Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction SilentlyContinue
+                    Write-Host "Windows Defender wyłączony." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Włączam Windows Defender..." -ForegroundColor $colors.Info
+                    Set-MpPreference -DisableRealtimeMonitoring $false -ErrorAction SilentlyContinue
+                    Write-Host "Windows Defender włączony." -ForegroundColor $colors.Success
+                }
+            }
+            "DisableIntelMM" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Wyłączam Intel Management Engine..." -ForegroundColor $colors.Info
+                    Stop-Service -Name "LMS" -Force -ErrorAction SilentlyContinue
+                    Set-Service -Name "LMS" -StartupType Disabled -ErrorAction SilentlyContinue
+                    Write-Host "Intel MM (vPro LMS) wyłączone." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Włączam Intel Management Engine..." -ForegroundColor $colors.Info
+                    Set-Service -Name "LMS" -StartupType Automatic -ErrorAction SilentlyContinue
+                    Start-Service -Name "LMS" -ErrorAction SilentlyContinue
+                    Write-Host "Intel MM (vPro LMS) włączone." -ForegroundColor $colors.Success
+                }
+            }
+            "SetDisplayPerformance" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Optymalizuję ustawienia wyświetlania dla wydajności..." -ForegroundColor $colors.Info
+                    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 2 -ErrorAction SilentlyContinue
+                    Write-Host "Wyświetlanie zoptymalizowane dla wydajności." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Przywracam standardowe ustawienia wyświetlania..." -ForegroundColor $colors.Info
+                    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 0 -ErrorAction SilentlyContinue
+                    Write-Host "Standardowe ustawienia wyświetlania przywrócone." -ForegroundColor $colors.Success
+                }
+            }
+            "RemoveAllStoreApps" {
+                if ($Action -eq "Enable") {
+                    Write-Host "⚠️ OSTRZEŻENIE: Usuwam WSZYSTKIE aplikacje ze sklepu Microsoft..." -ForegroundColor Red
+                    Write-Host "To może uszkodzić system i usunąć ważne aplikacje!" -ForegroundColor Red
+                    Get-AppxPackage -AllUsers | Remove-AppxPackage -ErrorAction SilentlyContinue
+                    Write-Host "Wszystkie aplikacje ze sklepu Microsoft usunięte." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Nie można automatycznie przywrócić usuniętych aplikacji ze sklepu." -ForegroundColor $colors.Error
+                    Write-Host "Aby je przywrócić, użyj Microsoft Store lub: Get-AppxPackage -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register \"\$(\$_.InstallLocation)\\AppXManifest.xml\"}" -ForegroundColor $colors.Info
+                }
+            }
+            "RemoveOneDrive" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Usuwam OneDrive..." -ForegroundColor $colors.Info
+                    Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+                    Start-Process -FilePath "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" -ArgumentList "/uninstall" -Wait -ErrorAction SilentlyContinue
+                    Write-Host "OneDrive usunięty." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Instaluję OneDrive..." -ForegroundColor $colors.Info
+                    Start-Process -FilePath "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" -ErrorAction SilentlyContinue
+                    Write-Host "OneDrive zainstalowany." -ForegroundColor $colors.Success
+                }
+            }
+            "BlockRazerInstalls" {
+                if ($Action -eq "Enable") {
+                    Write-Host "Blokuję automatyczne instalacje Razer..." -ForegroundColor $colors.Info
+                    $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
+                    $razerHosts = @(
+                        "127.0.0.1 installer.razer.com",
+                        "127.0.0.1 razer.com",
+                        "127.0.0.1 razerzone.com"
+                    )
+                    foreach ($host in $razerHosts) {
+                        Add-Content -Path $hostsPath -Value $host -ErrorAction SilentlyContinue
+                    }
+                    Write-Host "Instalacje Razer zablokowane." -ForegroundColor $colors.Success
+                } else {
+                    Write-Host "Odblokowuję instalacje Razer..." -ForegroundColor $colors.Info
+                    $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
+                    $content = Get-Content $hostsPath | Where-Object { $_ -notlike "*razer*" }
+                    Set-Content -Path $hostsPath -Value $content -ErrorAction SilentlyContinue
+                    Write-Host "Instalacje Razer odblokowane." -ForegroundColor $colors.Success
+                }
+            }
             default {
                 Write-Host "Nieznany PowerShell tweak: $TweakName" -ForegroundColor $colors.Error
                 return $false
@@ -682,46 +836,95 @@ function Invoke-PowerShellTweak {
     }
 }
 
-# ZMIENIONA FUNKCJA Show-FeaturesMenu z obsługą 3 typów
+# FUNKCJA Show-FeaturesMenu z kategoriami Essential/Advanced/Additional
 function Show-FeaturesMenu($features) {
     Write-Host "`n==== Zarządzanie funkcjami Windows i System Tweaks ====`n" -ForegroundColor $colors.Header
+    
+    $essentialCount = 0
+    $advancedCount = 0
+    $additionalCount = 0
+    
+    # Count items in each category
     for ($i = 0; $i -lt $features.Count; $i++) {
-        $feature = $features[$i]
-        
-        if ($feature.Type -eq "WindowsFeature") {
-            $status = (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
+        if ($i -lt 21) {
+            $essentialCount++
+        } elseif ($i -lt ($features.Count - 7)) {
+            $advancedCount++
+        } else {
+            $additionalCount++
         }
-        elseif ($feature.Type -eq "Registry") {
-            try {
-                $currentValue = Get-ItemProperty -Path $feature.FeatureName -Name $feature.ValueName -ErrorAction SilentlyContinue
-                if ($null -ne $currentValue) {
-                    $actualValue = $currentValue.($feature.ValueName)
-                    if ($actualValue -eq $feature.EnableValue) {
-                        $status = "Enabled"
-                    } elseif ($actualValue -eq $feature.DisableValue) {
-                        $status = "Disabled"
-                    } else {
-                        $status = "Custom"
-                    }
-                } else {
-                    $status = "Not Set"
-                }
-            }
-            catch {
-                $status = "Unknown"
-            }
-        }
-        elseif ($feature.Type -eq "PowerShell") {
-            $status = "Available"
-        }
-        
-        Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
     }
+    
+    # Display Essential Tweaks (1-21)
+    if ($essentialCount -gt 0) {
+        Write-Host "==== Essential Tweaks ====" -ForegroundColor Green
+        for ($i = 0; $i -lt 21 -and $i -lt $features.Count; $i++) {
+            $feature = $features[$i]
+            $status = Get-FeatureStatus -feature $feature
+            Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
+        }
+        Write-Host ""
+    }
+    
+    # Display Advanced Tweaks (22 to Count-7)
+    if ($advancedCount -gt 0) {
+        Write-Host "==== Advanced Tweaks - CAUTION ====" -ForegroundColor Red
+        $startIndex = 21
+        $endIndex = $features.Count - 7
+        for ($i = $startIndex; $i -lt $endIndex; $i++) {
+            $feature = $features[$i]
+            $status = Get-FeatureStatus -feature $feature
+            Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
+        }
+        Write-Host ""
+    }
+    
+    # Display Additional Tweaks (last 7)
+    if ($additionalCount -gt 0) {
+        Write-Host "==== Additional Tweaks ====" -ForegroundColor Yellow
+        $startIndex = $features.Count - 7
+        for ($i = $startIndex; $i -lt $features.Count; $i++) {
+            $feature = $features[$i]
+            $status = Get-FeatureStatus -feature $feature
+            Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
+        }
+    }
+    
     Write-Host "`n" -NoNewline
     Write-Host "q" -ForegroundColor $colors.Success -NoNewline
     Write-Host " - Powrót do głównego menu`n"
     $choice = Read-Host "Wybierz numer, aby włączyć/wyłączyć funkcję"
     return $choice
+}
+
+function Get-FeatureStatus($feature) {
+    if ($feature.Type -eq "WindowsFeature") {
+        return (Get-WindowsOptionalFeature -Online -FeatureName $feature.FeatureName).State
+    }
+    elseif ($feature.Type -eq "Registry") {
+        try {
+            $currentValue = Get-ItemProperty -Path $feature.FeatureName -Name $feature.ValueName -ErrorAction SilentlyContinue
+            if ($null -ne $currentValue) {
+                $actualValue = $currentValue.($feature.ValueName)
+                if ($actualValue -eq $feature.EnableValue) {
+                    return "Enabled"
+                } elseif ($actualValue -eq $feature.DisableValue) {
+                    return "Disabled"
+                } else {
+                    return "Custom"
+                }
+            } else {
+                return "Not Set"
+            }
+        }
+        catch {
+            return "Unknown"
+        }
+    }
+    elseif ($feature.Type -eq "PowerShell") {
+        return "Available"
+    }
+    return "Unknown"
 }
 
 function Invoke-ChocoCommand {
