@@ -836,7 +836,7 @@ function Invoke-PowerShellTweak {
     }
 }
 
-# POPRAWIONA FUNKCJA Show-FeaturesMenu z nową strukturą
+# CAŁKOWICIE POPRAWIONA FUNKCJA Show-FeaturesMenu BEZ BŁĘDÓW KOLORÓW
 function Show-FeaturesMenu($features) {
     Write-Host "`n==== Zarządzanie funkcjami Windows i System Tweaks ====`n" -ForegroundColor $colors.Header
     
@@ -884,14 +884,14 @@ function Show-FeaturesMenu($features) {
             $feature = $features[$i]
             $status = Get-FeatureStatus -feature $feature
             
-            # Check if it's a dangerous tweak and highlight in red
+            # Check if it's a dangerous tweak
             if ($feature.Description -like "*OSTRZEŻENIE*" -or $feature.Description -like "*NOT RECOMMENDED*") {
-                # Display dangerous tweaks in RED
+                # Display dangerous tweaks with RED names
                 Write-Host ("{0,3}. " -f ($i + 1)) -NoNewline
-                Write-Host ("{0,-40}" -f $feature.Name) -ForegroundColor Red -NoNewline
+                Write-Host $feature.Name -ForegroundColor Red -NoNewline
                 Write-Host " - {0} (Status: {1})" -f $feature.Description, $status
             } else {
-                # Display normal advanced tweaks in default color
+                # Display normal advanced tweaks
                 Write-Host ("{0,3}. {1,-40} - {2} (Status: {3})" -f ($i + 1), $feature.Name, $feature.Description, $status)
             }
         }
