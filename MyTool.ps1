@@ -586,7 +586,7 @@ function Set-RegistryTweak {
     }
 }
 
-# KOMPLETNA ROZSZERZONA FUNKCJA Invoke-PowerShellTweak z Advanced Tweaks
+# POPRAWIONA FUNKCJA Invoke-PowerShellTweak z ODWRÓCONĄ LOGIKĄ dla funkcji "Removal"
 function Invoke-PowerShellTweak {
     param(
         [string]$TweakName,
@@ -690,7 +690,7 @@ function Invoke-PowerShellTweak {
                 }
             }
 
-            # NEW ADVANCED TWEAKS
+            # NEW ADVANCED TWEAKS (poprawne)
             "AdobeNetworkBlock" {
                 if ($Action -eq "Enable") {
                     Write-Host "Blokuję połączenia sieciowe Adobe..." -ForegroundColor $colors.Info
@@ -702,7 +702,7 @@ function Invoke-PowerShellTweak {
                         "127.0.0.1 lm.licenses.adobe.com"
                     )
                     foreach ($hostEntry in $adobeHosts) {
-                        Add-Content -Path $hostsPath -Value $host -ErrorAction SilentlyContinue
+                        Add-Content -Path $hostsPath -Value $hostEntry -ErrorAction SilentlyContinue
                     }
                     Write-Host "Połączenia sieciowe Adobe zablokowane." -ForegroundColor $colors.Success
                 } else {
@@ -779,6 +779,8 @@ function Invoke-PowerShellTweak {
                     Write-Host "Standardowe ustawienia wyświetlania przywrócone." -ForegroundColor $colors.Success
                 }
             }
+
+            # POPRAWIONE FUNKCJE "REMOVAL" - ODWRÓCONA LOGIKA
             "RemoveAllStoreApps" {
                 if ($Action -eq "Enable") {
                     Write-Host "⚠️ OSTRZEŻENIE: Usuwam WSZYSTKIE aplikacje ze sklepu Microsoft..." -ForegroundColor Red
@@ -786,8 +788,8 @@ function Invoke-PowerShellTweak {
                     Get-AppxPackage -AllUsers | Remove-AppxPackage -ErrorAction SilentlyContinue
                     Write-Host "Wszystkie aplikacje ze sklepu Microsoft usunięte." -ForegroundColor $colors.Success
                 } else {
-                    Write-Host "Nie można automatycznie przywrócić usuniętych aplikacji ze sklepu." -ForegroundColor $colors.Error
-                    Write-Host "Aby je przywrócić, użyj Microsoft Store lub: Get-AppxPackage -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register \"\$(\$_.InstallLocation)\\AppXManifest.xml\"}" -ForegroundColor $colors.Info
+                    Write-Host "Pozostawiam aplikacje ze sklepu Microsoft bez zmian..." -ForegroundColor $colors.Info
+                    Write-Host "Aplikacje ze sklepu Microsoft pozostają w systemie." -ForegroundColor $colors.Success
                 }
             }
             "RemoveOneDrive" {
@@ -797,9 +799,8 @@ function Invoke-PowerShellTweak {
                     Start-Process -FilePath "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" -ArgumentList "/uninstall" -Wait -ErrorAction SilentlyContinue
                     Write-Host "OneDrive usunięty." -ForegroundColor $colors.Success
                 } else {
-                    Write-Host "Instaluję OneDrive..." -ForegroundColor $colors.Info
-                    Start-Process -FilePath "$env:SystemRoot\SysWOW64\OneDriveSetup.exe" -ErrorAction SilentlyContinue
-                    Write-Host "OneDrive zainstalowany." -ForegroundColor $colors.Success
+                    Write-Host "Pozostawiam OneDrive bez zmian..." -ForegroundColor $colors.Info
+                    Write-Host "OneDrive pozostaje w systemie." -ForegroundColor $colors.Success
                 }
             }
             "BlockRazerInstalls" {
@@ -812,7 +813,7 @@ function Invoke-PowerShellTweak {
                         "127.0.0.1 razerzone.com"
                     )
                     foreach ($hostEntry in $razerHosts) {
-                        Add-Content -Path $hostsPath -Value $host -ErrorAction SilentlyContinue
+                        Add-Content -Path $hostsPath -Value $hostEntry -ErrorAction SilentlyContinue
                     }
                     Write-Host "Instalacje Razer zablokowane." -ForegroundColor $colors.Success
                 } else {
