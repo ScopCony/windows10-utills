@@ -1,3 +1,33 @@
+# Upewnij się, że Node.js i npm są zainstalowane.
+# Jeśli nie są, pobierz je ze strony [https://nodejs.org/en/](https://nodejs.org/en/)
+
+# Sprawdź, czy npx jest już w ścieżce
+Write-Host "Sprawdzanie, czy 'npx' jest dostępne..." -ForegroundColor Yellow
+if (Get-Command npx -ErrorAction SilentlyContinue) {
+    Write-Host "'npx' jest już w Twojej ścieżce. Pomijanie kroku dodawania ścieżki." -ForegroundColor Green
+} else {
+    Write-Host "'npx' nie jest dostępne. Próba dodania ścieżki npm do zmiennej środowiskowej Path..." -ForegroundColor Yellow
+    
+    # Znajdź ścieżkę do Node.js
+    $nodePath = (Get-Command node).Source
+    if (-not $nodePath) {
+        Write-Host "Błąd: Nie można znaleźć Node.js. Upewnij się, że jest zainstalowany i dostępny w Twojej ścieżce systemowej." -ForegroundColor Red
+        return
+    }
+
+    # Pobierz ścieżkę do folderu npm, gdzie znajduje się npx
+    # Zazwyczaj jest to folder obok node.exe
+    $npmPath = (Split-Path -Parent $nodePath) + "\node_modules\.bin"
+    
+    if (-not (Test-Path $npmPath)) {
+        Write-Host "Błąd: Nie można znaleźć folderu 'node_modules\.bin'. Upewnij się, że Node.js jest poprawnie zainstalowany." -ForegroundColor Red
+        return
+    }
+
+    # Dodaj tymczasowo ścieżkę npm do bieżącej sesji PowerShell
+    $env:Path += ";$npmPath"
+    Write-Host "Ścieżka do 'npx' została tymczasowo dodana." -ForegroundColor Green
+}
 # Generowanie logo
 npx oh-my-logo@latest "My Tool" sunset --filled
 npx oh-my-logo@latest "by ScopCony" sunset --filled
