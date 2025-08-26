@@ -159,30 +159,35 @@ function Show-LogoFrame {
 
 # Główny proces generowania logo
 try {
-    # Najpierw spróbuj uruchomić skrypt z GitHub (jeśli istnieje)
-    Write-Host "Pobieranie dodatkowego generatora logo..." -ForegroundColor Cyan
-    try {
-        $response = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1?cache=$(Get-Date).Ticks" -TimeoutSec 5
-        if ($response.StatusCode -eq 200 -and $response.Content.Length -gt 100) {
-            Invoke-Expression $response.Content
-            Write-Host "Dodatkowy generator uruchomiony." -ForegroundColor Green
+    # Sprawdź czy uruchomić dodatkowy generator (tylko raz)
+    $useExternalGenerator = $false  # Zmień na $true jeśli chcesz używać skryptu z GitHub
+    
+    if ($useExternalGenerator) {
+        Write-Host "Pobieranie dodatkowego generatora logo..." -ForegroundColor Cyan
+        try {
+            $response = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1?cache=$(Get-Date).Ticks" -TimeoutSec 3
+            if ($response.StatusCode -eq 200 -and $response.Content.Length -gt 100) {
+                Invoke-Expression $response.Content
+                Write-Host "Dodatkowy generator uruchomiony." -ForegroundColor Green
+            }
         }
-    }
-    catch {
-        Write-Host "Dodatkowy generator niedostępny, używam wbudowanego." -ForegroundColor Yellow
+        catch {
+            Write-Host "Dodatkowy generator niedostępny." -ForegroundColor Yellow
+        }
     }
     
     # Wygeneruj główne logo
     Write-Host "`nGenerowanie głównego logo..." -ForegroundColor Cyan
     
-    # Efekt animacji ładowania
-    $loadingChars = @('|', '/', '-', '\')
-    for ($i = 0; $i -lt 8; $i++) {
-        Write-Host "`r  $($loadingChars[$i % 4]) Tworzenie logo..." -ForegroundColor Yellow -NoNewline
-        Start-Sleep -Milliseconds 200
+    # Efekt animacji ładowania (skrócony)
+    $loadingChars = @('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
+    Write-Host "  Tworzenie logo " -ForegroundColor Yellow -NoNewline
+    for ($i = 0; $i -lt 3; $i++) {
+        Write-Host $loadingChars[$i] -ForegroundColor Cyan -NoNewline
+        Start-Sleep -Milliseconds 150
+        Write-Host "`b" -NoNewline
     }
-    Write-Host "`r                                    " -NoNewline
-    Write-Host "`r"
+    Write-Host "✓" -ForegroundColor Green
     
     # Wyświetl logo "MY TOOL"
     Write-Host ""
