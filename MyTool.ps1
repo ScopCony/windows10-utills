@@ -17,6 +17,13 @@ function Install-NodeJs {
             Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$installerPath`" /qn /norestart" -Wait
             
             Write-Host "Instalacja Node.js zakończona pomyślnie." -ForegroundColor Green
+
+            # Dodaj ścieżkę Node.js do bieżącej sesji Path po instalacji
+            $nodePath = (Get-Command node).Source
+            $npmPath = (Split-Path -Parent $nodePath) + "\node_modules\.bin"
+            $env:Path += ";$npmPath"
+            Write-Host "Ścieżka do 'npx' została tymczasowo dodana." -ForegroundColor Green
+
         }
         catch {
             Write-Host "Błąd podczas instalacji Node.js: $_" -ForegroundColor Red
@@ -29,16 +36,20 @@ function Install-NodeJs {
 # Funkcja do sprawdzania i instalowania pakietu oh-my-logo
 function Install-OhMyLogo {
     Write-Host "Sprawdzanie, czy oh-my-logo jest zainstalowane..." -ForegroundColor Yellow
-    if (-not (Test-Path "$env:APPDATA\npm\oh-my-logo.ps1")) { # Przykład ścieżki
-        Write-Host "oh-my-logo nie znaleziono. Instalowanie..." -ForegroundColor Cyan
-        try {
-            npx oh-my-logo@latest # Uruchomienie instalacji globalnej
-            Write-Host "Instalacja oh-my-logo zakończona pomyślnie." -ForegroundColor Green
-        }
-        catch {
-            Write-Host "Błąd podczas instalacji oh-my-logo: $_" -ForegroundColor Red
-            return $false
-        }
+    # Sprawdzenie, czy polecenie npx działa
+    if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
+        Write-Host "Polecenie 'npx' nie jest dostępne. Nie można zainstalować oh-my-logo." -ForegroundColor Red
+        return $false
+    }
+    
+    # Próba instalacji oh-my-logo
+    try {
+        npx oh-my-logo@latest # Uruchomienie instalacji globalnej
+        Write-Host "Instalacja oh-my-logo zakończona pomyślnie." -ForegroundColor Green
+    }
+    catch {
+        Write-Host "Błąd podczas instalacji oh-my-logo: $_" -ForegroundColor Red
+        return $false
     }
     return $true
 }
