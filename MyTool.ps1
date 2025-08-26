@@ -1,25 +1,34 @@
 # --- Generowanie logo ---
 Write-Host "Generowanie logo..." -ForegroundColor Cyan
 
-# Poniższa komenda omija konieczność instalacji Node.js i npx
-# Pobiera i uruchamia skrypt Oh My Posh, który generuje logo
-# Skrypt został dostosowany, aby pasował do oczekiwanego formatu
 try {
-    Write-Host "Pobieranie i uruchamianie generatora logo. Proszę czekać..." -ForegroundColor Cyan
-    Invoke-Expression ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1?cache=$(Get-Date).Ticks").Content)
+    # Sprawdź czy npx jest dostępny
+    if (Get-Command npx -ErrorAction SilentlyContinue) {
+        Write-Host "Używam npx do generowania logo..." -ForegroundColor Cyan
+        npx oh-my-logo@latest "My Tool" sunset --filled
+        npx oh-my-logo@latest "by ScopCony" sunset --filled
+    }
+    else {
+        Write-Host "npx niedostępny. Używam alternatywnego generatora..." -ForegroundColor Yellow
+        # Pobieranie skryptu z GitHub jako fallback
+        Invoke-Expression ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1?cache=$(Get-Date).Ticks").Content)
+    }
     Write-Host "Generowanie logo zakończone pomyślnie." -ForegroundColor Green
 }
 catch {
     Write-Host "Błąd podczas generowania logo: $_" -ForegroundColor Red
+    # Fallback - proste logo tekstowe
+    Write-Host ""
+    Write-Host "  ███╗   ███╗██╗   ██╗    ████████╗ ██████╗  ██████╗ ██╗     " -ForegroundColor Magenta
+    Write-Host "  ████╗ ████║╚██╗ ██╔╝    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     " -ForegroundColor Magenta
+    Write-Host "  ██╔████╔██║ ╚████╔╝        ██║   ██║   ██║██║   ██║██║     " -ForegroundColor Magenta
+    Write-Host "  ██║╚██╔╝██║  ╚██╔╝         ██║   ██║   ██║██║   ██║██║     " -ForegroundColor Magenta
+    Write-Host "  ██║ ╚═╝ ██║   ██║          ██║   ╚██████╔╝╚██████╔╝███████╗" -ForegroundColor Magenta
+    Write-Host "  ╚═╝     ╚═╝   ╚═╝          ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝" -ForegroundColor Magenta
 }
-# Generowanie logo
-npx oh-my-logo@latest "My Tool" sunset --filled
-npx oh-my-logo@latest "by ScopCony" sunset --filled
 
-# SystemDashboard - Monitoring System Status
 Write-Host ""
 Write-Host "                    by ScopCony 2025 $([char]0x00A9)                       " -ForegroundColor DarkCyan
-Write-Host ""
 Write-Host ""
 
 # region Konfiguracja protokołu sieciowego
