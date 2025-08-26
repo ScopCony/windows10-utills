@@ -1,40 +1,58 @@
 # Upewnij się, że Node.js i npm są zainstalowane.
 # Jeśli nie są, pobierz je ze strony https://nodejs.org/en/
 
-# Sprawdź, czy npx jest już w ścieżce
-Write-Host "Sprawdzanie, czy 'npx' jest dostępne..." -ForegroundColor Yellow
-if (Get-Command npx -ErrorAction SilentlyContinue) {
-    Write-Host "'npx' jest już w Twojej ścieżce. Pomijanie kroku dodawania ścieżki." -ForegroundColor Green
-} else {
-    Write-Host "'npx' nie jest dostępne. Próba dodania ścieżki npm do zmiennej środowiskowej Path..." -ForegroundColor Yellow
-    
-    # Znajdź ścieżkę do Node.js
-    # W nowej wersji, jeśli automatyczne wykrywanie zawiedzie, używamy domyślnej ścieżki
-    $nodePath = (Get-Command node -ErrorAction SilentlyContinue).Source
-    if (-not $nodePath) {
-        Write-Host "Błąd: Nie można znaleźć Node.js. Próba użycia domyślnej ścieżki instalacji..." -ForegroundColor Red
-        $programFiles = "${env:ProgramFiles}\nodejs"
-        if (Test-Path $programFiles) {
-            $nodePath = "${programFiles}\node.exe"
-            Write-Host "Znaleziono Node.js w domyślnej lokalizacji: $nodePath" -ForegroundColor Green
-        } else {
-            Write-Host "Błąd: Node.js nie znaleziono w domyślnej lokalizacji. Upewnij się, że Node.js jest zainstalowany i dodany do ścieżki systemowej." -ForegroundColor Red
-            return
+# Funkcja do sprawdzania i instalowania Node.js
+function Install-NodeJs {
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+        Write-Host "Node.js nie znaleziono. Rozpoczynanie instalacji..." -ForegroundColor Yellow
+        $installerUrl = "https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi" # Użycie stabilnej wersji
+        $installerPath = Join-Path -Path $env:TEMP -ChildPath "nodejs_installer.msi"
+        
+        try {
+            # Pobieranie instalatora
+            Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+            
+            # Cicha instalacja
+            Write-Host "Instalowanie Node.js. Może to potrwać kilka minut..." -ForegroundColor Cyan
+            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$installerPath`" /qn /norestart" -Wait
+            
+            Write-Host "Instalacja Node.js zakończona pomyślnie." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Błąd podczas instalacji Node.js: $_" -ForegroundColor Red
+            return $false
         }
     }
+    return $true
+}
 
-    # Pobierz ścieżkę do folderu npm, gdzie znajduje się npx
-    # Zazwyczaj jest to folder obok node.exe
-    $npmPath = (Split-Path -Parent $nodePath) + "\node_modules\.bin"
-    
-    if (-not (Test-Path $npmPath)) {
-        Write-Host "Błąd: Nie można znaleźć folderu 'node_modules\.bin'. Upewnij się, że Node.js jest poprawnie zainstalowany." -ForegroundColor Red
-        return
+# Funkcja do sprawdzania i instalowania pakietu oh-my-logo
+function Install-OhMyLogo {
+    Write-Host "Sprawdzanie, czy oh-my-logo jest zainstalowane..." -ForegroundColor Yellow
+    if (-not (Test-Path "$env:APPDATA\npm\oh-my-logo.ps1")) { # Przykład ścieżki
+        Write-Host "oh-my-logo nie znaleziono. Instalowanie..." -ForegroundColor Cyan
+        try {
+            npx oh-my-logo@latest # Uruchomienie instalacji globalnej
+            Write-Host "Instalacja oh-my-logo zakończona pomyślnie." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Błąd podczas instalacji oh-my-logo: $_" -ForegroundColor Red
+            return $false
+        }
     }
+    return $true
+}
 
-    # Dodaj tymczasowo ścieżkę npm do bieżącej sesji PowerShell
-    $env:Path += ";$npmPath"
-    Write-Host "Ścieżka do 'npx' została tymczasowo dodana." -ForegroundColor Green
+# --- Generowanie logo ---
+Write-Host "Generowanie logo..." -ForegroundColor Cyan
+
+# Sprawdź i zainstaluj Node.js, jeśli to konieczne
+if (Install-NodeJs) {
+    # Sprawdź i zainstaluj oh-my-logo, jeśli to konieczne
+    if (Install-OhMyLogo) {
+        npx oh-my-logo@latest "My Tool" sunset --filled
+        npx oh-my-logo@latest "by ScopCony" sunset --filled
+    }
 }
 # Generowanie logo
 npx oh-my-logo@latest "My Tool" sunset --filled
