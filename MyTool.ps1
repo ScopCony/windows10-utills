@@ -33,26 +33,27 @@ function Install-NodeJs {
     return $true
 }
 
-# Funkcja do instalacji pakietu oh-my-logo lokalnie
-function Install-OhMyLogoLocal {
-    Write-Host "Sprawdzanie, czy oh-my-logo jest zainstalowane lokalnie..." -ForegroundColor Yellow
+# Funkcja do instalacji pakietu oh-my-logo i jego uruchomienia
+function Run-OhMyLogo {
+    Write-Host "Sprawdzanie, czy oh-my-logo jest dostępne..." -ForegroundColor Yellow
     
-    # Próba instalacji oh-my-logo lokalnie, aby uniknąć problemów z uprawnieniami
+    # Sprawdzamy czy npx jest dostępne, aby upewnić się, że Node.js został poprawnie zainstalowany i dodany do ścieżki
+    if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
+        Write-Host "Błąd: Polecenie 'npx' nie jest dostępne po instalacji Node.js." -ForegroundColor Red
+        return $false
+    }
+    
     try {
-        # Sprawdź, czy npx jest dostępne po instalacji Node.js
-        if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
-            Write-Host "Błąd: Polecenie 'npx' nie jest dostępne po instalacji Node.js." -ForegroundColor Red
-            return $false
-        }
+        # Używamy npx do uruchomienia pakietu bez konieczności jego wcześniejszej instalacji
+        # npx sam pobierze i uruchomi pakiet, co jest bezpieczniejsze i wymaga mniej uprawnień
+        Write-Host "Uruchamianie oh-my-logo. Proszę czekać..." -ForegroundColor Cyan
+        npx oh-my-logo@latest "My Tool" sunset --filled
+        npx oh-my-logo@latest "by ScopCony" sunset --filled
 
-        # Użyj npx do zainstalowania pakietu w bieżącym katalogu
-        # Próba instalacji globalnej mogła wymagać uprawnień admina, co powoduje błąd
-        Write-Host "Instalowanie oh-my-logo lokalnie. Proszę czekać..." -ForegroundColor Cyan
-        npx oh-my-logo@latest
-        Write-Host "Instalacja oh-my-logo zakończona pomyślnie." -ForegroundColor Green
+        Write-Host "Generowanie logo zakończone pomyślnie." -ForegroundColor Green
     }
     catch {
-        Write-Host "Błąd podczas instalacji oh-my-logo: $_" -ForegroundColor Red
+        Write-Host "Błąd podczas uruchamiania oh-my-logo: $_" -ForegroundColor Red
         return $false
     }
     return $true
@@ -64,11 +65,8 @@ Write-Host "Generowanie logo..." -ForegroundColor Cyan
 
 # Sprawdź i zainstaluj Node.js, jeśli to konieczne
 if (Install-NodeJs) {
-    # Sprawdź i zainstaluj oh-my-logo, jeśli to konieczne
-    if (Install-OhMyLogoLocal) {
-        npx oh-my-logo@latest "My Tool" sunset --filled
-        npx oh-my-logo@latest "by ScopCony" sunset --filled
-    }
+    # Uruchom oh-my-logo bezpośrednio
+    Run-OhMyLogo
 }
 # Generowanie logo
 npx oh-my-logo@latest "My Tool" sunset --filled
