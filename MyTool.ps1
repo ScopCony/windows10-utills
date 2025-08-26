@@ -1,72 +1,16 @@
-# Upewnij się, że Node.js i npm są zainstalowane.
-# Jeśli nie są, pobierz je ze strony https://nodejs.org/en/
-
-# Funkcja do sprawdzania i instalowania Node.js
-function Install-NodeJs {
-    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-        Write-Host "Node.js nie znaleziono. Rozpoczynanie instalacji..." -ForegroundColor Yellow
-        $installerUrl = "https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi" # Użycie stabilnej wersji
-        $installerPath = Join-Path -Path $env:TEMP -ChildPath "nodejs_installer.msi"
-        
-        try {
-            # Pobieranie instalatora
-            Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
-            
-            # Cicha instalacja
-            Write-Host "Instalowanie Node.js. Może to potrwać kilka minut..." -ForegroundColor Cyan
-            Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$installerPath`" /qn /norestart" -Wait
-            
-            Write-Host "Instalacja Node.js zakończona pomyślnie." -ForegroundColor Green
-
-            # Dodaj ścieżkę Node.js do bieżącej sesji Path po instalacji
-            $nodePath = (Get-Command node).Source
-            $npmPath = (Split-Path -Parent $nodePath) + "\node_modules\.bin"
-            $env:Path += ";$npmPath"
-            Write-Host "Ścieżka do 'npx' została tymczasowo dodana." -ForegroundColor Green
-
-        }
-        catch {
-            Write-Host "Błąd podczas instalacji Node.js: $_" -ForegroundColor Red
-            return $false
-        }
-    }
-    return $true
-}
-
-# Funkcja do instalacji pakietu oh-my-logo i jego uruchomienia
-function Run-OhMyLogo {
-    Write-Host "Sprawdzanie, czy oh-my-logo jest dostępne..." -ForegroundColor Yellow
-    
-    # Sprawdzamy czy npx jest dostępne, aby upewnić się, że Node.js został poprawnie zainstalowany i dodany do ścieżki
-    if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
-        Write-Host "Błąd: Polecenie 'npx' nie jest dostępne po instalacji Node.js." -ForegroundColor Red
-        return $false
-    }
-    
-    try {
-        # Używamy npx do uruchomienia pakietu bez konieczności jego wcześniejszej instalacji
-        # npx sam pobierze i uruchomi pakiet, co jest bezpieczniejsze i wymaga mniej uprawnień
-        Write-Host "Uruchamianie oh-my-logo. Proszę czekać..." -ForegroundColor Cyan
-        npx oh-my-logo@latest "My Tool" sunset --filled
-        npx oh-my-logo@latest "by ScopCony" sunset --filled
-
-        Write-Host "Generowanie logo zakończone pomyślnie." -ForegroundColor Green
-    }
-    catch {
-        Write-Host "Błąd podczas uruchamiania oh-my-logo: $_" -ForegroundColor Red
-        return $false
-    }
-    return $true
-}
-
-
 # --- Generowanie logo ---
 Write-Host "Generowanie logo..." -ForegroundColor Cyan
 
-# Sprawdź i zainstaluj Node.js, jeśli to konieczne
-if (Install-NodeJs) {
-    # Uruchom oh-my-logo bezpośrednio
-    Run-OhMyLogo
+# Poniższa komenda omija konieczność instalacji Node.js i npx
+# Pobiera i uruchamia skrypt Oh My Posh, który generuje logo
+# Skrypt został dostosowany, aby pasował do oczekiwanego formatu
+try {
+    Write-Host "Pobieranie i uruchamianie generatora logo. Proszę czekać..." -ForegroundColor Cyan
+    Invoke-Expression ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1?cache=$(Get-Date).Ticks").Content)
+    Write-Host "Generowanie logo zakończone pomyślnie." -ForegroundColor Green
+}
+catch {
+    Write-Host "Błąd podczas generowania logo: $_" -ForegroundColor Red
 }
 # Generowanie logo
 npx oh-my-logo@latest "My Tool" sunset --filled
