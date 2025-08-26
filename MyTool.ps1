@@ -1,5 +1,5 @@
 # Upewnij się, że Node.js i npm są zainstalowane.
-# Jeśli nie są, pobierz je ze strony [https://nodejs.org/en/](https://nodejs.org/en/)
+# Jeśli nie są, pobierz je ze strony https://nodejs.org/en/
 
 # Sprawdź, czy npx jest już w ścieżce
 Write-Host "Sprawdzanie, czy 'npx' jest dostępne..." -ForegroundColor Yellow
@@ -9,10 +9,18 @@ if (Get-Command npx -ErrorAction SilentlyContinue) {
     Write-Host "'npx' nie jest dostępne. Próba dodania ścieżki npm do zmiennej środowiskowej Path..." -ForegroundColor Yellow
     
     # Znajdź ścieżkę do Node.js
-    $nodePath = (Get-Command node).Source
+    # W nowej wersji, jeśli automatyczne wykrywanie zawiedzie, używamy domyślnej ścieżki
+    $nodePath = (Get-Command node -ErrorAction SilentlyContinue).Source
     if (-not $nodePath) {
-        Write-Host "Błąd: Nie można znaleźć Node.js. Upewnij się, że jest zainstalowany i dostępny w Twojej ścieżce systemowej." -ForegroundColor Red
-        return
+        Write-Host "Błąd: Nie można znaleźć Node.js. Próba użycia domyślnej ścieżki instalacji..." -ForegroundColor Red
+        $programFiles = "${env:ProgramFiles}\nodejs"
+        if (Test-Path $programFiles) {
+            $nodePath = "${programFiles}\node.exe"
+            Write-Host "Znaleziono Node.js w domyślnej lokalizacji: $nodePath" -ForegroundColor Green
+        } else {
+            Write-Host "Błąd: Node.js nie znaleziono w domyślnej lokalizacji. Upewnij się, że Node.js jest zainstalowany i dodany do ścieżki systemowej." -ForegroundColor Red
+            return
+        }
     }
 
     # Pobierz ścieżkę do folderu npm, gdzie znajduje się npx
