@@ -33,18 +33,22 @@ function Install-NodeJs {
     return $true
 }
 
-# Funkcja do sprawdzania i instalowania pakietu oh-my-logo
-function Install-OhMyLogo {
-    Write-Host "Sprawdzanie, czy oh-my-logo jest zainstalowane..." -ForegroundColor Yellow
-    # Sprawdzenie, czy polecenie npx działa
-    if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
-        Write-Host "Polecenie 'npx' nie jest dostępne. Nie można zainstalować oh-my-logo." -ForegroundColor Red
-        return $false
-    }
+# Funkcja do instalacji pakietu oh-my-logo lokalnie
+function Install-OhMyLogoLocal {
+    Write-Host "Sprawdzanie, czy oh-my-logo jest zainstalowane lokalnie..." -ForegroundColor Yellow
     
-    # Próba instalacji oh-my-logo
+    # Próba instalacji oh-my-logo lokalnie, aby uniknąć problemów z uprawnieniami
     try {
-        npx oh-my-logo@latest # Uruchomienie instalacji globalnej
+        # Sprawdź, czy npx jest dostępne po instalacji Node.js
+        if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
+            Write-Host "Błąd: Polecenie 'npx' nie jest dostępne po instalacji Node.js." -ForegroundColor Red
+            return $false
+        }
+
+        # Użyj npx do zainstalowania pakietu w bieżącym katalogu
+        # Próba instalacji globalnej mogła wymagać uprawnień admina, co powoduje błąd
+        Write-Host "Instalowanie oh-my-logo lokalnie. Proszę czekać..." -ForegroundColor Cyan
+        npx oh-my-logo@latest
         Write-Host "Instalacja oh-my-logo zakończona pomyślnie." -ForegroundColor Green
     }
     catch {
@@ -54,13 +58,14 @@ function Install-OhMyLogo {
     return $true
 }
 
+
 # --- Generowanie logo ---
 Write-Host "Generowanie logo..." -ForegroundColor Cyan
 
 # Sprawdź i zainstaluj Node.js, jeśli to konieczne
 if (Install-NodeJs) {
     # Sprawdź i zainstaluj oh-my-logo, jeśli to konieczne
-    if (Install-OhMyLogo) {
+    if (Install-OhMyLogoLocal) {
         npx oh-my-logo@latest "My Tool" sunset --filled
         npx oh-my-logo@latest "by ScopCony" sunset --filled
     }
