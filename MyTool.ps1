@@ -9,7 +9,7 @@ function Show-SunsetLogo {
     )
     
     # Kolory sunset: od różowego przez pomarańczowy do żółtego
-    $colors = @('Magenta', 'Red', 'DarkRed', 'Yellow', 'DarkYellow')
+    $colors = @('Red', 'Red', 'Red', 'DarkRed', 'DarkRed')
     
     # Konwertuj tekst na ASCII art
     $asciiLines = Convert-ToAsciiArt $Text
