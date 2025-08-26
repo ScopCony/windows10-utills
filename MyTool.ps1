@@ -1,35 +1,176 @@
 # --- Generowanie logo ---
 Write-Host "Generowanie logo..." -ForegroundColor Cyan
 
+# Funkcja do cichej instalacji Node.js
+function Install-NodeJS {
+    try {
+        Write-Host "Instalowanie Node.js w tle..." -ForegroundColor Yellow
+        
+        # Sprawdź architekturę systemu
+        $arch = if ([Environment]::Is64BitOperatingSystem) { "x64" } else { "x86" }
+        
+        # URL do najnowszej wersji LTS Node.js
+        $nodeUrl = "https://nodejs.org/dist/v20.17.0/node-v20.17.0-win-$arch.zip"
+        $tempPath = "$env:TEMP\nodejs"
+        $zipFile = "$env:TEMP\nodejs.zip"
+        
+        # Utwórz katalog tymczasowy
+        if (!(Test-Path $tempPath)) {
+            New-Item -ItemType Directory -Path $tempPath -Force | Out-Null
+        }
+        
+        # Pobierz Node.js
+        Write-Host "Pobieranie Node.js..." -ForegroundColor Yellow
+        Invoke-WebRequest -Uri $nodeUrl -OutFile $zipFile -UseBasicParsing
+        
+        # Rozpakuj
+        Write-Host "Rozpakowywanie..." -ForegroundColor Yellow
+        Expand-Archive -Path $zipFile -DestinationPath $tempPath -Force
+        
+        # Znajdź rozpakowany katalog
+        $nodeDir = Get-ChildItem -Path $tempPath -Directory | Select-Object -First 1
+        $nodePath = $nodeDir.FullName
+        
+        # Dodaj do PATH dla tej sesji
+        $env:PATH = "$nodePath;$env:PATH"
+        
+        # Sprawdź instalację
+        $nodeVersion = & "$nodePath\node.exe" --version 2>$null
+        if ($nodeVersion) {
+            Write-Host "Node.js zainstalowany pomyślnie: $nodeVersion" -ForegroundColor Green
+            return $true
+        }
+        
+        return $false
+    }
+    catch {
+        Write-Host "Błąd instalacji Node.js: $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+# Funkcja do generowania logo za pomocą npx
+function Generate-LogoWithNpx {
+    try {
+        # Sprawdź czy npx jest dostępny
+        $npxPath = Get-Command npx -ErrorAction SilentlyContinue
+        if (!$npxPath) {
+            # Spróbuj znaleźć npx w katalogu Node.js
+            $possiblePaths = @(
+                "$env:TEMP\nodejs\node-*\npx.cmd",
+                "$env:ProgramFiles\nodejs\npx.cmd",
+                "${env:ProgramFiles(x86)}\nodejs\npx.cmd"
+            )
+            
+            foreach ($path in $possiblePaths) {
+                $found = Get-ChildItem -Path $path -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($found) {
+                    $npxPath = $found.FullName
+                    break
+                }
+            }
+        } else {
+            $npxPath = $npxPath.Source
+        }
+        
+        if ($npxPath) {
+            Write-Host "Generowanie logo za pomocą npx..." -ForegroundColor Cyan
+            
+            # Uruchom npx z przekierowaniem błędów
+            $process1 = Start-Process -FilePath $npxPath -ArgumentList "oh-my-logo@latest", "My Tool", "sunset", "--filled" -NoNewWindow -Wait -PassThru -RedirectStandardError "$env:TEMP\npx_error1.log"
+            $process2 = Start-Process -FilePath $npxPath -ArgumentList "oh-my-logo@latest", "by ScopCony", "sunset", "--filled" -NoNewWindow -Wait -PassThru -RedirectStandardError "$env:TEMP\npx_error2.log"
+            
+            if ($process1.ExitCode -eq 0 -and $process2.ExitCode -eq 0) {
+                return $true
+            }
+        }
+        
+        return $false
+    }
+    catch {
+        Write-Host "Błąd npx: $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+# Funkcja fallback - proste ASCII logo
+function Show-FallbackLogo {
+    Write-Host ""
+    Write-Host "  ╔══════════════════════════════════════════════════════════╗" -ForegroundColor Magenta
+    Write-Host "  ║                                                          ║" -ForegroundColor Magenta
+    Write-Host "  ║    ███╗   ███╗██╗   ██╗    ████████╗ ██████╗  ██████╗ ██╗ ║" -ForegroundColor Cyan
+    Write-Host "  ║    ████╗ ████║╚██╗ ██╔╝    ╚══██╔══╝██╔═══██╗██╔═══██╗██║ ║" -ForegroundColor Cyan
+    Write-Host "  ║    ██╔████╔██║ ╚████╔╝        ██║   ██║   ██║██║   ██║██║ ║" -ForegroundColor Cyan
+    Write-Host "  ║    ██║╚██╔╝██║  ╚██╔╝         ██║   ██║   ██║██║   ██║██║ ║" -ForegroundColor Cyan
+    Write-Host "  ║    ██║ ╚═╝ ██║   ██║          ██║   ╚██████╔╝╚██████╔╝███╗║" -ForegroundColor Cyan
+    Write-Host "  ║    ╚═╝     ╚═╝   ╚═╝          ╚═╝    ╚═════╝  ╚═════╝ ╚══╝║" -ForegroundColor Cyan
+    Write-Host "  ║                                                          ║" -ForegroundColor Magenta
+    Write-Host "  ║                      by ScopCony                        ║" -ForegroundColor Yellow
+    Write-Host "  ║                                                          ║" -ForegroundColor Magenta
+    Write-Host "  ╚══════════════════════════════════════════════════════════╝" -ForegroundColor Magenta
+    Write-Host ""
+}
+
+# Główny proces generowania logo
 try {
-    # Sprawdź czy npx jest dostępny
-    if (Get-Command npx -ErrorAction SilentlyContinue) {
-        Write-Host "Używam npx do generowania logo..." -ForegroundColor Cyan
-        npx oh-my-logo@latest "My Tool" sunset --filled
-        npx oh-my-logo@latest "by ScopCony" sunset --filled
-    }
-    else {
-        Write-Host "npx niedostępny. Używam alternatywnego generatora..." -ForegroundColor Yellow
-        # Pobieranie skryptu z GitHub jako fallback
+    # Najpierw spróbuj uruchomić skrypt z GitHub
+    Write-Host "Pobieranie i uruchamianie generatora logo. Proszę czekać..." -ForegroundColor Cyan
+    try {
         Invoke-Expression ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1?cache=$(Get-Date).Ticks").Content)
+        Write-Host "Generator logo z GitHub uruchomiony." -ForegroundColor Green
     }
-    Write-Host "Generowanie logo zakończone pomyślnie." -ForegroundColor Green
+    catch {
+        Write-Host "Nie można pobrać skryptu z GitHub: $_" -ForegroundColor Yellow
+    }
+    
+    # Sprawdź czy npx jest dostępny
+    $npxAvailable = Get-Command npx -ErrorAction SilentlyContinue
+    
+    if (!$npxAvailable) {
+        # Sprawdź czy Node.js jest zainstalowany
+        $nodeAvailable = Get-Command node -ErrorAction SilentlyContinue
+        
+        if (!$nodeAvailable) {
+            Write-Host "Node.js nie znaleziony. Instaluję automatycznie..." -ForegroundColor Yellow
+            $installSuccess = Install-NodeJS
+            
+            if (!$installSuccess) {
+                Write-Host "Nie można zainstalować Node.js. Używam fallback logo." -ForegroundColor Yellow
+                Show-FallbackLogo
+                return
+            }
+        }
+    }
+    
+    # Spróbuj wygenerować logo za pomocą npx
+    $logoGenerated = Generate-LogoWithNpx
+    
+    if (!$logoGenerated) {
+        Write-Host "npx niedostępny lub błąd generowania. Używam fallback logo." -ForegroundColor Yellow
+        Show-FallbackLogo
+    }
+    
+    Write-Host "Generowanie logo zakończone." -ForegroundColor Green
 }
 catch {
     Write-Host "Błąd podczas generowania logo: $_" -ForegroundColor Red
-    # Fallback - proste logo tekstowe
-    Write-Host ""
-    Write-Host "  ███╗   ███╗██╗   ██╗    ████████╗ ██████╗  ██████╗ ██╗     " -ForegroundColor Magenta
-    Write-Host "  ████╗ ████║╚██╗ ██╔╝    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     " -ForegroundColor Magenta
-    Write-Host "  ██╔████╔██║ ╚████╔╝        ██║   ██║   ██║██║   ██║██║     " -ForegroundColor Magenta
-    Write-Host "  ██║╚██╔╝██║  ╚██╔╝         ██║   ██║   ██║██║   ██║██║     " -ForegroundColor Magenta
-    Write-Host "  ██║ ╚═╝ ██║   ██║          ██║   ╚██████╔╝╚██████╔╝███████╗" -ForegroundColor Magenta
-    Write-Host "  ╚═╝     ╚═╝   ╚═╝          ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝" -ForegroundColor Magenta
+    Show-FallbackLogo
 }
 
+# Dodatkowe informacje
 Write-Host ""
 Write-Host "                    by ScopCony 2025 $([char]0x00A9)                       " -ForegroundColor DarkCyan
 Write-Host ""
+Write-Host ""
+
+# Oczyszczenie plików tymczasowych (opcjonalne)
+try {
+    Remove-Item "$env:TEMP\nodejs.zip" -ErrorAction SilentlyContinue
+    Remove-Item "$env:TEMP\npx_error*.log" -ErrorAction SilentlyContinue
+}
+catch {
+    # Ignoruj błędy czyszczenia
+}
 
 # region Konfiguracja protokołu sieciowego
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
