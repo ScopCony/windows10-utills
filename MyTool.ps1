@@ -1,176 +1,226 @@
 # --- Generowanie logo ---
 Write-Host "Generowanie logo..." -ForegroundColor Cyan
 
-# Funkcja do cichej instalacji Node.js
-function Install-NodeJS {
-    try {
-        Write-Host "Instalowanie Node.js w tle..." -ForegroundColor Yellow
-        
-        # Sprawdź architekturę systemu
-        $arch = if ([Environment]::Is64BitOperatingSystem) { "x64" } else { "x86" }
-        
-        # URL do najnowszej wersji LTS Node.js
-        $nodeUrl = "https://nodejs.org/dist/v20.17.0/node-v20.17.0-win-$arch.zip"
-        $tempPath = "$env:TEMP\nodejs"
-        $zipFile = "$env:TEMP\nodejs.zip"
-        
-        # Utwórz katalog tymczasowy
-        if (!(Test-Path $tempPath)) {
-            New-Item -ItemType Directory -Path $tempPath -Force | Out-Null
-        }
-        
-        # Pobierz Node.js
-        Write-Host "Pobieranie Node.js..." -ForegroundColor Yellow
-        Invoke-WebRequest -Uri $nodeUrl -OutFile $zipFile -UseBasicParsing
-        
-        # Rozpakuj
-        Write-Host "Rozpakowywanie..." -ForegroundColor Yellow
-        Expand-Archive -Path $zipFile -DestinationPath $tempPath -Force
-        
-        # Znajdź rozpakowany katalog
-        $nodeDir = Get-ChildItem -Path $tempPath -Directory | Select-Object -First 1
-        $nodePath = $nodeDir.FullName
-        
-        # Dodaj do PATH dla tej sesji
-        $env:PATH = "$nodePath;$env:PATH"
-        
-        # Sprawdź instalację
-        $nodeVersion = & "$nodePath\node.exe" --version 2>$null
-        if ($nodeVersion) {
-            Write-Host "Node.js zainstalowany pomyślnie: $nodeVersion" -ForegroundColor Green
-            return $true
-        }
-        
-        return $false
+# Funkcja do wyświetlania kolorowego logo w stylu "sunset"
+function Show-SunsetLogo {
+    param(
+        [string]$Text,
+        [bool]$Filled = $false
+    )
+    
+    # Kolory sunset: od różowego przez pomarańczowy do żółtego
+    $colors = @('Magenta', 'Red', 'DarkRed', 'Yellow', 'DarkYellow')
+    
+    # Konwertuj tekst na ASCII art
+    $asciiLines = Convert-ToAsciiArt $Text
+    
+    for ($i = 0; $i -lt $asciiLines.Count; $i++) {
+        $colorIndex = $i % $colors.Count
+        Write-Host $asciiLines[$i] -ForegroundColor $colors[$colorIndex]
     }
-    catch {
-        Write-Host "Błąd instalacji Node.js: $_" -ForegroundColor Red
-        return $false
-    }
+    Write-Host ""
 }
 
-# Funkcja do generowania logo za pomocą npx
-function Generate-LogoWithNpx {
-    try {
-        # Sprawdź czy npx jest dostępny
-        $npxPath = Get-Command npx -ErrorAction SilentlyContinue
-        if (!$npxPath) {
-            # Spróbuj znaleźć npx w katalogu Node.js
-            $possiblePaths = @(
-                "$env:TEMP\nodejs\node-*\npx.cmd",
-                "$env:ProgramFiles\nodejs\npx.cmd",
-                "${env:ProgramFiles(x86)}\nodejs\npx.cmd"
-            )
-            
-            foreach ($path in $possiblePaths) {
-                $found = Get-ChildItem -Path $path -ErrorAction SilentlyContinue | Select-Object -First 1
-                if ($found) {
-                    $npxPath = $found.FullName
-                    break
-                }
+# Funkcja do konwersji tekstu na ASCII art
+function Convert-ToAsciiArt {
+    param([string]$Text)
+    
+    $Text = $Text.ToUpper()
+    $lines = @("", "", "", "", "", "")
+    
+    foreach ($char in $Text.ToCharArray()) {
+        switch ($char) {
+            'M' {
+                $lines[0] += "███╗   ███╗ "
+                $lines[1] += "████╗ ████║ "
+                $lines[2] += "██╔████╔██║ "
+                $lines[3] += "██║╚██╔╝██║ "
+                $lines[4] += "██║ ╚═╝ ██║ "
+                $lines[5] += "╚═╝     ╚═╝ "
             }
-        } else {
-            $npxPath = $npxPath.Source
-        }
-        
-        if ($npxPath) {
-            Write-Host "Generowanie logo za pomocą npx..." -ForegroundColor Cyan
-            
-            # Uruchom npx z przekierowaniem błędów
-            $process1 = Start-Process -FilePath $npxPath -ArgumentList "oh-my-logo@latest", "My Tool", "sunset", "--filled" -NoNewWindow -Wait -PassThru -RedirectStandardError "$env:TEMP\npx_error1.log"
-            $process2 = Start-Process -FilePath $npxPath -ArgumentList "oh-my-logo@latest", "by ScopCony", "sunset", "--filled" -NoNewWindow -Wait -PassThru -RedirectStandardError "$env:TEMP\npx_error2.log"
-            
-            if ($process1.ExitCode -eq 0 -and $process2.ExitCode -eq 0) {
-                return $true
+            'Y' {
+                $lines[0] += "██╗   ██╗ "
+                $lines[1] += "╚██╗ ██╔╝ "
+                $lines[2] += " ╚████╔╝  "
+                $lines[3] += "  ╚██╔╝   "
+                $lines[4] += "   ██║    "
+                $lines[5] += "   ╚═╝    "
+            }
+            'T' {
+                $lines[0] += "████████╗ "
+                $lines[1] += "╚══██╔══╝ "
+                $lines[2] += "   ██║    "
+                $lines[3] += "   ██║    "
+                $lines[4] += "   ██║    "
+                $lines[5] += "   ╚═╝    "
+            }
+            'O' {
+                $lines[0] += " ██████╗  "
+                $lines[1] += "██╔═══██╗ "
+                $lines[2] += "██║   ██║ "
+                $lines[3] += "██║   ██║ "
+                $lines[4] += "╚██████╔╝ "
+                $lines[5] += " ╚═════╝  "
+            }
+            'L' {
+                $lines[0] += "██╗       "
+                $lines[1] += "██║       "
+                $lines[2] += "██║       "
+                $lines[3] += "██║       "
+                $lines[4] += "███████╗  "
+                $lines[5] += "╚══════╝  "
+            }
+            'B' {
+                $lines[0] += "██████╗   "
+                $lines[1] += "██╔══██╗  "
+                $lines[2] += "██████╔╝  "
+                $lines[3] += "██╔══██╗  "
+                $lines[4] += "██████╔╝  "
+                $lines[5] += "╚═════╝   "
+            }
+            'S' {
+                $lines[0] += "███████╗  "
+                $lines[1] += "██╔════╝  "
+                $lines[2] += "███████╗  "
+                $lines[3] += "╚════██║  "
+                $lines[4] += "███████║  "
+                $lines[5] += "╚══════╝  "
+            }
+            'C' {
+                $lines[0] += " ██████╗  "
+                $lines[1] += "██╔════╝  "
+                $lines[2] += "██║       "
+                $lines[3] += "██║       "
+                $lines[4] += "╚██████╗  "
+                $lines[5] += " ╚═════╝  "
+            }
+            'P' {
+                $lines[0] += "██████╗   "
+                $lines[1] += "██╔══██╗  "
+                $lines[2] += "██████╔╝  "
+                $lines[3] += "██╔═══╝   "
+                $lines[4] += "██║       "
+                $lines[5] += "╚═╝       "
+            }
+            'N' {
+                $lines[0] += "███╗   ██╗"
+                $lines[1] += "████╗  ██║"
+                $lines[2] += "██╔██╗ ██║"
+                $lines[3] += "██║╚██╗██║"
+                $lines[4] += "██║ ╚████║"
+                $lines[5] += "╚═╝  ╚═══╝"
+            }
+            ' ' {
+                $lines[0] += "    "
+                $lines[1] += "    "
+                $lines[2] += "    "
+                $lines[3] += "    "
+                $lines[4] += "    "
+                $lines[5] += "    "
+            }
+            default {
+                # Dla nieznanych znaków - proste bloki
+                $lines[0] += "████ "
+                $lines[1] += "████ "
+                $lines[2] += "████ "
+                $lines[3] += "████ "
+                $lines[4] += "████ "
+                $lines[5] += "████ "
             }
         }
-        
-        return $false
     }
-    catch {
-        Write-Host "Błąd npx: $_" -ForegroundColor Red
-        return $false
-    }
+    
+    return $lines
 }
 
-# Funkcja fallback - proste ASCII logo
-function Show-FallbackLogo {
-    Write-Host ""
-    Write-Host "  ╔══════════════════════════════════════════════════════════╗" -ForegroundColor Magenta
-    Write-Host "  ║                                                          ║" -ForegroundColor Magenta
-    Write-Host "  ║    ███╗   ███╗██╗   ██╗    ████████╗ ██████╗  ██████╗ ██╗ ║" -ForegroundColor Cyan
-    Write-Host "  ║    ████╗ ████║╚██╗ ██╔╝    ╚══██╔══╝██╔═══██╗██╔═══██╗██║ ║" -ForegroundColor Cyan
-    Write-Host "  ║    ██╔████╔██║ ╚████╔╝        ██║   ██║   ██║██║   ██║██║ ║" -ForegroundColor Cyan
-    Write-Host "  ║    ██║╚██╔╝██║  ╚██╔╝         ██║   ██║   ██║██║   ██║██║ ║" -ForegroundColor Cyan
-    Write-Host "  ║    ██║ ╚═╝ ██║   ██║          ██║   ╚██████╔╝╚██████╔╝███╗║" -ForegroundColor Cyan
-    Write-Host "  ║    ╚═╝     ╚═╝   ╚═╝          ╚═╝    ╚═════╝  ╚═════╝ ╚══╝║" -ForegroundColor Cyan
-    Write-Host "  ║                                                          ║" -ForegroundColor Magenta
-    Write-Host "  ║                      by ScopCony                        ║" -ForegroundColor Yellow
-    Write-Host "  ║                                                          ║" -ForegroundColor Magenta
-    Write-Host "  ╚══════════════════════════════════════════════════════════╝" -ForegroundColor Magenta
-    Write-Host ""
+# Funkcja do wyświetlania ramki wokół logo
+function Show-LogoFrame {
+    param([string[]]$LogoLines)
+    
+    if ($LogoLines.Count -eq 0) { return }
+    
+    $maxWidth = ($LogoLines | Measure-Object -Property Length -Maximum).Maximum
+    $frameWidth = $maxWidth + 4
+    
+    # Górna ramka
+    Write-Host ("╔" + "═" * ($frameWidth - 2) + "╗") -ForegroundColor DarkCyan
+    
+    # Logo z bocznymi ramkami
+    foreach ($line in $LogoLines) {
+        $padding = $maxWidth - $line.Length
+        Write-Host "║ " -ForegroundColor DarkCyan -NoNewline
+        Write-Host $line -ForegroundColor Cyan -NoNewline
+        Write-Host (" " * $padding + " ║") -ForegroundColor DarkCyan
+    }
+    
+    # Dolna ramka
+    Write-Host ("╚" + "═" * ($frameWidth - 2) + "╝") -ForegroundColor DarkCyan
 }
 
 # Główny proces generowania logo
 try {
-    # Najpierw spróbuj uruchomić skrypt z GitHub
-    Write-Host "Pobieranie i uruchamianie generatora logo. Proszę czekać..." -ForegroundColor Cyan
+    # Najpierw spróbuj uruchomić skrypt z GitHub (jeśli istnieje)
+    Write-Host "Pobieranie dodatkowego generatora logo..." -ForegroundColor Cyan
     try {
-        Invoke-Expression ((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1?cache=$(Get-Date).Ticks").Content)
-        Write-Host "Generator logo z GitHub uruchomiony." -ForegroundColor Green
-    }
-    catch {
-        Write-Host "Nie można pobrać skryptu z GitHub: $_" -ForegroundColor Yellow
-    }
-    
-    # Sprawdź czy npx jest dostępny
-    $npxAvailable = Get-Command npx -ErrorAction SilentlyContinue
-    
-    if (!$npxAvailable) {
-        # Sprawdź czy Node.js jest zainstalowany
-        $nodeAvailable = Get-Command node -ErrorAction SilentlyContinue
-        
-        if (!$nodeAvailable) {
-            Write-Host "Node.js nie znaleziony. Instaluję automatycznie..." -ForegroundColor Yellow
-            $installSuccess = Install-NodeJS
-            
-            if (!$installSuccess) {
-                Write-Host "Nie można zainstalować Node.js. Używam fallback logo." -ForegroundColor Yellow
-                Show-FallbackLogo
-                return
-            }
+        $response = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ScopCony/windows10-utills/main/MyTool.ps1?cache=$(Get-Date).Ticks" -TimeoutSec 5
+        if ($response.StatusCode -eq 200 -and $response.Content.Length -gt 100) {
+            Invoke-Expression $response.Content
+            Write-Host "Dodatkowy generator uruchomiony." -ForegroundColor Green
         }
     }
-    
-    # Spróbuj wygenerować logo za pomocą npx
-    $logoGenerated = Generate-LogoWithNpx
-    
-    if (!$logoGenerated) {
-        Write-Host "npx niedostępny lub błąd generowania. Używam fallback logo." -ForegroundColor Yellow
-        Show-FallbackLogo
+    catch {
+        Write-Host "Dodatkowy generator niedostępny, używam wbudowanego." -ForegroundColor Yellow
     }
     
-    Write-Host "Generowanie logo zakończone." -ForegroundColor Green
+    # Wygeneruj główne logo
+    Write-Host "`nGenerowanie głównego logo..." -ForegroundColor Cyan
+    
+    # Efekt animacji ładowania
+    $loadingChars = @('|', '/', '-', '\')
+    for ($i = 0; $i -lt 8; $i++) {
+        Write-Host "`r  $($loadingChars[$i % 4]) Tworzenie logo..." -ForegroundColor Yellow -NoNewline
+        Start-Sleep -Milliseconds 200
+    }
+    Write-Host "`r                                    " -NoNewline
+    Write-Host "`r"
+    
+    # Wyświetl logo "MY TOOL"
+    Write-Host ""
+    Show-SunsetLogo "MY TOOL" $true
+    
+    # Wyświetl logo "BY SCOPCONY"  
+    Show-SunsetLogo "BY SCOPCONY" $true
+    
+    # Dodaj dekoracyjną ramkę z informacjami
+    Write-Host ""
+    Write-Host "╔════════════════════════════════════════════════════════════════╗" -ForegroundColor DarkMagenta
+    Write-Host "║                                                                ║" -ForegroundColor DarkMagenta
+    Write-Host "║                     🌅 SUNSET EDITION 🌅                      ║" -ForegroundColor Yellow
+    Write-Host "║                                                                ║" -ForegroundColor DarkMagenta
+    Write-Host "║                  Windows System Management Tool                ║" -ForegroundColor White
+    Write-Host "║                                                                ║" -ForegroundColor DarkMagenta
+    Write-Host "╚════════════════════════════════════════════════════════════════╝" -ForegroundColor DarkMagenta
+    
+    Write-Host "`nGenerowanie logo zakończone pomyślnie!" -ForegroundColor Green
 }
 catch {
     Write-Host "Błąd podczas generowania logo: $_" -ForegroundColor Red
-    Show-FallbackLogo
+    
+    # Fallback - proste logo
+    Write-Host ""
+    Write-Host "  ███╗   ███╗██╗   ██╗    ████████╗ ██████╗  ██████╗ ██╗     " -ForegroundColor Magenta
+    Write-Host "  ████╗ ████║╚██╗ ██╔╝    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     " -ForegroundColor Red
+    Write-Host "  ██╔████╔██║ ╚████╔╝        ██║   ██║   ██║██║   ██║██║     " -ForegroundColor DarkRed
+    Write-Host "  ██║╚██╔╝██║  ╚██╔╝         ██║   ██║   ██║██║   ██║██║     " -ForegroundColor Yellow
+    Write-Host "  ██║ ╚═╝ ██║   ██║          ██║   ╚██████╔╝╚██████╔╝███████╗" -ForegroundColor DarkYellow
+    Write-Host "  ╚═╝     ╚═╝   ╚═╝          ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝" -ForegroundColor White
 }
 
-# Dodatkowe informacje
+# Informacje o autorze
 Write-Host ""
 Write-Host "                    by ScopCony 2025 $([char]0x00A9)                       " -ForegroundColor DarkCyan
 Write-Host ""
 Write-Host ""
-
-# Oczyszczenie plików tymczasowych (opcjonalne)
-try {
-    Remove-Item "$env:TEMP\nodejs.zip" -ErrorAction SilentlyContinue
-    Remove-Item "$env:TEMP\npx_error*.log" -ErrorAction SilentlyContinue
-}
-catch {
-    # Ignoruj błędy czyszczenia
-}
 
 # region Konfiguracja protokołu sieciowego
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
